@@ -1,0 +1,39 @@
+name: "🧹 Chore / Refactor / Task"
+description: "기능 추가가 아닌 유지보수/리팩터/환경 작업"
+title: "[CHORE] 요약을 적어주세요"
+labels: ["chore", "refactor"]
+assignees: []
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: "배경/목표"
+      placeholder: "예) 번들 사이즈 감소, ESLint 규칙 정비"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: risk
+    attributes:
+      label: "리스크 영향"
+      options:
+        - label: "런타임 동작 영향 가능"
+        - label: "빌드/CI 파이프라인 영향"
+        - label: "문서/가이드 업데이트 필요"
+
+  - type: textarea
+    id: todo
+    attributes:
+      label: "할 일 (Checklist)"
+      placeholder: |
+        - [ ] 패키지 업데이트
+        - [ ] 브레이킹 체인지 대응
+        - [ ] 릴리즈 노트 업데이트
+    validations:
+      required: true
+
+  - type: textarea
+    id: rollback
+    attributes:
+      label: "롤백 플랜 (선택)"
+      placeholder: "문제 발생 시 되돌리는 방법"

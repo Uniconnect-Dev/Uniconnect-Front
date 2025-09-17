@@ -1,0 +1,58 @@
+name: "🔗 API Integration/Change"
+description: "프론트엔드-백엔드 API 연동/변경 사항을 제안/요청합니다."
+title: "[API] 요약을 적어주세요"
+labels: ["api", "backend", "blocked:backend?"]
+assignees: []
+body:
+  - type: textarea
+    id: endpoints
+    attributes:
+      label: "엔드포인트 목록"
+      placeholder: |
+        - GET /api/v1/...
+        - POST /api/v1/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: request
+    attributes:
+      label: "요청 스키마"
+      render: json
+      placeholder: "{ \"page\": 1, \"size\": 20 }"
+
+  - type: textarea
+    id: response
+    attributes:
+      label: "응답 스키마"
+      render: json
+      placeholder: "{ \"items\": [], \"total\": 0 }"
+
+  - type: textarea
+    id: errors
+    attributes:
+      label: "에러/엣지 케이스"
+      placeholder: "401/403/404/409/429/5xx 처리, 재시도 정책 등"
+
+  - type: input
+    id: swagger
+    attributes:
+      label: "스웨거/문서 링크 (선택)"
+      placeholder: "예) /swagger#/..."
+
+  - type: input
+    id: owner
+    attributes:
+      label: "백엔드 담당자 (선택)"
+      placeholder: "예) @backend-dev"
+
+  - type: textarea
+    id: test
+    attributes:
+      label: "테스트 시나리오"
+      placeholder: |
+        - [ ] 정상 플로우
+        - [ ] 권한 부족
+        - [ ] 빈 결과/페이징 경계
+    validations:
+      required: true

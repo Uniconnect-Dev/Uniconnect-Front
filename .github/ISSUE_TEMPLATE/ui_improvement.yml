@@ -1,0 +1,49 @@
+name: "🎨 UI/UX Improvement"
+description: "UI/UX 개선을 제안합니다."
+title: "[UI] 요약을 적어주세요"
+labels: ["ui", "ux", "design"]
+assignees: []
+body:
+  - type: textarea
+    id: current
+    attributes:
+      label: "현재 UI 문제"
+      placeholder: "예) 모바일 헤더의 탭 영역 터치 타겟이 32px로 작음"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "제안 내용"
+      placeholder: "예) 터치 타겟 44px 이상, 탭 간 간격 8px → 12px"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: a11y
+    attributes:
+      label: "접근성 고려 사항"
+      options:
+        - label: "키보드 포커스/탭 순서"
+        - label: "명도 대비(Contrast) 4.5:1 이상"
+        - label: "스크린리더 레이블/역할 제공"
+        - label: "애니메이션 감도(감소 설정) 대응"
+
+  - type: textarea
+    id: responsive
+    attributes:
+      label: "반응형/브레이크포인트"
+      placeholder: "예) <640, 640~1024, 1024~"
+
+  - type: textarea
+    id: assets
+    attributes:
+      label: "디자인/에셋"
+      placeholder: "Figma 링크, 아이콘, 이미지, 토큰 이름 등"
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: "비교 스크린샷/영상 (선택)"
+      description: "Before/After 첨부"

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 프로젝트 위키
+    url: https://example.com/wiki
+    about: 공통 가이드/규칙은 위키를 참고하세요.
+  - name: 💬 팀 커뮤니케이션 채널
+    url: https://example.com/chat
+    about: 급한 이슈는 여기로 알려주세요.

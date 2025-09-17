@@ -1,0 +1,127 @@
+name: "🐞 Bug Report"
+description: "버그(오류)를 제보합니다."
+title: "[BUG] 요약을 적어주세요"
+labels: ["bug", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        
+
+  - type: checkboxes
+    id: precheck
+    attributes:
+      label: "사전 확인"
+      options:
+        - label: "유사/중복 이슈를 검색했고, 중복이 아닙니다."
+          required: true
+        - label: "재현 가능한 최소 사례(또는 링크, 스크린샷)를 준비했습니다."
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "버그 설명"
+      description: "무슨 일이 일어났나요? 사용자 영향/빈도도 함께 알려주세요."
+      placeholder: "예) 모바일 Safari에서 헤더 버튼이 클릭되지 않음"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "재현 절차 (Steps to Reproduce)"
+      description: "발생 과정을 단계별로 적어주세요."
+      placeholder: |
+        1. 페이지 / 경로:
+        2. 수행한 액션:
+        3. 실제 결과:
+        4. (가능하면) 스크린샷/영상 첨부
+      render: bash
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "기대 동작 (Expected)"
+      placeholder: "예) 버튼 클릭 시 /about 경로로 정상 이동"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: "실제 동작 (Actual)"
+      placeholder: "예) 클릭해도 이동하지 않고 콘솔 에러 발생"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "심각도 (Severity)"
+      options:
+        - "S1: 서비스 중단/거래 불가"
+        - "S2: 핵심 기능 장애"
+        - "S3: 기능상 불편"
+        - "S4: 경미/시각적"
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: "문제 URL/경로"
+      placeholder: "/checkout?step=2 또는 전체 URL"
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: "디바이스"
+      options:
+        - Desktop
+        - Mobile
+        - Tablet
+        - Responsive(All)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: "브라우저"
+      options:
+        - Chrome
+        - Safari
+        - Firefox
+        - Edge
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: "운영체제 (OS)"
+      placeholder: "예) iOS 17.5 / macOS 14 / Windows 11"
+
+  - type: input
+    id: branch
+    attributes:
+      label: "테스트 브랜치/환경"
+      placeholder: "예) develop / stage / production"
+
+  - type: input
+    id: sha
+    attributes:
+      label: "관련 커밋 SHA (선택)"
+      placeholder: "예) a1b2c3d"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "콘솔/네트워크 로그 (선택)"
+      description: "오류 메시지가 있다면 붙여주세요."
+      render: shell

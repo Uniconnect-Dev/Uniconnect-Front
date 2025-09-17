@@ -1,0 +1,76 @@
+name: "🚀 Feature Request"
+description: "새로운 기능/개선 사항을 제안합니다."
+title: "[FEAT] 요약을 적어주세요"
+labels: ["enhancement", "needs-design"]
+assignees: []
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: "문제/니즈 (Problem Statement)"
+      description: "사용자 관점에서 현재 겪는 문제를 설명해주세요."
+      placeholder: "예) 신규 사용자가 첫 로그인 후 무엇을 해야 할지 모름"
+    validations:
+      required: true
+
+  - type: textarea
+    id: user_story
+    attributes:
+      label: "유저 스토리 (User Story)"
+      description: "As a [역할], I want [무엇을], so that [이유/가치]."
+      placeholder: "As a newcomer, I want a guided tour so that I can learn features quickly."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "수용 기준 (Acceptance Criteria)"
+      description: "명확한 체크리스트 형태로 작성해주세요."
+      placeholder: |
+        - [ ] 첫 방문 시 온보딩 모달 표시
+        - [ ] '다시 보지 않기' 선택을 로컬 저장
+        - [ ] 접근성 기준 WCAG 2.1 AA 충족
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: "범위 (Scope)"
+      options:
+        - label: "UI 변경 포함"
+        - label: "백엔드/API 변경 필요"
+        - label: "애널리틱스/이벤트 수집 필요"
+        - label: "문서/가이드 업데이트 필요"
+
+  - type: textarea
+    id: design
+    attributes:
+      label: "디자인/레퍼런스"
+      description: "Figma/레퍼런스 링크, 컴포넌트 이름, 디자인 토큰 등"
+      placeholder: "예) Figma 링크, Button/Modal 컴포넌트 재사용"
+
+  - type: textarea
+    id: api
+    attributes:
+      label: "API 의존성"
+      description: "새/변경될 엔드포인트, 스키마, 에러 케이스"
+      placeholder: |
+        - GET /api/v1/...
+        - response: { items: Array<Item> }
+        - 401/403/429 처리
+
+  - type: textarea
+    id: analytics
+    attributes:
+      label: "애널리틱스/로그 (선택)"
+      placeholder: |
+        - event: OnboardingStart / OnboardingComplete
+        - properties: { step, source }
+
+  - type: textarea
+    id: rollout
+    attributes:
+      label: "릴리스/롤아웃 계획 (선택)"
+      placeholder: "실험 플래그, 점진적 배포, 롤백 플랜 등"

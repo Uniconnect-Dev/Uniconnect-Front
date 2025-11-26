@@ -1,5 +1,5 @@
-// src/auth/corporate/Step2BusinessLicense.tsx
-import React, { useState } from 'react';
+// src/auth/signup/corporate/Step2BusinessLicense.tsx
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Step2BusinessLicense() {
@@ -8,26 +8,81 @@ export default function Step2BusinessLicense() {
   const [uploading, setUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const validateFile = (selectedFile: File): boolean => {
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      setShowError(true);
+      return false;
+    }
+    return true;
+  };
+
+  const processFile = (selectedFile: File) => {
+    if (!validateFile(selectedFile)) return;
+
+    setFile(selectedFile);
+    setShowError(false);
+    setUploading(true);
+    setUploadProgress(0);
+  };
+
+  // 업로드 진행 애니메이션
+  useEffect(() => {
+    if (uploading) {
+      const duration = 2000; // 2초
+      const interval = 50; // 50ms마다 업데이트
+      const steps = duration / interval;
+      const increment = 100 / steps;
+      let currentProgress = 0;
+
+      const timer = setInterval(() => {
+        currentProgress += increment;
+        
+        if (currentProgress >= 100) {
+          setUploadProgress(100);
+          setUploading(false);
+          setUploadComplete(true);
+          clearInterval(timer);
+        } else {
+          setUploadProgress(currentProgress);
+        }
+      }, interval);
+
+      return () => clearInterval(timer);
+    }
+  }, [uploading]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      // 파일 형식 검사
-      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-      if (!allowedTypes.includes(selectedFile.type)) {
-        setShowError(true);
-        return;
-      }
+      processFile(selectedFile);
+    }
+  };
 
-      setFile(selectedFile);
-      setShowError(false);
+  // 드래그 앤 드롭 이벤트 핸들러
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
 
-      // 업로드 시뮬레이션
-      setUploading(true);
-      setTimeout(() => {
-        setUploading(false);
-        setUploadComplete(true);
-      }, 2000);
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile) {
+      processFile(droppedFile);
     }
   };
 
@@ -35,6 +90,7 @@ export default function Step2BusinessLicense() {
     setFile(null);
     setUploadComplete(false);
     setUploading(false);
+    setUploadProgress(0);
   };
 
   const handleNext = () => {
@@ -86,14 +142,23 @@ export default function Step2BusinessLicense() {
             </label>
 
             {!file ? (
-              <label className="block">
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  className="hidden"
-                />
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer hover:border-[#008FFF] hover:bg-[#F0F9FF] transition-colors">
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors ${
+                  isDragging
+                    ? 'border-[#008FFF] bg-[#F0F9FF]'
+                    : 'border-gray-300 hover:border-[#008FFF] hover:bg-[#F0F9FF]'
+                }`}
+              >
+                <label className="cursor-pointer block">
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="hidden"
+                  />
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                       <svg
@@ -116,12 +181,12 @@ export default function Step2BusinessLicense() {
                       </p>
                       <p className="text-xs text-gray-500">or</p>
                     </div>
-                    <button className="px-6 py-2 bg-[#008FFF] text-white rounded-lg text-sm font-medium hover:bg-[#0077CC]">
+                    <span className="px-6 py-2 bg-[#008FFF] text-white rounded-lg text-sm font-medium hover:bg-[#0077CC]">
                       파일 업로드
-                    </button>
+                    </span>
                   </div>
-                </div>
-              </label>
+                </label>
+              </div>
             ) : (
               <div className="border border-gray-300 rounded-xl p-4">
                 <div className="flex items-center gap-3">
@@ -143,10 +208,10 @@ export default function Step2BusinessLicense() {
                       {file.name}
                     </p>
                     {uploading && (
-                      <p className="text-xs text-gray-500">Uploading...</p>
+                      <p className="text-xs text-gray-500">업로드 중...</p>
                     )}
                     {uploadComplete && (
-                      <p className="text-xs text-green-600">Completed</p>
+                      <p className="text-xs text-gray-600">Completed</p>
                     )}
                   </div>
                   <button
@@ -172,8 +237,8 @@ export default function Step2BusinessLicense() {
                   <div className="mt-3">
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-[#008FFF] h-2 rounded-full transition-all duration-300"
-                        style={{ width: '60%' }}
+                        className="bg-[#008FFF] h-2 rounded-full transition-all duration-100 ease-linear"
+                        style={{ width: `${uploadProgress}%` }}
                       />
                     </div>
                   </div>

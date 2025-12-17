@@ -1,4 +1,4 @@
-// src/auth/SelectUserType.tsx
+// src/auth/signup/SelectUserType.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,19 +30,23 @@ export default function SelectUserType() {
             {/* 기업 카드 */}
             <button
               onClick={() => navigate('/signup/corporate/step1')}
-              className="flex-1 bg-[#E8F4FF] rounded-2xl p-8 hover:bg-[#D4EBFF] transition-colors"
+              className="group flex-1 bg-white rounded-2xl p-8 hover:bg-[#E8F4FF] transition-colors border border-gray-200"
             >
               <div className="flex flex-col items-center gap-4">
-                <div className="w-20 h-20 bg-[#008FFF] rounded-2xl flex items-center justify-center">
-                  <svg
-                    className="w-10 h-10 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
-                  </svg>
-                </div>
-                <span className="text-base font-semibold text-gray-900">
+                <img
+                  src="/usertype_gray.png"
+                  alt="기업"
+                  className="w-20 h-20 group-hover:hidden"
+                />
+                <img
+                  src="/usertype_selected.png"
+                  alt="기업"
+                  className="w-20 h-20 hidden group-hover:block"
+                />
+                <span className="text-base font-semibold text-gray-900 group-hover:hidden">
+                  기업
+                </span>
+                <span className="text-base font-semibold hidden text-[#007AFF] group-hover:block">
                   기업
                 </span>
               </div>
@@ -51,19 +55,23 @@ export default function SelectUserType() {
             {/* 학생 단체 카드 */}
             <button
               onClick={() => navigate('/signup/student/step1')}
-              className="flex-1 bg-gray-100 rounded-2xl p-8 hover:bg-gray-200 transition-colors"
+              className="group flex-1 bg-white rounded-2xl p-8 hover:bg-[#E8F4FF] transition-colors border border-gray-200"
             >
               <div className="flex flex-col items-center gap-4">
-                <div className="w-20 h-20 bg-gray-400 rounded-2xl flex items-center justify-center">
-                  <svg
-                    className="w-10 h-10 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
-                  </svg>
-                </div>
-                <span className="text-base font-semibold text-gray-900">
+                <img
+                  src="/usertype_gray.png"
+                  alt="학생 단체"
+                  className="w-20 h-20 group-hover:hidden"
+                />
+                <img
+                  src="/usertype_selected.png"
+                  alt="학생 단체"
+                  className="w-20 h-20 hidden group-hover:block"
+                />
+                <span className="text-base font-semibold group-hover:hidden text-gray-900">
+                  학생 단체
+                </span>
+                <span className="text-base font-semibold hidden text-[#007AFF] group-hover:block">
                   학생 단체
                 </span>
               </div>

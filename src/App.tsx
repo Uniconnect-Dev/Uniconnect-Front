@@ -13,6 +13,7 @@ import Step3BusinessInfo from './auth/signup/corporate/Step3BusinessInfo';
 
 // 학생 쇼핑몰
 import Studentshopping from './app/student/Studentshopping';
+import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
 
 export default function App() {
   return (
@@ -33,6 +34,12 @@ export default function App() {
 
       {/* 학생 쇼핑몰 */}
       <Route path="/studentshopping" element={<Studentshopping />} />
+
+      {/* 기업 샘플링 요청 */}
+      <Route
+        path="/corporatesamplingrequest/step1"
+        element={<Step1BasicInfo />}
+      />
     </Routes>
   );
 }

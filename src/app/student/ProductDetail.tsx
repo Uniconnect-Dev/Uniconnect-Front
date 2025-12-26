@@ -83,82 +83,114 @@ export default function ProductDetail() {
         {/* 뒤로가기 */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 mb-6 mt-2 text-gray-600"
+          className="flex items-center gap-3 mb-6 mt-2 text-gray-600"
         >
           <img
             src="/public/arrow.png"
             alt="뒤로가기"
-            className="w-2 scale-x-[-1]"
+            className="h-3 scale-x-[-1]"
           />
-          <span className="text-[16px] tracking-[-0.24px]">제품 상세</span>
+          <span className="text-[18px] tracking-[-0.27px]">제품 상세</span>
         </button>
 
-        {/* 상단 영역 */}
-        <div className="flex justify-between items-start mb-10">
-          <div className="flex gap-6">
-            <div className="w-[240px] h-[240px] bg-gray-200 rounded-lg" />
+        {/* ================= 상단 영역 ================= */}
+        <div className="grid grid-cols-[auto,1fr] gap-12 items-start mb-10">
+          {/* 이미지 | 상품 정보 */}
+          <div className="grid grid-cols-[222px,1fr] gap-6">
+            <div className="w-[222px] h-[222px] bg-gray-200 rounded-lg" />
             <div>
-              <h1 className="text-[24px] font-semibold tracking-[-0.36px]">
+              <h1 className="text-[24px] font-medium tracking-[-0.36px] mb-1">
                 {productName}
               </h1>
-              <p className="text-[18px] font-medium text-gray-500 mt-2">
+              <p className="text-[22px] font-medium text-gray-400 tracking-[-0.33px]">
                 {price.toLocaleString()}원
               </p>
             </div>
           </div>
 
-          {/* 수량 + 금액 */}
-          <div className="text-right">
-            <div className="flex items-center justify-end gap-2 mb-4">
-              <button
-                onClick={() => setCount(Math.max(1, count - 1))}
-                className="w-8 h-8 border rounded"
-              >
-                -
-              </button>
-              <span className="w-6 text-center">{count}</span>
-              <button
-                onClick={() => setCount(count + 1)}
-                className="w-8 h-8 border rounded"
-              >
-                +
-              </button>
+          {/* 🔹 오른쪽: 수량 + 금액 + 버튼 */}
+          <div className="flex flex-col items-end mt-[50px]">
+            {/* 수량 선택 (캡슐형 UI) */}
+            <div className="mb-4">
+              <div className="flex h-[40px] overflow-hidden rounded-xl border border-gray-200">
+                {/* - 버튼 */}
+                <button
+                  onClick={() => setCount(Math.max(1, count - 1))}
+                  disabled={count === 1}
+                  className={`w-[40px] flex items-center justify-center transition
+                    ${
+                      count === 1
+                        ? 'text-gray-200 cursor-not-allowed'
+                        : 'text-gray-400 hover:bg-gray-100'
+                    }`}
+                >
+                  −
+                </button>
+
+                {/* 구분선 */}
+                <div className="w-px bg-gray-300" />
+
+                {/* 수량 */}
+                <div className="w-[40px] flex items-center justify-center text-[18px] font-medium text-gray-800">
+                  {count}
+                </div>
+
+                {/* 구분선 */}
+                <div className="w-px bg-gray-300" />
+
+                {/* + 버튼 */}
+                <button
+                  onClick={() => setCount(count + 1)}
+                  className="w-[40px] flex items-center justify-center text-gray-600 hover:bg-gray-100 transition"
+                >
+                  +
+                </button>
+              </div>
             </div>
 
-            <p className="text-[14px] text-gray-400 mb-1">총 상품 금액</p>
-            <p className="text-[24px] font-semibold">
-              {(price * count).toLocaleString()}원
-            </p>
+            {/* 금액 */}
+            <div className="flex items-center gap-3 mb-5">
+              <p className="text-[16px] font-medium text-gray-400">
+                총 상품 금액
+              </p>
+              <p className="text-[28px] font-medium tracking-[-0.24px]">
+                {(price * count).toLocaleString()}원
+              </p>
+            </div>
+
+
+            {/* 버튼 */}
+            <div className="flex gap-4">
+              <button
+                onClick={addToCart}
+                className="w-[200px] h-[56px] font-medium border border-blue-400 text-[#008FFF] rounded-xl"
+              >
+                담기
+              </button>
+              <button className="w-[200px] h-[56px] bg-[#007AFF] text-white rounded-xl">
+                주문하기
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* 버튼 */}
-        <div className="flex justify-end gap-4">
-          <button
-            onClick={addToCart}
-            className="w-[160px] h-[48px] border border-blue-400 text-blue-500 rounded-lg"
-          >
-            담기
-          </button>
-          <button className="w-[160px] h-[48px] bg-blue-500 text-white rounded-lg">
-            주문하기
-          </button>
+        {/* ================= 제품 정보 ================= */}
+        <div className="mt-8">
+          <h2 className="text-[18px] font-regular mb-3 text-gray-500 tracking-[-0.27px]">제품 정보</h2>
+          <div className="w-[960px] h-[500px] bg-gray-100 rounded-lg" />
         </div>
 
-        {/* 제품 정보 */}
-        <div className="mt-12">
-          <h2 className="text-[18px] font-medium mb-4">제품 정보</h2>
-          <div className="h-[400px] bg-gray-100 rounded-lg" />
-        </div>
-
-        {/* 기업 정보 */}
-        <div className="mt-12">
-          <h2 className="text-[18px] font-medium mb-4">기업</h2>
-          <div className="border rounded-lg p-4 flex items-center gap-4">
-            <div className="w-16 h-16 bg-gray-200 rounded" />
+        {/* ================= 기업 정보 ================= */}
+        <div className="mt-12 mb-2">
+          <h2 className="text-[18px] font-regular mb-3 text-gray-500 tracking-[-0.27px]">기업</h2>
+          <div className="border border-gray-300 rounded-lg p-4 flex items-center gap-4 mb-1.5">
+            <div className="w-[80px] h-[80px] bg-gray-200 rounded-lg" />
             <div>
-              <p className="text-[16px] font-medium">크라이치즈버거</p>
-              <span className="inline-block mt-1 px-2 py-1 text-[14px] bg-blue-50 text-blue-500 rounded-full">
+              <h2 className="text-[20px] font-semibold text-gray-900 tracking-[-0.3px] flex items-center gap-2">
+                크라이치즈버거
+                <img src="/arrow.png" alt="arrow" className="h-4" />
+              </h2>
+              <span className="inline-block mt-2 font-regular px-3 py-1 bg-[#E3F4FF] text-[#007AFF] text-[14px] rounded-[16px]">
                 F&B
               </span>
             </div>

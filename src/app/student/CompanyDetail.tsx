@@ -38,7 +38,7 @@ export default function CompanyDetail() {
             text-gray-700
             rounded-md
             hover:bg-gray-200
-            mb-6 mt-2
+            mb-4 mt-2
           "
         >
           <img
@@ -50,33 +50,37 @@ export default function CompanyDetail() {
         </button>
 
         {/* 회사 정보 */}
-        <div className="mb-8">
-          <h1 className="text-[24px] font-semibold mb-2 tracking-[-0.36px]">
+        <div className="mb-4">
+          <h1 className="text-[24px] font-semibold mb-1 tracking-[-0.36px]">
             기업 상세
           </h1>
-          <p className="text-[16px] text-gray-400 mb-6 tracking-[-0.24px]">
+          <p className="text-[16px] text-gray-400 mb-3.5 tracking-[-0.24px]">
             다양한 제휴 기업의 상품을 만나보세요.
           </p>
 
-          <div className="border border-gray-200 rounded-lg p-6 flex items-center gap-4">
-            <div className="w-20 h-20 bg-gray-200 rounded-lg" />
+          <div className="w-full h-[1px] bg-gray-200 mb-3.5" />
+
+          <div className="border border-gray-300 rounded-lg p-4 flex items-center gap-4 mb-1.5">
+            <div className="w-[80px] h-[80px] bg-gray-200 rounded-lg" />
             <div>
               <h2 className="text-[20px] font-semibold text-gray-900 tracking-[-0.3px] flex items-center gap-2">
                 {companyData.name}
-                <img src="/arrow.png" alt="arrow" className="h-3" />
+                <img src="/arrow.png" alt="arrow" className="h-4" />
               </h2>
-              <span className="inline-block mt-2 px-3 py-1 bg-[#E3F4FF] text-[#007AFF] text-[14px] rounded-[16px] border border-[#008FFF]">
+              <span className="inline-block mt-2 font-regular px-3 py-1 bg-[#E3F4FF] text-[#007AFF] text-[14px] rounded-[16px]">
                 {companyData.category}
               </span>
             </div>
           </div>
         </div>
 
-        {/* 제품 목록 */}
-        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden">
-          <p className="text-[18px] font-medium text-gray-400 mb-3 tracking-[-0.27px]">
+        <p className="text-[18px] font-medium text-gray-400 mb-3 tracking-[-0.27px]">
             제품 10
           </p>
+
+        {/* 제품 목록 */}
+        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden">
+          
 
           <div className="grid grid-cols-5 gap-x-4 gap-y-6 mb-8">
             {companyData.products.map((product) => (

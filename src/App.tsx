@@ -13,6 +13,9 @@ import Step3BusinessInfo from './auth/signup/corporate/Step3BusinessInfo';
 
 // 학생 쇼핑몰
 import Studentshopping from './app/student/Studentshopping';
+import CompanyDetail from './app/student/CompanyDetail';
+import ProductDetail from './app/student/ProductDetail';
+import Cart from './app/student/Cart';
 
 export default function App() {
   return (
@@ -25,14 +28,17 @@ export default function App() {
 
       {/* 기업 회원가입 */}
       <Route path="/signup/corporate/step1" element={<Step1CompanyInfo />} />
-      <Route
-        path="/signup/corporate/step2"
-        element={<Step2BusinessLicense />}
-      />
+      <Route path="/signup/corporate/step2" element={<Step2BusinessLicense />} />
       <Route path="/signup/corporate/step3" element={<Step3BusinessInfo />} />
 
       {/* 학생 쇼핑몰 */}
       <Route path="/studentshopping" element={<Studentshopping />} />
+      <Route path="/studentshopping/:companyId" element={<CompanyDetail />} />
+      <Route
+        path="/studentshopping/:companyId/products/:productId"
+        element={<ProductDetail />}
+      />
+      <Route path="/studentshopping/cart" element={<Cart />} />
     </Routes>
   );
 }

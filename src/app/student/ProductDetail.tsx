@@ -52,7 +52,7 @@ export default function ProductDetail() {
 
     const timer = setTimeout(() => {
       setShowToast(false);
-    }, 3000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [showToast]);
@@ -62,16 +62,16 @@ export default function ProductDetail() {
       {/* 🔵 상단 토스트 */}
       {showToast && (
         <div className="fixed top-[88px] left-1/2 z-50 -translate-x-1/2">
-          <div className="flex items-center gap-3 rounded-full bg-blue-500 px-6 py-3 text-white shadow-lg">
+          <div className="flex items-center gap-3 rounded-3xl bg-[#007AFF] px-6 py-3 text-white shadow-lg">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-blue-500 text-sm font-bold">
               ✓
             </div>
-            <span className="text-[14px] font-medium tracking-[-0.21px]">
+            <span className="text-[18px] font-medium tracking-[-0.21px]">
               장바구니에 물품이 담겼어요!
             </span>
             <button
               onClick={() => navigate('/studentshopping/cart')}
-              className="ml-2 text-[14px] font-semibold underline underline-offset-2"
+              className="ml-2 text-[16px] font-semibold underline underline-offset-2"
             >
               장바구니로 이동
             </button>

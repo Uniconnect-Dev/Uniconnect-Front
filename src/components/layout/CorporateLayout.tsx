@@ -20,16 +20,13 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
           {/* 메뉴 - 아이콘과 동일한 높이 */}
           <nav className="flex gap-6 px-12 items-center h-full">
             <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              기업 찾기
+              학생 단체 찾기
             </span>
             <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
               샘플링 요청
             </span>
-            <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              제휴 / 장기 협업
-            </span>
             <span className="cursor-pointer text-[#008FFF] text-[15px] font-medium h-full flex items-center relative">
-              쇼핑몰
+              협업 제안
               {/* 파란 밑줄 - 상단에서 72px 위치 */}
               <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008FFF]"></span>
             </span>

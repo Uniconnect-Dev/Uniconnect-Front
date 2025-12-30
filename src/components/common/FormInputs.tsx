@@ -72,24 +72,36 @@ function formatDate(date: Date) {
 }
 
 function buildCalendarDays(currentMonth: Date) {
-  // 6주(42칸) 고정
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
 
-  const firstOfMonth = new Date(year, month, 1);
-  const startDayOfWeek = firstOfMonth.getDay(); // 0~6
+  const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0~6
+  const lastDate = new Date(year, month + 1, 0).getDate();
 
-  const start = new Date(year, month, 1 - startDayOfWeek);
+  const days: { date: Date; inMonth: boolean }[] = [];
 
-  return Array.from({ length: 42 }).map((_, i) => {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    return {
-      date: d,
-      inMonth: d.getMonth() === month,
-    };
-  });
+  // 이전 달 날짜 (첫 주 채우는 만큼만)
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    const d = new Date(year, month, -firstDayOfWeek + i + 1);
+    days.push({ date: d, inMonth: false });
+  }
+
+  // 이번 달 날짜
+  for (let i = 1; i <= lastDate; i++) {
+    days.push({ date: new Date(year, month, i), inMonth: true });
+  }
+
+  // 마지막 주가 덜 찼으면 다음 달 날짜로 채우기
+  while (days.length % 7 !== 0) {
+    const nextDay = days.length - (firstDayOfWeek + lastDate) + 1;
+    days.push({ date: new Date(year, month + 1, nextDay), inMonth: false });
+  }
+
+  return days;
 }
+
+const today = new Date();
+const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
 export function DateInput({ label, placeholder = 'YYYY.MM.DD' }: DateInputProps) {
   // 확정 값
@@ -262,26 +274,27 @@ export function DateInput({ label, placeholder = 'YYYY.MM.DD' }: DateInputProps)
                     new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
                   )
                 }
-                className={`w-8 h-8 flex items-center justify-center rounded-xl
-                  ${isPrevDisabled ? 'cursor-default' : 'hover:bg-[#F4F6F8]'}
-                `}
+                className="w-8 h-8 flex items-center justify-center rounded-xl cursor-default"
               >
                 <img
                   src="/cal_arrow.png"
                   alt="prev"
                   draggable={false}
-                  className={`w-5 h-5 scale-x-[-1] transition-opacity
-                    ${isPrevDisabled
-                      ? 'opacity-20'
-                      : 'opacity-40 hover:opacity-100'}
+                  className={`w-5 h-5 transition-opacity
+                    ${isPrevDisabled ? 'opacity-30' : 'opacity-100'}
                   `}
                 />
               </button>
 
               {/* 월 표시 */}
-              <span className="font-semibold text-[18px] tracking-[-0.3px]">
+              <button
+                type="button"
+                onClick={() => setCurrentMonth(thisMonth)}
+                className="font-semibold text-[18px] tracking-[-0.3px] cursor-pointer"
+              >
                 {currentMonth.getFullYear()}.{String(currentMonth.getMonth() + 1).padStart(2, '0')}
-              </span>
+              </button>
+
 
               {/* 다음 달 */}
               <button
@@ -291,23 +304,20 @@ export function DateInput({ label, placeholder = 'YYYY.MM.DD' }: DateInputProps)
                     new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
                   )
                 }
-                className={`w-8 h-8 flex items-center justify-center rounded-xl
-                  ${isNextDisabled ? 'cursor-default' : 'hover:bg-[#F4F6F8]'}
-                `}
+                className="w-8 h-8 flex items-center justify-center rounded-xl cursor-default"
               >
                 <img
                   src="/cal_arrow.png"
                   alt="next"
                   draggable={false}
-                  className={`w-5 h-5 transition-opacity
-                    ${isNextDisabled
-                      ? 'opacity-20'
-                      : 'opacity-40 hover:opacity-100'}
+                  className={`w-5 h-5 scale-x-[-1] transition-opacity
+                    ${isNextDisabled ? 'opacity-30' : 'opacity-100'}
                   `}
                 />
               </button>
             </div>
           </div>
+
 
 
 
@@ -328,7 +338,7 @@ export function DateInput({ label, placeholder = 'YYYY.MM.DD' }: DateInputProps)
                 'w-10 h-10 rounded-xl text-[16px] font-regular flex items-center justify-center transition-colors';
 
               const color = isSelected
-                ? 'bg-[#008FFF] text-white'
+                ? 'bg-[#E3F4FF] text-[#008FFF]'
                 : inMonth
                 ? 'text-[#949BA7] hover:bg-[#F4FAFF] hover:text-[#008FFF]'
                 : 'text-[#DFE1E5] hover:bg-[#F4F6F8]';

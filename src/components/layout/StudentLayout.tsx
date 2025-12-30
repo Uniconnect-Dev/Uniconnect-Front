@@ -23,9 +23,6 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
               기업 찾기
             </span>
             <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              샘플링 요청
-            </span>
-            <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
               제휴 / 장기 협업
             </span>
             <span className="cursor-pointer text-[#008FFF] text-[15px] font-medium h-full flex items-center relative">

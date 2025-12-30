@@ -86,6 +86,26 @@ export default function Cart() {
     .filter((item) => item.selected)
     .reduce((sum, item) => sum + item.quantity, 0);
 
+  /* ===============================
+     구매하기
+  =============================== */
+  const handlePurchase = () => {
+    if (selectedCount === 0) {
+      alert('구매할 상품을 선택해주세요.');
+      return;
+    }
+
+    const selectedItems = items.filter((item) => item.selected);
+    
+    navigate('/studentshopping/order', {
+      state: {
+        items: selectedItems,
+        totalPrice,
+        totalCount,
+      },
+    });
+  };
+
   return (
     <StudentLayout>
       <div
@@ -127,8 +147,8 @@ export default function Cart() {
             / {items.length}
           </p>
 
-          <div className="flex items-center gap-4 text-[14px]">
-            <label className="flex items-center gap-2 cursor-pointer">
+          <div className="flex items-center gap-2 text-[16px] tracking-[-0.24px]">
+            <label className="flex items-center gap-2 mr-8 text-gray-400 cursor-pointer">
               <input
                 type="checkbox"
                 checked={allSelected}
@@ -144,9 +164,13 @@ export default function Cart() {
             >
               선택삭제
             </button>
+
+            {/* 회색 구분선 */}
+            <span className="w-px h-4 bg-gray-300" />
+
             <button
               onClick={deleteAll}
-              className="text-gray-400"
+              className="text-gray-600"
             >
               전체삭제
             </button>
@@ -162,15 +186,15 @@ export default function Cart() {
             {items.map((item) => (
               <div
                 key={item.id}
-                className="border rounded-xl p-4 flex items-center gap-4"
+                className="border rounded-xl p-3.5 flex gap-4"
               >
-                {/* 선택 */}
+                {/* 선택 (상단 정렬) */}
                 <button
                   onClick={() => toggleItem(item.id)}
-                  className={`w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0
+                  className={`w-6 h-6 rounded-lg border flex items-center justify-center flex-shrink-0 self-start 
                     ${
                       item.selected
-                        ? 'bg-blue-500 border-blue-500 text-white'
+                        ? 'bg-[#007AFF] border-[#007AFF] text-white'
                         : 'border-gray-300'
                     }`}
                 >
@@ -178,18 +202,18 @@ export default function Cart() {
                 </button>
 
                 {/* 이미지 */}
-                <div className="w-[96px] h-[96px] bg-gray-200 rounded-lg flex-shrink-0" />
+                <div className="w-[134px] h-[134px] bg-gray-200 rounded-lg flex-shrink-0" />
 
                 {/* 정보 */}
                 <div className="flex-1">
-                  <p className="text-[16px] font-medium">{item.name}</p>
-                  <p className="text-[18px] font-semibold mt-1">
-                    {(item.price * item.quantity).toLocaleString()}원
+                  <p className="text-[16px] text-gray-500 font-medium pt-2.5">{item.name}</p>
+                  <p className="text-[20px] font-medium">
+                    {(item.price * item.quantity).toLocaleString()} 원
                   </p>
 
-                  {/* ✅ 수량 UI (폭 고정) */}
-                  <div className="mt-3">
-                    <div className="inline-flex h-[40px] overflow-hidden rounded-xl border border-gray-200">
+                  {/* 수량 */}
+                  <div className="mt-5">
+                    <div className="inline-flex h-[40px] overflow-hidden rounded-lg border border-gray-300">
                       <button
                         onClick={() => changeQuantity(item.id, -1)}
                         disabled={item.quantity === 1}
@@ -224,7 +248,7 @@ export default function Cart() {
                 {/* 삭제 */}
                 <button
                   onClick={() => deleteOne(item.id)}
-                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0 self-start mt-1.5 mr-1"
                 >
                   ✕
                 </button>
@@ -234,15 +258,22 @@ export default function Cart() {
         </div>
 
         {/* ================= 하단 총액 ================= */}
-        <div className="bg-white pt-6 pb-4 border-t flex justify-end items-center gap-6 flex-shrink-0 mt-6">
-          <div className="text-right">
-            <p className="text-[14px] text-gray-400 mb-1">총 상품 금액</p>
-            <p className="text-[24px] font-semibold">
-              {totalPrice.toLocaleString()}원
+        <div className="bg-white pt-6 pb-4 flex flex-col items-end gap-4 flex-shrink-0 mt-6">
+          {/* 총 상품 금액 */}
+          <div className="flex items-center justify-end gap-3">
+            <p className="text-[16px] text-gray-500 pt-1">
+              총 상품 금액
+            </p>
+            <p className="text-[28px] font-medium">
+              {totalPrice.toLocaleString()} 원
             </p>
           </div>
 
-          <button className="h-[48px] px-8 bg-blue-500 text-white rounded-lg text-[16px] font-medium">
+          {/* 구매 버튼 */}
+          <button 
+            onClick={handlePurchase}
+            className="h-[56px] px-12 bg-[#007AFF] text-white rounded-xl text-[18px] font-medium hover:bg-[#0066CC] transition"
+          >
             총 {totalCount}개 구매하기
           </button>
         </div>

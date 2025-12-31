@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
 import RequestStatus from '@/components/common/RequestStatus';
 
@@ -36,6 +37,14 @@ function Chip({
 
 export default function Step2TargetSet() {
   const [selectedChips, setSelectedChips] = useState<string[]>([]); //선택된 Chip 상태 관리
+
+  const navigate = useNavigate();
+  const handleNext = () => {
+    navigate('/corporatesamplingrequest/step3');
+  };
+  const handlePrev = () => {
+    navigate('/corporatesamplingrequest/step1');
+  };
 
   const toggleChip = (label: string) => {
     setSelectedChips((prev) => {
@@ -171,10 +180,16 @@ export default function Step2TargetSet() {
         </div>
         {/*다음 버튼 하단 정렬 영역*/}
         <div className="mt-auto flex justify-end items-end gap-4">
-          <button className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500">
+          <button
+            onClick={handlePrev}
+            className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500"
+          >
             <span className="text-sky-500 font-medium text-lg">이전</span>
           </button>
-          <button className="h-14 w-[200px] bg-blue-600 rounded-xl">
+          <button
+            onClick={handleNext}
+            className="h-14 w-[200px] bg-blue-600 rounded-xl"
+          >
             <span className="text-white font-medium text-lg">다음</span>
           </button>
         </div>

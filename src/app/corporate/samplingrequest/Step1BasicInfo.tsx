@@ -1,7 +1,8 @@
 import React from 'react';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
-import arrowIcon from '@/assets/icon/arrow.png';
-import calIcon from '@/assets/icon/cal.png';
+import { ChevronDown } from 'lucide-react';
+import { Calendar } from 'lucide-react';
+
 import { useState, useRef, useEffect } from 'react';
 
 function Requeststatus({ activeStep }) {
@@ -126,7 +127,7 @@ function Dropdowninput({ label, placeholder }) {
           className="absolute right-4 top-1/2 -translate-y-1/2 p-0 m-0 flex items-center"
           type="button"
         >
-          <img src={arrowIcon} alt="드롭다운 버튼" />
+          <ChevronDown size={16} color="#6C727E" />
         </button>
       </div>
 
@@ -265,9 +266,9 @@ function Dateinput({ label, placeholder }) {
       <div className="flex gap-2 items-center">
         {/* 시작 날짜 */}
         <div className="relative flex-1 min-w-0">
-          <img
-            src={calIcon}
-            alt="날짜 선택"
+          <Calendar
+            size={5}
+            color="#949BA7"
             className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
           />
           <input
@@ -283,9 +284,9 @@ function Dateinput({ label, placeholder }) {
 
         {/* 종료 날짜 */}
         <div className="relative flex-1 min-w-0">
-          <img
-            src={calIcon}
-            alt="날짜 선택"
+          <Calendar
+            size={5}
+            color="#949BA7"
             className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
           />
           <input

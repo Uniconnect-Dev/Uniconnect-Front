@@ -26,6 +26,7 @@ import Step2StudentEventInfo from './app/student/Step2StudentEventInfo'; // 2단
 // 기업 샘플링 요청
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
 import Step2TargetSet from './app/corporate/samplingrequest/Step2TargetSet';
+import Step3Matching from './app/corporate/samplingrequest/Step3Matching';
 
 export default function App() {
   return (
@@ -74,6 +75,10 @@ export default function App() {
       <Route
         path="/corporatesamplingrequest/step2"
         element={<Step2TargetSet />}
+      />
+      <Route
+        path="/corporatesamplingrequest/step3"
+        element={<Step3Matching />}
       />
     </Routes>
   );

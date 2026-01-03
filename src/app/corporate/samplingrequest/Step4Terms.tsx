@@ -1,7 +1,7 @@
 import React from 'react';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
 import RequestStatus from '@/components/common/RequestStatus';
-import { ChevronLeft, ChevronRight, Info, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 import { useState } from 'react';
 
@@ -25,215 +25,18 @@ function Checkbox() {
   );
 }
 
-function Tag({ label }: { label: string }) {
+function Agreement() {
   return (
-    <span className="px-2 py-0.5 bg-sky-100 rounded-3xl text-xs font-semibold text-sky-500">
-      {label}
-    </span>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between px-1">
-      <span className="text-base font-medium text-gray-400">{label}</span>
-      <span className="text-base font-medium text-gray-500">{value}</span>
-    </div>
-  );
-}
-
-function SidePannal() {
-  return (
-    <div className="w-96 h-full bg-white rounded-3xl shadow-[0px_4px_24px_rgba(0,0,0,0.08)] overflow-y-auto">
-      <div className="w-80 mx-auto mt-8 flex flex-col gap-9">
-        {/* 헤더 */}
-        <div className="flex flex-col gap-5">
-          <button className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100">
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </button>
-
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-start">
-              <div className="flex flex-col gap-0.5">
-                <h1 className="text-xl font-bold text-zinc-700 leading-8">
-                  창업 동아리 연합 해커톤
-                </h1>
-                <p className="text-base font-semibold text-gray-500 leading-6">
-                  이화여대 중앙 실전 IT 창업 학회 UNIS
-                </p>
-              </div>
-
-              <button className="px-3 py-1 bg-sky-100 rounded-3xl flex items-center gap-1 text-sky-500 text-sm font-medium">
-                상세
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="border-b border-gray-100" />
-          </div>
-        </div>
-
-        {/* 행사 개요 */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-            <h2 className="text-lg font-semibold text-gray-600">행사 개요</h2>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Row label="장소" value="고려대학교 민주광장" />
-            <Row label="일시" value="2025.09.22" />
-            <Row label="노출 인원" value="4,500명" />
-            <Row label="샘플링 필요량" value="200개" />
-          </div>
-        </div>
-
-        {/* 참여자 특성 */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-            <h2 className="text-lg font-semibold text-gray-600">참여자 특성</h2>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Row label="연령대" value="19–25세 대학생" />
-            <Row label="전공" value="인문사회계열" />
-            <Row label="관심사" value="문화, 트렌드" />
-          </div>
-        </div>
-
-        {/* 참여 규모 */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-            <h2 className="text-lg font-semibold text-gray-600">참여 규모</h2>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Row label="총 예상 참여자" value="8,000" />
-            <Row label="문과대학 학우" value="3,000" />
-            <Row label="타 단과대 유동인구" value="5,000" />
-          </div>
-        </div>
-
-        {/* 홍보 프로세스 */}
-        <div className="flex flex-col gap-4 mb-[148px]">
-          <div className="flex items-center gap-2">
-            <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-            <h2 className="text-lg font-semibold text-gray-600">
-              홍보 프로세스
-            </h2>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Row label="문과대학 인스타그램 홍보" value="SNS 홍보" />
-            <Row label="공지방 배포" value="카카오톡 공지" />
-            <Row label="현장 광고 송출" value="LED 스크린" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MatchingTable() {
-  return (
-    <div className="w-[960px] h-[576px] bg-white rounded-3xl border border-zinc-200 overflow-hidden">
-      <table className="w-full border-collapse">
-        {/* Header */}
-        <thead>
-          <tr className="h-14 border-b border-zinc-200 text-gray-400 text-sm font-medium">
-            <th className="w-12 pl-5 text-left"></th>
-            <th className="w-32 pl-5 text-left">예상 비용</th>
-            <th className="w-64 pl-5 text-left">단체명</th>
-            <th className="text-left pl-5">행사명</th>
-            <th className="w-48 pl-5 text-left">분류</th>
-            <th className="w-28 pl-5 text-left">노출 인원</th>
-          </tr>
-        </thead>
-
-        {/* Body */}
-        <tbody className="text-sm font-medium text-gray-600">
-          <tr className="h-10 hover:bg-slate-100 transition-colors">
-            <td className="pl-5">
-              <Checkbox />
-            </td>
-            <td className="pl-5">20~30만 원</td>
-            <td className="pl-5">고려대학교 학생회</td>
-            <td className="pl-5">
-              <div
-                className="
-                  line-clamp-1
-                  cursor-pointer
-                  transition-colors
-                  hover:text-blue-600
-                  hover:font-bold
-                "
-              >
-                고려대학교 문과 대학 축제
-              </div>
-            </td>
-            <td className="pl-5">
-              <div className="flex gap-1">
-                <Tag label="남녀공학" />
-                <Tag label="축제" />
-                <Tag label="F&B" />
-              </div>
-            </td>
-            <td className="pl-5">15,000</td>
-          </tr>
-
-          <tr className="h-10 hover:bg-slate-100 transition-colors">
-            <td className="pl-5">
-              <Checkbox />
-            </td>
-            <td className="pl-5">20~30만 원</td>
-            <td className="pl-5">이화여대 중앙 실전 IT 창업 학회 UNIS</td>
-            <td className="pl-5">
-              <div
-                className="
-                  line-clamp-1
-                  cursor-pointer
-                  transition-colors
-                  hover:text-blue-600
-                  hover:font-bold
-                "
-              >
-                창업 동아리 연합 해커톤
-              </div>
-            </td>
-            <td className="pl-5">
-              <div className="flex gap-1">
-                <Tag label="이화여대" />
-                <Tag label="IT" />
-                <Tag label="창업" />
-              </div>
-            </td>
-            <td className="pl-5">2,000</td>
-          </tr>
-        </tbody>
-      </table>
+    <div className="flex flex-row gap-2">
+      <Checkbox />
+      <p className="text-gray-600 font-medium ">
+        해당 내용에 대해 충분히 인지했으며, 동의합니다.
+      </p>
     </div>
   );
 }
 
 export default function Step4Terms() {
-  const [selectedChips, setSelectedChips] = useState<string[]>([]); //선택된 Chip 상태 관리
-
-  const toggleChip = (label: string) => {
-    setSelectedChips((prev) => {
-      if (prev.includes(label)) {
-        //이미 선택됨 → 제거
-        return prev.filter((item) => item !== label);
-      }
-
-      //최대 3개 제한
-      if (prev.length >= 3) return prev;
-
-      return [...prev, label];
-    });
-  };
-
   return (
     <CorporateLayout>
       {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
@@ -241,37 +44,112 @@ export default function Step4Terms() {
       <div className="flex flex-col min-h-full">
         <div className="flex justify-between w-full">
           <div>
-            <h1 className="text-2xl font-bold mb-2">매칭 / 견적</h1>
+            <h1 className="text-2xl font-bold mb-2">
+              샘플링 규정 확인 및 동의
+            </h1>
             <p className="text-sm text-gray-500 mb-6">
-              선택하신 키워드와 매칭되는 학생 단체입니다. <br />
-              샘플링 하길 원하는 행사를 선택해주세요.
+              안전하고 투명한 협업을 위한 필수 동의 절차입니다.
             </p>
-            <div className="flex flex-row gap-1 mb-2">
-              <img src="/inform.svg" alt="inform" />
-              <p className="text-gray-500 text-sm font-semibold">
-                행사명을 클릭하면 상세 페이지로 이동합니다.
-              </p>
-            </div>
           </div>
           <RequestStatus activeStep={4} />
         </div>
+        <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100 mb-6"></div>
 
-        <div className="flex flex-col">
-          <MatchingTable />
+        {/*규정 동의 폼*/}
+        <div className="flex flex-col gap-7">
+          {/*꼭 확인해주세요*/}
+          <div className="h-20 px-6 py-4 bg-pink-100/50 rounded-2xl inline-flex flex-col justify-center items-start gap-1">
+            <div className="inline-flex justify-center items-center gap-1.5">
+              <img src="/error.svg" />
+              <p className="text-red-500 text-lg font-bold">꼭 확인해주세요</p>
+            </div>
+
+            <p className="text-red-400 font-medium">
+              이용약관에 대한 사용자의 인지 및 이해는 전적으로 사용자 본인의
+              책임이며, UNI:CONNECT는 이로 인한 문제에 책임을 지지 않습니다.
+            </p>
+          </div>
+          <div className="flex flex-col gap-8">
+            {/*이후 프로세스 안내*/}
+            <>
+              <div className="flex flex-col">
+                <p className="text-gray-900 text-lg font-bold mb-3">
+                  [필수] 이후 프로세스 안내
+                </p>
+                <div className="px-5 py-4 rounded-xl outline outline-1 outline-offset-[-1px] outline-zinc-200 mb-4">
+                  <p className="text-gray-500 text-sm font-medium">
+                    학생 단체가 승인할 경우 매칭이 확정되며, 이후 계약서와 제품
+                    설문지가 활성화될 예정입니다. 학생 단체가 거절할 경우
+                    샘플링이 어렵습니다.
+                  </p>
+                </div>
+                <Agreement />
+              </div>
+            </>
+            {/*플랫폼 이탈 협업 적발 시 불이익 안내*/}
+            <>
+              <div className="flex flex-col">
+                <p className="text-gray-900 text-lg font-bold mb-3">
+                  [필수] 플랫폼 이탈 협업 적발 시 불이익 안내
+                </p>
+                <div className="px-5 py-4 rounded-xl outline outline-1 outline-offset-[-1px] outline-zinc-200 mb-4">
+                  <p className="text-gray-500 text-sm font-medium">
+                    UNI:CONNECT는 기업과 학생단체 간의 안전하고 투명한 협업을
+                    보장하기 위해 모든 거래 과정을 플랫폼 내에서 관리합니다.
+                    플랫폼 외부에서의 직거래·협업이 적발될 경우, 서비스 이용
+                    제한 및 향후 캠페인 참여 불가 등의 불이익이 발생할 수
+                    있습니다.
+                  </p>
+                </div>
+                <Agreement />
+              </div>
+            </>
+            {/*이용 약관 안내*/}
+            <>
+              <div className="flex flex-col">
+                <p className="text-gray-900 text-lg font-bold mb-3">
+                  [필수] 이용 약관 안내
+                </p>
+                <div className="px-5 py-4 rounded-xl outline outline-1 outline-offset-[-1px] outline-zinc-200 mb-4">
+                  <p className="text-gray-500 text-sm font-medium">
+                    <p className="font-bold">제1조 (목적)</p>본 약관은
+                    UNI:CONNECT 플랫폼에서 제공하는 서비스의 이용조건 및 절차,
+                    회사와 이용자의 권리, 의무, 책임사항을 규정함을 목적으로
+                    합니다.
+                    <p className="font-bold">
+                      <br />
+                      제2조 (정의)
+                    </p>
+                    1. "플랫폼"이란 회사가 운영하는 UNI:CONNECT 서비스를
+                    의미합니다.
+                    <br />
+                    2. "이용자"란 본 약관에 따라 서비스를 이용하는 회원 및
+                    비회원을 말합니다.
+                    <p className="font-bold">
+                      <br />
+                      제3조 (서비스의 제공)
+                    </p>
+                  </p>
+                </div>
+                <Agreement />
+              </div>
+            </>
+          </div>
         </div>
         {/*다음 버튼 하단 정렬 영역*/}
         <div className="mt-auto flex justify-end items-end gap-4">
-          <button className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500">
+          <button
+            //onClick={handlePrev}
+            className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500"
+          >
             <span className="text-sky-500 font-medium text-lg">이전</span>
           </button>
-          <button className="h-14 w-[200px] bg-blue-600 rounded-xl">
+          <button
+            //onClick={handleNext}
+            className="h-14 w-[200px] bg-blue-600 rounded-xl"
+          >
             <span className="text-white font-medium text-lg">다음</span>
           </button>
-        </div>
-
-        {/*사이드 패널*/}
-        <div className="fixed right-4 top-4 bottom-4 z-50">
-          <SidePannal />
         </div>
       </div>
     </CorporateLayout>

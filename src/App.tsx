@@ -28,6 +28,7 @@ import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
 import Step2TargetSet from './app/corporate/samplingrequest/Step2TargetSet';
 import Step3Matching from './app/corporate/samplingrequest/Step3Matching';
 import Step4Terms from './app/corporate/samplingrequest/Step4Terms';
+import StepDone from './app/corporate/samplingrequest/StepDone';
 
 export default function App() {
   return (
@@ -82,6 +83,7 @@ export default function App() {
         element={<Step3Matching />}
       />
       <Route path="/corporatesamplingrequest/step4" element={<Step4Terms />} />
+      <Route path="/corporatesamplingrequest/stepDone" element={<StepDone />} />
     </Routes>
   );
 }

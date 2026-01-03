@@ -158,7 +158,7 @@ function MatchingTable({
   onSelectEvent: (eventName: string) => void;
 }) {
   return (
-    <div className="w-full h-[576px] bg-white rounded-3xl border border-zinc-200 overflow-hidden">
+    <div className="w-full max-h-[576px] bg-white rounded-3xl border border-zinc-200 overflow-y-auto">
       <table className="w-full border-collapse">
         {/* Header */}
         <thead>
@@ -252,7 +252,7 @@ export default function Step3Matching() {
       <CorporateLayout>
         {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
         {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
-        <div className="flex flex-col min-h-full">
+        <div className="flex flex-col h-full">
           <div className="flex justify-between w-full">
             <div>
               <h1 className="text-2xl font-bold mb-2">매칭 / 견적</h1>
@@ -270,7 +270,7 @@ export default function Step3Matching() {
             <RequestStatus activeStep={3} />
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             <MatchingTable
               onSelectEvent={(eventName) => {
                 setSelectedEvent(eventName);

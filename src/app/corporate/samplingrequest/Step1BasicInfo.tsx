@@ -1,54 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
-import arrowIcon from '@/assets/icon/arrow.png';
-import calIcon from '@/assets/icon/cal.png';
+import RequestStatus from '@/components/common/RequestStatus';
+import { ChevronDown } from 'lucide-react';
+import { Calendar } from 'lucide-react';
+
 import { useState, useRef, useEffect } from 'react';
-
-function Requeststatus({ activeStep }) {
-  const steps = [
-    { id: 1, label: '기본 정보' },
-    { id: 2, label: '타겟 설정' },
-    { id: 3, label: '매칭 / 견적' },
-    { id: 4, label: '규정 확인' },
-  ];
-
-  return (
-    <div className="inline-flex items-center gap-7">
-      {steps.map((step) => {
-        const isActive = step.id === activeStep;
-
-        return (
-          <div
-            key={step.id}
-            className="flex items-center gap-2.5"
-            data-state={isActive ? 'active' : 'default'}
-          >
-            <div
-              className={`w-6 h-6 rounded-2xl inline-flex justify-center items-center
-                ${
-                  isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'outline outline-[1.6px] outline-zinc-200 text-zinc-200'
-                }`}
-            >
-              <span className="text-base font-semibold leading-6">
-                {step.id}
-              </span>
-            </div>
-
-            <span
-              className={`text-lg font-semibold leading-7 ${
-                isActive ? 'text-blue-600' : 'text-zinc-200' //현재 단계일 때와 아닐 때 색상 차이를 둠
-              }`}
-            >
-              {step.label}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 function Textinput({ label, placeholder }) {
   return (
@@ -126,7 +83,7 @@ function Dropdowninput({ label, placeholder }) {
           className="absolute right-4 top-1/2 -translate-y-1/2 p-0 m-0 flex items-center"
           type="button"
         >
-          <img src={arrowIcon} alt="드롭다운 버튼" />
+          <ChevronDown size={16} color="#6C727E" />
         </button>
       </div>
 
@@ -265,9 +222,9 @@ function Dateinput({ label, placeholder }) {
       <div className="flex gap-2 items-center">
         {/* 시작 날짜 */}
         <div className="relative flex-1 min-w-0">
-          <img
-            src={calIcon}
-            alt="날짜 선택"
+          <Calendar
+            size={5}
+            color="#949BA7"
             className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
           />
           <input
@@ -283,9 +240,9 @@ function Dateinput({ label, placeholder }) {
 
         {/* 종료 날짜 */}
         <div className="relative flex-1 min-w-0">
-          <img
-            src={calIcon}
-            alt="날짜 선택"
+          <Calendar
+            size={5}
+            color="#949BA7"
             className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
           />
           <input
@@ -351,6 +308,10 @@ function Dateinput({ label, placeholder }) {
 
 export default function Step1BasicInfot() {
   const [description, setDescription] = useState(''); //제품/서비스 정렬 onChange 관련 코드
+  const navigate = useNavigate();
+  const handleNext = () => {
+    navigate('/corporatesamplingrequest/step2');
+  };
   return (
     <CorporateLayout>
       {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
@@ -363,7 +324,7 @@ export default function Step1BasicInfot() {
               제품 샘플링 및 협업 제안서
             </p>
           </div>
-          <Requeststatus activeStep={1} />
+          <RequestStatus activeStep={1} />
         </div>
         <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100 mb-6"></div>
         {/* 샘플링 요청 폼*/}
@@ -415,8 +376,11 @@ export default function Step1BasicInfot() {
         </div>
         {/*다음 버튼 하단 정렬 영역*/}
         <div className="mt-auto flex justify-end items-end">
-          <button className="h-14 px-7 bg-gray-100 rounded-xl justify-center items-center">
-            <span className="text-gray-400 text-lg font-semibold leading-7">
+          <button
+            onClick={handleNext}
+            className="h-14 w-[200px] bg-[#E9ECEF] rounded-xl transition-colors hover:bg-gray-200 group"
+          >
+            <span className="text-[#B4BBC7] font-medium text-lg group-hover:text-gray-500 tracking-[-0.27px]">
               다음
             </span>
           </button>

@@ -298,7 +298,11 @@ export default function Step3Matching() {
 
       {/*사이드 패널*/}
       <div className="fixed right-4 top-4 bottom-4 z-50 pointer-events-none">
-        <div className="h-full pointer-events-auto">
+        <div
+          className={`h-full ${
+            isPanelOpen ? 'pointer-events-auto' : 'pointer-events-none'
+          }`}
+        >
           <SidePannal
             eventName={selectedEvent}
             isOpen={isPanelOpen}

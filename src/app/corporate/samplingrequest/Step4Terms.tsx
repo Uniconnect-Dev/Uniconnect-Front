@@ -1,9 +1,8 @@
 import React from 'react';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
 import RequestStatus from '@/components/common/RequestStatus';
-import { ChevronRight, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, Check } from 'lucide-react';
 
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 function Checkbox() {
@@ -43,28 +42,13 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SidePannal({
-  eventName,
-  isOpen,
-  onClose,
-}: {
-  eventName: string | null;
-  isOpen: boolean;
-  onClose: () => void;
-}) {
+function SidePannal() {
   return (
-    <div
-      className={`w-96 h-full bg-white rounded-3xl shadow-[0px_4px_24px_rgba(0,0,0,0.08)] overflow-y-auto
-        transform transition-all duration-300 ease-out 
-        ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}
-    >
+    <div className="w-96 h-full bg-white rounded-3xl shadow-[0px_4px_24px_rgba(0,0,0,0.08)] overflow-y-auto">
       <div className="w-80 mx-auto mt-8 flex flex-col gap-9">
         {/* 헤더 */}
         <div className="flex flex-col gap-5">
-          <button
-            onClick={onClose}
-            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100"
-          >
+          <button className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100">
             <ChevronRight className="w-5 h-5 text-gray-400" />
           </button>
 
@@ -72,7 +56,7 @@ function SidePannal({
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-0.5">
                 <h1 className="text-xl font-bold text-zinc-700 leading-8">
-                  {eventName}
+                  창업 동아리 연합 해커톤
                 </h1>
                 <p className="text-base font-semibold text-gray-500 leading-6">
                   이화여대 중앙 실전 IT 창업 학회 UNIS
@@ -152,13 +136,9 @@ function SidePannal({
   );
 }
 
-function MatchingTable({
-  onSelectEvent,
-}: {
-  onSelectEvent: (eventName: string) => void;
-}) {
+function MatchingTable() {
   return (
-    <div className="w-full h-[576px] bg-white rounded-3xl border border-zinc-200 overflow-hidden">
+    <div className="w-[960px] h-[576px] bg-white rounded-3xl border border-zinc-200 overflow-hidden">
       <table className="w-full border-collapse">
         {/* Header */}
         <thead>
@@ -182,8 +162,13 @@ function MatchingTable({
             <td className="pl-5">고려대학교 학생회</td>
             <td className="pl-5">
               <div
-                onClick={() => onSelectEvent('고려대학교 문과 대학 축제')}
-                className="line-clamp-1 cursor-pointer transition-colors hover:text-blue-600 hover:font-bold"
+                className="
+                  line-clamp-1
+                  cursor-pointer
+                  transition-colors
+                  hover:text-blue-600
+                  hover:font-bold
+                "
               >
                 고려대학교 문과 대학 축제
               </div>
@@ -206,7 +191,6 @@ function MatchingTable({
             <td className="pl-5">이화여대 중앙 실전 IT 창업 학회 UNIS</td>
             <td className="pl-5">
               <div
-                onClick={() => onSelectEvent('창업 동아리 연합 해커톤')}
                 className="
                   line-clamp-1
                   cursor-pointer
@@ -233,79 +217,63 @@ function MatchingTable({
   );
 }
 
-export default function Step3Matching() {
-  //네비게이션
-  const navigate = useNavigate();
-  const handleNext = () => {
-    navigate('/corporatesamplingrequest/step4');
-  };
-  const handlePrev = () => {
-    navigate('/corporatesamplingrequest/step2');
-  };
+export default function Step4Terms() {
+  const [selectedChips, setSelectedChips] = useState<string[]>([]); //선택된 Chip 상태 관리
 
-  // 사이드바 토글 관련 상태
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const toggleChip = (label: string) => {
+    setSelectedChips((prev) => {
+      if (prev.includes(label)) {
+        //이미 선택됨 → 제거
+        return prev.filter((item) => item !== label);
+      }
+
+      //최대 3개 제한
+      if (prev.length >= 3) return prev;
+
+      return [...prev, label];
+    });
+  };
 
   return (
-    <>
-      <CorporateLayout>
-        {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
-        {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
-        <div className="flex flex-col min-h-full">
-          <div className="flex justify-between w-full">
-            <div>
-              <h1 className="text-2xl font-bold mb-2">매칭 / 견적</h1>
-              <p className="text-sm text-gray-500 mb-6">
-                선택하신 키워드와 매칭되는 학생 단체입니다. <br />
-                샘플링 하길 원하는 행사를 선택해주세요.
+    <CorporateLayout>
+      {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
+      {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
+      <div className="flex flex-col min-h-full">
+        <div className="flex justify-between w-full">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">매칭 / 견적</h1>
+            <p className="text-sm text-gray-500 mb-6">
+              선택하신 키워드와 매칭되는 학생 단체입니다. <br />
+              샘플링 하길 원하는 행사를 선택해주세요.
+            </p>
+            <div className="flex flex-row gap-1 mb-2">
+              <img src="/inform.svg" alt="inform" />
+              <p className="text-gray-500 text-sm font-semibold">
+                행사명을 클릭하면 상세 페이지로 이동합니다.
               </p>
-              <div className="flex flex-row gap-1 mb-2">
-                <img src="/inform.svg" alt="inform" />
-                <p className="text-gray-500 text-sm font-semibold">
-                  행사명을 클릭하면 상세 페이지로 이동합니다.
-                </p>
-              </div>
             </div>
-            <RequestStatus activeStep={3} />
           </div>
-
-          <div className="flex flex-col">
-            <MatchingTable
-              onSelectEvent={(eventName) => {
-                setSelectedEvent(eventName);
-                setIsPanelOpen(true);
-              }}
-            />
-          </div>
-          {/*다음 버튼 하단 정렬 영역*/}
-          <div className="mt-auto flex justify-end items-end gap-4">
-            <button
-              onClick={handlePrev}
-              className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500"
-            >
-              <span className="text-sky-500 font-medium text-lg">이전</span>
-            </button>
-            <button
-              onClick={handleNext}
-              className="h-14 w-[200px] bg-blue-600 rounded-xl"
-            >
-              <span className="text-white font-medium text-lg">다음</span>
-            </button>
-          </div>
+          <RequestStatus activeStep={4} />
         </div>
-      </CorporateLayout>
 
-      {/*사이드 패널*/}
-      <div className="fixed right-4 top-4 bottom-4 z-50 pointer-events-none">
-        <div className="h-full pointer-events-auto">
-          <SidePannal
-            eventName={selectedEvent}
-            isOpen={isPanelOpen}
-            onClose={() => setIsPanelOpen(false)}
-          />
+        <div className="flex flex-col">
+          <MatchingTable />
+        </div>
+        {/*다음 버튼 하단 정렬 영역*/}
+        <div className="mt-auto flex justify-end items-end gap-4">
+          <button className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500">
+            <span className="text-sky-500 font-medium text-lg">이전</span>
+          </button>
+          <button className="h-14 w-[200px] bg-blue-600 rounded-xl">
+            <span className="text-white font-medium text-lg">다음</span>
+          </button>
+        </div>
+
+        {/*사이드 패널*/}
+        <div className="fixed right-4 top-4 bottom-4 z-50">
+          <SidePannal />
         </div>
       </div>
-    </>
+    </CorporateLayout>
   );
 }

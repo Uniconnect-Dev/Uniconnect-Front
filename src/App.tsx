@@ -21,10 +21,14 @@ import OrderComplete from './app/student/OrderComplete';
 
 // 학생 단체 제휴/샘플링 요청
 import Step1StudentInfo from './app/student/forms/Step1StudentInfo'; 
-import Step2StudentEventInfo from './app/student/forms/Step2StudentEventInfo'; // 2단계 추가
+import Step2StudentEventInfo from './app/student/forms/Step2StudentEventInfo';
+import Step3ChooseCorporate from './app/student/forms/Step3ChooseCorporate';
+import Step4Agreements from './app/student/forms/Step4Agreements';
+import Step5Agreements from './app/student/forms/Step5Complete';
 
 // 기업 샘플링 요청
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
+import Step5Complete from './app/student/forms/Step5Complete';
 
 export default function App() {
   return (
@@ -52,15 +56,13 @@ export default function App() {
       <Route path="/studentshopping/order/complete" element={<OrderComplete />} />
 
       {/* 학생 단체 제휴 / 샘플링 요청 */}
-      <Route
-        path="/studentsampling/step1"
-        element={<Step1StudentInfo />}
-      />
-      {/* 2단계: 행사 정보 라우트 추가 */}
-      <Route
-        path="/studentsampling/step2"
-        element={<Step2StudentEventInfo />}
-      />
+      <Route path="/studentsampling/step1" element={<Step1StudentInfo />} />
+      <Route path="/studentsampling/step2" element={<Step2StudentEventInfo />} />
+      <Route path="/studentsampling/step3" element={<Step3ChooseCorporate />} />
+      <Route path="/studentsampling/step4" element={<Step4Agreements />} />
+      <Route path="/studentsampling/step5" element={<Step5Complete />} />
+
+      Step5Complete
 
       {/* 기업 샘플링 요청 */}
       <Route

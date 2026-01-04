@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // 1. useNavigate 임포트
-import StudentLayout from '../../components/layout/StudentLayout';
+import StudentLayout from '../../../components/layout/StudentLayout';
 
 interface RequestStatusProps {
   activeStep: number;

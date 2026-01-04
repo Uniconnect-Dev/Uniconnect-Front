@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import StudentLayout from '../../components/layout/StudentLayout';
-import ShortTermForm from './forms/ShortTermForm';
-import LongTermForm from './forms/LongTermForm';
+import StudentLayout from '../../../components/layout/StudentLayout';
+import ShortTermForm from './ShortTermForm';
+import LongTermForm from './LongTermForm';
 
 export default function Step2StudentEventInfo() {
   const navigate = useNavigate();

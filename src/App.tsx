@@ -20,8 +20,8 @@ import Order from './app/student/Order';
 import OrderComplete from './app/student/OrderComplete';
 
 // 학생 단체 제휴/샘플링 요청
-import Step1StudentInfo from './app/student/Step1StudentInfo'; 
-import Step2StudentEventInfo from './app/student/Step2StudentEventInfo'; // 2단계 추가
+import Step1StudentInfo from './app/student/forms/Step1StudentInfo'; 
+import Step2StudentEventInfo from './app/student/forms/Step2StudentEventInfo'; // 2단계 추가
 
 // 기업 샘플링 요청
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';

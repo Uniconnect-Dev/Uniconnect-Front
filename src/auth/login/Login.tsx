@@ -1,11 +1,46 @@
 import React, { useState } from 'react';
 import AuthLayout from '@/components/layout/AuthLayout';
+import { login } from '@/services/auth.service';
+import { setAccessToken } from '@/lib/auth/token';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   const isFilled = id.trim() !== '' && pw.trim() !== '';
+
+  const handleLogin = async () => {
+    if (!isFilled || loading) return;
+
+    try {
+      setLoading(true);
+      setErrorMessage(null); // ✅ 이전 에러 초기화
+
+      const res = await login({
+        loginId: id,
+        password: pw,
+      });
+
+      // accessToken 저장
+      setAccessToken(res.accessToken);
+
+      // 👉 일단 공통 대시보드로 이동
+      navigate('/student'); // 이후 role 분기 가능
+
+    } catch (error: any) {
+      setErrorMessage(
+        error?.message ||
+          '아이디 또는 비밀번호가 올바르지 않습니다'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <AuthLayout>
@@ -45,9 +80,9 @@ export default function Login() {
         </div>
 
         {/* 비밀번호 입력 */}
-        <div className="relative mb-4">
+        <div className="relative mb-2">
           <input
-            type="text"
+            type="password"
             placeholder="비밀번호"
             value={pw}
             onChange={(e) => setPw(e.target.value)}
@@ -69,17 +104,27 @@ export default function Login() {
           )}
         </div>
 
+        {/* ❗ 로그인 실패 에러 메시지 */}
+        {errorMessage && (
+          <div className="flex items-center gap-1 text-xs text-red-500 mb-4">
+            <span>●</span>
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         {/* 로그인 버튼 */}
         <button
+          onClick={handleLogin}
+          disabled={!isFilled || loading}
           className={`w-full py-3 rounded-lg mb-4 text-sm font-medium transition-colors
             ${
               isFilled
                 ? 'bg-[#007AFF] text-white'
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-600'
+                : 'bg-gray-200 text-gray-600'
             }
           `}
         >
-          로그인
+          {loading ? '로그인 중...' : '로그인'}
         </button>
 
         {/* 하단 링크 */}

@@ -1,6 +1,7 @@
 // src/auth/signup/corporate/Step2BusinessLicense.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AuthLayout from '@/components/layout/AuthLayout';
 
 export default function Step2BusinessLicense() {
   const navigate = useNavigate();
@@ -22,25 +23,22 @@ export default function Step2BusinessLicense() {
 
   const processFile = (selectedFile: File) => {
     if (!validateFile(selectedFile)) return;
-
     setFile(selectedFile);
     setShowError(false);
     setUploading(true);
     setUploadProgress(0);
   };
 
-  // 업로드 진행 애니메이션
   useEffect(() => {
     if (uploading) {
-      const duration = 2000; // 2초
-      const interval = 50; // 50ms마다 업데이트
+      const duration = 1500;
+      const interval = 30;
       const steps = duration / interval;
       const increment = 100 / steps;
       let currentProgress = 0;
 
       const timer = setInterval(() => {
         currentProgress += increment;
-        
         if (currentProgress >= 100) {
           setUploadProgress(100);
           setUploading(false);
@@ -50,94 +48,50 @@ export default function Step2BusinessLicense() {
           setUploadProgress(currentProgress);
         }
       }, interval);
-
       return () => clearInterval(timer);
     }
   }, [uploading]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      processFile(selectedFile);
-    }
+    if (selectedFile) processFile(selectedFile);
   };
 
-  // 드래그 앤 드롭 이벤트 핸들러
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(true);
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(false);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(false);
-
     const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile) {
-      processFile(droppedFile);
-    }
-  };
-
-  const handleRemoveFile = () => {
-    setFile(null);
-    setUploadComplete(false);
-    setUploading(false);
-    setUploadProgress(0);
-  };
-
-  const handleNext = () => {
-    if (uploadComplete) {
-      navigate('/signup/corporate/step3');
-    }
+    if (droppedFile) processFile(droppedFile);
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] flex flex-col">
-      {/* 상단 로고 */}
-      <header className="w-full bg-white border-b border-gray-200">
-        <div className="max-w-[1440px] mx-auto h-[72px] px-12 flex items-center">
-          <img
-            src="/logo.png"
-            alt="UNICONNECT Logo"
-            className="h-[15px] w-auto"
-          />
-        </div>
-      </header>
-
-      {/* 메인 콘텐츠 */}
-      <div className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-[480px] bg-white rounded-2xl shadow-sm p-10">
+    <AuthLayout>
+      <div className="w-full h-[calc(100vh-72px)] flex items-center justify-center">
+        <div className="w-full max-w-[416px] bg-white rounded-2xl shadow-sm px-8 py-10">
+          
           {/* 진행 단계 */}
-          <div className="flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-semibold">
-              1
-            </div>
-            <div className="w-8 h-8 rounded-full bg-[#008FFF] text-white flex items-center justify-center text-sm font-semibold">
-              2
-            </div>
-            <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-semibold">
-              3
-            </div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-6 h-6 rounded-full bg-white border-[1.5px] border-[#DADFE7] text-[#DADFE7] flex items-center justify-center text-[16px] font-medium pt-[0.5px]">1</div>
+            <div className="w-6 h-6 rounded-full bg-[#007AFF] text-white flex items-center justify-center text-[16px] font-medium pt-[0.5px]">2</div>
+            <div className="w-6 h-6 rounded-full bg-white border-[1.5px] border-[#DADFE7] text-[#DADFE7] flex items-center justify-center text-[16px] font-medium pt-[0.5px]">3</div>
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            사업자등록증 입력
-          </h1>
-          <p className="text-sm text-gray-500 mb-8">
-            아래 내용을 입력해 주세요.
-          </p>
+          <h1 className="text-[24px] font-bold text-[#191F28] tracking-[-0.42px]">사업자등록증 입력</h1>
+          <p className="text-[16px] text-[#949BA7] mb-8 tracking-[-0.3px]">사업자 확인을 위해 파일을 업로드해 주세요.</p>
 
           {/* 파일 업로드 영역 */}
-          <div className="mb-8">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-10">
+            <label className="block text-[15px] font-medium text-[#6C727E] mb-1.5 tracking-[-0.24px]">
               사업자등록증 파일 (1장)
             </label>
 
@@ -146,98 +100,67 @@ export default function Step2BusinessLicense() {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors ${
+                className={`group relative border rounded-2xl p-5 text-center transition-all duration-200 ${
                   isDragging
                     ? 'border-[#008FFF] bg-[#F0F9FF]'
-                    : 'border-gray-300 hover:border-[#008FFF] hover:bg-[#F0F9FF]'
+                    : 'border-[#E5E8EB] hover:border-[#008FFF] hover:bg-[#F9FAFB]'
                 }`}
               >
                 <label className="cursor-pointer block">
-                  <input
-                    type="file"
-                    onChange={handleFileChange}
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
-                  />
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-8 h-8 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                        />
-                      </svg>
+                  <input type="file" onChange={handleFileChange} accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className={`w-[60px] h-[60px] rounded-2xl border-2 border-dashed flex items-center justify-center transition-all duration-200 ${
+                        isDragging ? 'bg-white shadow-md' : 'bg-[#F2F4F7] group-hover:bg-white group-hover:shadow-md'
+                      }`}>
+                        <div className="w-8 h-8 flex items-center justify-center overflow-hidden">
+                          <img 
+                            src="/Upload.png" 
+                            alt="Upload icon" 
+                            className={`w-full h-full object-contain transition-transform duration-200 ${
+                              isDragging ? 'scale-110' : 'group-hover:scale-110'
+                            }`}
+                          />
+                        </div>
+                      </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-1">
-                        파일 드롭하기
-                      </p>
-                      <p className="text-xs text-gray-500">or</p>
+                      <p className="text-[14px] font-semibold text-[#4E5968]">파일 드롭하기</p>
+                      <p className="text-[13px] text-[#8B95A1]">or</p>
                     </div>
-                    <span className="px-6 py-2 bg-[#008FFF] text-white rounded-lg text-sm font-medium hover:bg-[#0077CC]">
+                    <span className="-mt-2.5 px-[16px] py-[6px] bg-[#007AFF] text-white rounded-full text-[14px] font-medium hover:bg-[#0077CC] shadow-sm">
                       파일 업로드
                     </span>
                   </div>
                 </label>
               </div>
             ) : (
-              <div className="border border-gray-300 rounded-xl p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <svg
-                      className="w-6 h-6 text-gray-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
-                        clipRule="evenodd"
-                      />
+              <div className="border border-[#E5E8EB] rounded-2xl p-5 bg-[#F9FAFB]">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6C727E" strokeWidth="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {file.name}
+                    <p className="text-[14px] font-medium text-[#191F28] truncate">{file.name}</p>
+                    <p className={`text-[12px] mt-0.5 ${uploadComplete ? 'text-[#008FFF] font-medium' : 'text-[#8B95A1]'}`}>
+                      {uploading ? '업로드 중...' : '업로드 완료'}
                     </p>
-                    {uploading && (
-                      <p className="text-xs text-gray-500">업로드 중...</p>
-                    )}
-                    {uploadComplete && (
-                      <p className="text-xs text-gray-600">Completed</p>
-                    )}
                   </div>
                   <button
-                    onClick={handleRemoveFile}
-                    className="text-gray-400 hover:text-gray-600"
+                    onClick={() => { setFile(null); setUploadComplete(false); }}
+                    className="p-1 hover:bg-gray-200 rounded-full transition-colors"
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#949BA7" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                   </button>
                 </div>
                 {uploading && (
-                  <div className="mt-3">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="mt-4">
+                    <div className="w-full bg-[#E5E8EB] rounded-full h-1.5 overflow-hidden">
                       <div
-                        className="bg-[#008FFF] h-2 rounded-full transition-all duration-100 ease-linear"
+                        className="bg-[#008FFF] h-full transition-all duration-150 ease-out"
                         style={{ width: `${uploadProgress}%` }}
                       />
                     </div>
@@ -247,18 +170,20 @@ export default function Step2BusinessLicense() {
             )}
           </div>
 
-          {/* 버튼 */}
+          {/* 버튼 세트 */}
           <div className="flex gap-3">
             <button
               onClick={() => navigate('/signup/corporate/step1')}
-              className="flex-1 py-3 border-2 border-[#008FFF] text-[#008FFF] rounded-lg font-semibold hover:bg-[#008FFF] hover:text-white transition-colors"
+              className="flex-1 h-[48px] border border-[#008FFF] text-[#008FFF] rounded-lg text-[15px] font-semibold hover:bg-[#F0F9FF] transition-colors"
             >
               이전
             </button>
             <button
-              onClick={handleNext}
+              onClick={() => navigate('/signup/corporate/step3')}
               disabled={!uploadComplete}
-              className="flex-1 py-3 bg-[#008FFF] text-white rounded-lg font-semibold hover:bg-[#0077CC] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className={`flex-1 h-[48px] rounded-lg text-[15px] font-semibold transition-colors ${
+                uploadComplete ? 'bg-[#008FFF] text-white hover:bg-[#0077CC]' : 'bg-[#E5E8EB] text-[#B4BBC7] cursor-not-allowed'
+              }`}
             >
               다음
             </button>
@@ -268,23 +193,22 @@ export default function Step2BusinessLicense() {
 
       {/* 에러 모달 */}
       {showError && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-sm mx-4">
-            <p className="text-center font-medium text-gray-900 mb-2">
-              지원하지 않는 파일 형식입니다.
-            </p>
-            <p className="text-center text-sm text-gray-500 mb-6">
-              pdf, jpeg, png 형식만 지원합니다.
-            </p>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 max-w-[320px] w-full shadow-xl text-center">
+            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF4D4F" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <h3 className="text-[18px] font-bold text-[#191F28] mb-2">파일 형식 오류</h3>
+            <p className="text-[14px] text-[#6C727E] mb-6">PDF, JPG, PNG 형식의<br/>파일만 업로드할 수 있습니다.</p>
             <button
               onClick={() => setShowError(false)}
-              className="w-full py-3 bg-[#008FFF] text-white rounded-lg font-semibold hover:bg-[#0077CC]"
+              className="w-full py-3 bg-[#191F28] text-white rounded-xl font-semibold hover:bg-black transition-colors"
             >
               확인
             </button>
           </div>
         </div>
       )}
-    </div>
+    </AuthLayout>
   );
 }

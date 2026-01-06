@@ -53,7 +53,10 @@ export default function App() {
 
       {/* 기업 회원가입 */}
       <Route path="/signup/corporate/step1" element={<Step1CompanyInfo />} />
-      <Route path="/signup/corporate/step2" element={<Step2BusinessLicense />} />
+      <Route
+        path="/signup/corporate/step2"
+        element={<Step2BusinessLicense />}
+      />
       <Route path="/signup/corporate/step3" element={<Step3BusinessInfo />} />
 
       {/* 학생 쇼핑몰 */}
@@ -81,6 +84,16 @@ export default function App() {
         path="/corporatesamplingrequest/step1"
         element={<Step1BasicInfo />}
       />
+      <Route
+        path="/corporatesamplingrequest/step2"
+        element={<Step2TargetSet />}
+      />
+      <Route
+        path="/corporatesamplingrequest/step3"
+        element={<Step3Matching />}
+      />
+      <Route path="/corporatesamplingrequest/step4" element={<Step4Terms />} />
+      <Route path="/corporatesamplingrequest/stepDone" element={<StepDone />} />
     </Routes>
   );
 }

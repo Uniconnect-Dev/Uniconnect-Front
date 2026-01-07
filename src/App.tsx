@@ -35,6 +35,13 @@ import Step5Agreements from './app/student/forms/Step5Complete';
 
 // 기업 샘플링 요청
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
+import Step2TargetSet from './app/corporate/samplingrequest/Step2TargetSet';
+import Step3Matching from './app/corporate/samplingrequest/Step3Matching';
+import Step4Terms from './app/corporate/samplingrequest/Step4Terms';
+import StepDone from './app/corporate/samplingrequest/StepDone';
+import Contract from './app/corporate/mypage/Contract';
+
+//기업 마이페이지
 import Step5Complete from './app/student/forms/Step5Complete';
 
 export default function App() {
@@ -94,6 +101,9 @@ export default function App() {
       />
       <Route path="/corporatesamplingrequest/step4" element={<Step4Terms />} />
       <Route path="/corporatesamplingrequest/stepDone" element={<StepDone />} />
+
+      {/* 기업 마이페이지*/}
+      <Route path="/corporatemypage/contract" element={<Contract />} />
     </Routes>
   );
 }

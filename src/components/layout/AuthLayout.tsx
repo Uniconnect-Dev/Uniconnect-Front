@@ -19,7 +19,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       </header>
 
       {/* 메인 영역 - 중앙 정렬 */}
-      <main className="flex-1 flex justify-center items-center px-4 py-8">
+      <main className="flex-1 flex justify-center items-center">
         {children}
       </main>
     </div>

@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 
 import {
   Search,
-  Plus,
+  Pencil,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -170,9 +170,9 @@ function ContractStatusBadge({ status }: { status: ContractStatus }) {
     return (
       <div className="flex justify-start">
         <div className="h-6 pl-2 pr-3 bg-sky-100 rounded-lg inline-flex items-center gap-1">
-          <Plus size={16} color="#007AFF" />
+          <Pencil size={15} color="#007AFF" />
           <span className="text-blue-600 text-xs font-semibold whitespace-nowrap">
-            계약서 전송
+            계약서 작성
           </span>
         </div>
       </div>

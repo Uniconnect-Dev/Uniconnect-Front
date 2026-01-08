@@ -45,6 +45,7 @@ import StepDone from './app/corporate/samplingrequest/StepDone';
 //기업 마이페이지
 import CorpContract from './app/corporate/mypage/Contract';
 import CorpQnA from './app/corporate/mypage/QnA';
+import CorpQnADetail from './app/corporate/mypage/QnADetail';
 
 import Step5Complete from './app/student/forms/Step5Complete';
 
@@ -108,7 +109,8 @@ export default function App() {
       <Route path="/corporatesamplingrequest/stepDone" element={<StepDone />} />
       {/* 기업 마이페이지*/}
       <Route path="/corporatemypage/contract" element={<CorpContract />} />
-      <Route path="/corporatemypage/QnA" element={<CorpQnA />} />
+      <Route path="/corporatemypage/qna" element={<CorpQnA />} />
+      <Route path="/corporatemypage/qnadetail" element={<CorpQnADetail />} />
     </Routes>
   );
 }

@@ -38,6 +38,7 @@ import StuQnA from './app/corporate/mypage/QnA';
 import StuQnADetail from './app/corporate/mypage/QnADetail';
 import StuAddQnA from './app/corporate/mypage/AddQnA';
 import StuAddQnADone from './app/corporate/mypage/AddQnADone';
+import StuEditInfo from './app/corporate/mypage/EditInfo';
 
 // 기업 샘플링 요청
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
@@ -52,6 +53,7 @@ import CorpQnA from './app/corporate/mypage/QnA';
 import CorpQnADetail from './app/corporate/mypage/QnADetail';
 import CorpAddQnA from './app/corporate/mypage/AddQnA';
 import CorpAddQnADone from './app/corporate/mypage/AddQnADone';
+import CorpEditInfo from './app/corporate/mypage/EditInfo';
 
 import Step5Complete from './app/student/forms/Step5Complete';
 
@@ -102,6 +104,7 @@ export default function App() {
       <Route path="/studentmypage/qnadetail" element={<StuQnADetail />} />
       <Route path="/studentmypage/addqna" element={<StuAddQnA />} />
       <Route path="/studentmypage/addqnadone" element={<StuAddQnADone />} />
+      <Route path="/studentmypage/editinfo" element={<StuEditInfo />} />
       {/* 기업 샘플링 요청 */}
       <Route
         path="/corporatesamplingrequest/step1"
@@ -123,6 +126,7 @@ export default function App() {
       <Route path="/corporatemypage/qnadetail" element={<CorpQnADetail />} />
       <Route path="/corporatemypage/addqna" element={<CorpAddQnA />} />
       <Route path="/corporatemypage/addqnadone" element={<CorpAddQnADone />} />
+      <Route path="/corporatemypage/editinfo" element={<CorpEditInfo />} />
     </Routes>
   );
 }

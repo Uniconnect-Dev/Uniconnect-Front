@@ -21,8 +21,7 @@ type QnAStatus = 'before-ans' | 'complete';
 interface QnAData {
   id: string;
   date: string;
-  organizationName: string;
-  collaborationType: string;
+  QnAName: string;
   status: QnAStatus;
 }
 
@@ -30,30 +29,26 @@ const QnAData: QnAData[] = [
   {
     id: '01',
     date: '2025.12.29',
-    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
+    QnAName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
     status: 'before-ans',
   },
   {
     id: '02',
     date: '2025.12.29',
-    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
+    QnAName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
     status: 'before-ans',
   },
   {
     id: '03',
     date: '2025.12.29',
-    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
+    QnAName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
     status: 'complete',
   },
   {
     id: '04',
     date: '2025.12.29',
-    organizationName:
+    QnAName:
       '이화여대 중앙 실전 IT 창업 학회 UNIS이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
     status: 'before-ans',
   },
 ];
@@ -81,7 +76,7 @@ function QnATable() {
                 <Td className="w-24 first:pl-7">{qna.id}</Td>
                 <Td className="w-32">{qna.date}</Td>
                 <Td>
-                  <div className="line-clamp-1">{qna.organizationName}</div>
+                  <div className="line-clamp-1">{qna.QnAName}</div>
                 </Td>
 
                 <Td className="w-28 text-center">

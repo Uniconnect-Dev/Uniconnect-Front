@@ -3,6 +3,8 @@ import CorporateLayout from '../../../components/layout/CorporateLayout';
 
 import { useState, useEffect, useRef } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import {
   Search,
   Pencil,
@@ -166,9 +168,13 @@ function ContractDetail({ status }: { status: ContractStatus }) {
 
 /* 계약 상태 배지 */
 function ContractStatusBadge({ status }: { status: ContractStatus }) {
+  const navigate = useNavigate();
   if (status === 'send') {
     return (
-      <div className="flex justify-start">
+      <div
+        className="flex justify-start"
+        onClick={() => navigate('/studentmypage/writecontract')}
+      >
         <div className="h-6 pl-2 pr-3 bg-sky-100 rounded-lg inline-flex items-center gap-1">
           <Pencil size={15} color="#007AFF" />
           <span className="text-blue-600 text-xs font-semibold whitespace-nowrap">

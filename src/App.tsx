@@ -37,6 +37,9 @@ import Step5Agreements from './app/student/forms/Step5Complete';
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
 import Step5Complete from './app/student/forms/Step5Complete';
 
+// 기업 협업 제안
+import CollaborationProposal from './app/corporate/Collaboration/CollaborationProposal';
+
 export default function App() {
   return (
     <Routes>
@@ -77,13 +80,9 @@ export default function App() {
       <Route path="/studentsampling/step4" element={<Step4Agreements />} />
       <Route path="/studentsampling/step5" element={<Step5Complete />} />
 
-      Step5Complete
-
       {/* 기업 샘플링 요청 */}
-      <Route
-        path="/corporatesamplingrequest/step1"
-        element={<Step1BasicInfo />}
-      />
+      <Route path="/corporatesamplingrequest/step1" element={<Step1BasicInfo />} />
+      <Route path="/CollaborationProposal" element={<CollaborationProposal />} />
       <Route
         path="/corporatesamplingrequest/step2"
         element={<Step2TargetSet />}

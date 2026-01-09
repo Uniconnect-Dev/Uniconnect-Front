@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Calendar } from 'lucide-react';
 
 type Active = 'start' | 'end' | null;
 
 interface Props {
-  label: string;
+  label?: string;
+  startLabel?: string;
+  endLabel?: string;
   placeholder?: string;
   height?: number;
 }
@@ -55,6 +58,8 @@ function buildCalendarDays(currentMonth: Date) {
 
 export default function DateRangeInput({
   label,
+  startLabel = '',
+  endLabel = '',
   placeholder = 'YYYY.MM.DD',
   height = 56,
 }: Props) {
@@ -106,50 +111,124 @@ export default function DateRangeInput({
 
   const days = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
 
-  const inputBase =
-    'w-full rounded-[14px] border px-4 pl-11 text-[16px] cursor-pointer bg-white outline-none focus:border-[#008FFF]';
+  const inputBase = `
+    w-full rounded-[14px] border px-4 pl-11
+    text-[16px] cursor-pointer bg-white outline-none
+    transition-colors
+  `;
 
   return (
     <div ref={containerRef} className="flex flex-col gap-2 relative">
-      {/* label */}
-      <label className="text-[#6C727E] font-medium text-[16px] tracking-[-0.24px]">
-        {label}
-      </label>
+      {/* 상단 label (선택적) */}
+      {label && (
+        <label className="text-[#6C727E] font-medium text-[16px] tracking-[-0.24px]">
+          {label}
+        </label>
+      )}
 
       {/* inputs */}
-      <div className="flex gap-2 items-center">
-        <input
-          readOnly
-          value={startDate}
-          placeholder={placeholder}
-          onFocus={() => {
-            setActiveInput('start');
-            setIsOpen(true);
-          }}
-          style={{ height }}
-          className={inputBase}
-        />
+      <div className="flex gap-4 items-end">
+        {/* 시작일 */}
+        <div className="flex flex-col gap-2 flex-1">
+          {startLabel && (
+            <label className="text-[#6C727E] font-medium text-[16px] tracking-[-0.24px]">
+              {startLabel}
+            </label>
+          )}
+          <div className="relative">
+            <Calendar 
+              className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${
+                activeInput === 'start' ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
+              }`}
+            />
+            <input
+              readOnly
+              value={startDate}
+              placeholder={placeholder}
+              onFocus={() => {
+                setActiveInput('start');
+                setIsOpen(true);
+              }}
+              style={{ height }}
+              className={`${inputBase} ${
+                activeInput === 'start' 
+                  ? 'border-[#007AFF] text-[#007AFF]' 
+                  : 'border-[#E6E8EC] text-[#2D3139]'
+              }`}
+            />
+          </div>
+        </div>
 
-        <span className="text-[#C7CDD6]">~</span>
+        <span className="text-[#C7CDD6] pb-4">~</span>
 
-        <input
-          readOnly
-          value={endDate}
-          placeholder={placeholder}
-          onFocus={() => {
-            setActiveInput('end');
-            setIsOpen(true);
-          }}
-          style={{ height }}
-          className={inputBase}
-        />
+        {/* 종료일 */}
+        <div className="flex flex-col gap-2 flex-1">
+          {endLabel && (
+            <label className="text-[#6C727E] font-medium text-[16px] tracking-[-0.24px]">
+              {endLabel}
+            </label>
+          )}
+          <div className="relative">
+            <Calendar 
+              className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${
+                activeInput === 'end' ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
+              }`}
+            />
+            <input
+              readOnly
+              value={endDate}
+              placeholder={placeholder}
+              onFocus={() => {
+                setActiveInput('end');
+                setIsOpen(true);
+              }}
+              style={{ height }}
+              className={`${inputBase} ${
+                activeInput === 'end' 
+                  ? 'border-[#007AFF] text-[#007AFF]' 
+                  : 'border-[#E6E8EC] text-[#2D3139]'
+              }`}
+            />
+          </div>
+        </div>
       </div>
 
       {/* calendar */}
       {isOpen && activeInput && (
-        <div className="absolute top-[92px] w-[320px] bg-white rounded-2xl border border-[#EEF0F3] p-5 z-50 shadow">
+        <div className="absolute top-full mt-2 w-[320px] bg-white rounded-2xl border border-[#EEF0F3] p-5 z-50 shadow-lg">
+          {/* 월 네비게이션 */}
+          <div className="flex items-center justify-between mb-4">
+            <button
+              type="button"
+              onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
+              className="p-1 hover:bg-gray-100 rounded"
+            >
+              <span className="text-[#6C727E]">{'<'}</span>
+            </button>
+            <span className="text-[16px] font-medium text-[#2D3139]">
+              {currentMonth.getFullYear()}.{String(currentMonth.getMonth() + 1).padStart(2, '0')}
+            </span>
+            <button
+              type="button"
+              onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
+              className="p-1 hover:bg-gray-100 rounded"
+            >
+              <span className="text-[#6C727E]">{'>'}</span>
+            </button>
+          </div>
+
+          {/* 요일 헤더 */}
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
+              <div key={day} className="w-10 h-8 flex items-center justify-center text-[12px] text-[#9AA1AD]">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* 날짜 */}
           <div className="grid grid-cols-7 gap-1">
-            {days.map(({ date }, i) => {
+            {days.map(({ date, inMonth }, i) => {
               const isSelected =
                 selectedForActive && isSameDay(date, selectedForActive);
 
@@ -160,10 +239,13 @@ export default function DateRangeInput({
                   onClick={() => setTempDate(date)}
                   className={`
                     w-10 h-10 rounded-xl text-[14px]
+                    ${!inMonth ? 'text-[#C7CDD6]' : ''}
                     ${
                       isSelected
-                        ? 'bg-[#E3F4FF] text-[#008FFF]'
-                        : 'hover:bg-[#F4FAFF]'
+                        ? 'bg-[#E3F4FF] text-[#008FFF] font-medium'
+                        : inMonth 
+                          ? 'hover:bg-[#F4FAFF] text-[#2D3139]'
+                          : ''
                     }
                   `}
                 >

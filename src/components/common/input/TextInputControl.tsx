@@ -1,4 +1,5 @@
 interface Props {
+  label?: string;
   value?: string;
   placeholder?: string;
   readOnly?: boolean;

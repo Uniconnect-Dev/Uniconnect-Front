@@ -39,6 +39,8 @@ import StuQnADetail from './app/corporate/mypage/QnADetail';
 import StuAddQnA from './app/corporate/mypage/AddQnA';
 import StuAddQnADone from './app/corporate/mypage/AddQnADone';
 import StuEditInfo from './app/corporate/mypage/EditInfo';
+import WriteContract from './app/student/mypage/WriteContract';
+import WriteContractDone from './app/student/mypage/WriteContractDone';
 
 // 기업 샘플링 요청
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
@@ -97,7 +99,6 @@ export default function App() {
       <Route path="/studentsampling/step3" element={<Step3ChooseCorporate />} />
       <Route path="/studentsampling/step4" element={<Step4Agreements />} />
       <Route path="/studentsampling/step5" element={<Step5Complete />} />
-      Step5Complete
       {/* 학생 단체 마이페이지*/}
       <Route path="/studentmypage/contract" element={<StuContract />} />
       <Route path="/studentmypage/qna" element={<StuQnA />} />
@@ -105,6 +106,13 @@ export default function App() {
       <Route path="/studentmypage/addqna" element={<StuAddQnA />} />
       <Route path="/studentmypage/addqnadone" element={<StuAddQnADone />} />
       <Route path="/studentmypage/editinfo" element={<StuEditInfo />} />
+
+      <Route path="/studentmypage/writecontract" element={<WriteContract />} />
+      <Route
+        path="/studentmypage/writecontractdone"
+        element={<WriteContractDone />}
+      />
+
       {/* 기업 샘플링 요청 */}
       <Route
         path="/corporatesamplingrequest/step1"

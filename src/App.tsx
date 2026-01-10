@@ -58,6 +58,9 @@ import CorpAddQnADone from './app/corporate/mypage/AddQnADone';
 import CorpEditInfo from './app/corporate/mypage/EditInfo';
 import CorpMatchingResult from './app/corporate/mypage/MatchingResult';
 import CorpPollManage from './app/corporate/mypage/PollManage';
+import CorpPaymentHistory from './app/corporate/mypage/PaymentHistory';
+import CorpPaymentHistoryDetail from './app/corporate/mypage/PaymentHistoryDetail';
+import CorpPaymentMethod from './app/corporate/mypage/PaymentMethod';
 
 import Step5Complete from './app/student/forms/Step5Complete';
 
@@ -140,7 +143,18 @@ export default function App() {
         element={<CorpMatchingResult />}
       />
       <Route path="/corporatemypage/pollmanage" element={<CorpPollManage />} />
-      ``
+      <Route
+        path="/corporatemypage/paymenthistory"
+        element={<CorpPaymentHistory />}
+      />
+      <Route
+        path="/corporatemypage/paymenthistorydetail"
+        element={<CorpPaymentHistoryDetail />}
+      />
+      <Route
+        path="/corporatemypage/paymentmethod"
+        element={<CorpPaymentMethod />}
+      />
     </Routes>
   );
 }

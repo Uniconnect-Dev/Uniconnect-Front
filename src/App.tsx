@@ -34,6 +34,13 @@ import Step5Agreements from './app/student/forms/Step5Complete';
 
 //학생 마이페이지
 import StuContract from './app/student/mypage/Contract';
+import StuQnA from './app/corporate/mypage/QnA';
+import StuQnADetail from './app/corporate/mypage/QnADetail';
+import StuAddQnA from './app/corporate/mypage/AddQnA';
+import StuAddQnADone from './app/corporate/mypage/AddQnADone';
+import StuEditInfo from './app/corporate/mypage/EditInfo';
+import WriteContract from './app/student/mypage/WriteContract';
+import WriteContractDone from './app/student/mypage/WriteContractDone';
 
 // 기업 샘플링 요청
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
@@ -46,6 +53,14 @@ import StepDone from './app/corporate/samplingrequest/StepDone';
 import CorpContract from './app/corporate/mypage/Contract';
 import CorpQnA from './app/corporate/mypage/QnA';
 import CorpQnADetail from './app/corporate/mypage/QnADetail';
+import CorpAddQnA from './app/corporate/mypage/AddQnA';
+import CorpAddQnADone from './app/corporate/mypage/AddQnADone';
+import CorpEditInfo from './app/corporate/mypage/EditInfo';
+import CorpMatchingResult from './app/corporate/mypage/MatchingResult';
+import CorpPollManage from './app/corporate/mypage/PollManage';
+import CorpPaymentHistory from './app/corporate/mypage/PaymentHistory';
+import CorpPaymentHistoryDetail from './app/corporate/mypage/PaymentHistoryDetail';
+import CorpPaymentMethod from './app/corporate/mypage/PaymentMethod';
 
 import Step5Complete from './app/student/forms/Step5Complete';
 
@@ -89,9 +104,18 @@ export default function App() {
       <Route path="/studentsampling/step3" element={<Step3ChooseCorporate />} />
       <Route path="/studentsampling/step4" element={<Step4Agreements />} />
       <Route path="/studentsampling/step5" element={<Step5Complete />} />
-      Step5Complete
       {/* 학생 단체 마이페이지*/}
       <Route path="/studentmypage/contract" element={<StuContract />} />
+      <Route path="/studentmypage/qna" element={<StuQnA />} />
+      <Route path="/studentmypage/qnadetail" element={<StuQnADetail />} />
+      <Route path="/studentmypage/addqna" element={<StuAddQnA />} />
+      <Route path="/studentmypage/addqnadone" element={<StuAddQnADone />} />
+      <Route path="/studentmypage/editinfo" element={<StuEditInfo />} />
+      <Route path="/studentmypage/writecontract" element={<WriteContract />} />
+      <Route
+        path="/studentmypage/writecontractdone"
+        element={<WriteContractDone />}
+      />
       {/* 기업 샘플링 요청 */}
       <Route
         path="/corporatesamplingrequest/step1"
@@ -111,6 +135,26 @@ export default function App() {
       <Route path="/corporatemypage/contract" element={<CorpContract />} />
       <Route path="/corporatemypage/qna" element={<CorpQnA />} />
       <Route path="/corporatemypage/qnadetail" element={<CorpQnADetail />} />
+      <Route path="/corporatemypage/addqna" element={<CorpAddQnA />} />
+      <Route path="/corporatemypage/addqnadone" element={<CorpAddQnADone />} />
+      <Route path="/corporatemypage/editinfo" element={<CorpEditInfo />} />
+      <Route
+        path="/corporatemypage/matchingresult"
+        element={<CorpMatchingResult />}
+      />
+      <Route path="/corporatemypage/pollmanage" element={<CorpPollManage />} />
+      <Route
+        path="/corporatemypage/paymenthistory"
+        element={<CorpPaymentHistory />}
+      />
+      <Route
+        path="/corporatemypage/paymenthistorydetail"
+        element={<CorpPaymentHistoryDetail />}
+      />
+      <Route
+        path="/corporatemypage/paymentmethod"
+        element={<CorpPaymentMethod />}
+      />
     </Routes>
   );
 }

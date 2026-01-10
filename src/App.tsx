@@ -57,6 +57,7 @@ import CorpAddQnA from './app/corporate/mypage/AddQnA';
 import CorpAddQnADone from './app/corporate/mypage/AddQnADone';
 import CorpEditInfo from './app/corporate/mypage/EditInfo';
 import CorpMatchingResult from './app/corporate/mypage/MatchingResult';
+import CorpPollManage from './app/corporate/mypage/PollManage';
 
 import Step5Complete from './app/student/forms/Step5Complete';
 
@@ -107,13 +108,11 @@ export default function App() {
       <Route path="/studentmypage/addqna" element={<StuAddQnA />} />
       <Route path="/studentmypage/addqnadone" element={<StuAddQnADone />} />
       <Route path="/studentmypage/editinfo" element={<StuEditInfo />} />
-
       <Route path="/studentmypage/writecontract" element={<WriteContract />} />
       <Route
         path="/studentmypage/writecontractdone"
         element={<WriteContractDone />}
       />
-
       {/* 기업 샘플링 요청 */}
       <Route
         path="/corporatesamplingrequest/step1"
@@ -140,6 +139,8 @@ export default function App() {
         path="/corporatemypage/matchingresult"
         element={<CorpMatchingResult />}
       />
+      <Route path="/corporatemypage/pollmanage" element={<CorpPollManage />} />
+      ``
     </Routes>
   );
 }

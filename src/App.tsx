@@ -56,6 +56,7 @@ import CorpQnADetail from './app/corporate/mypage/QnADetail';
 import CorpAddQnA from './app/corporate/mypage/AddQnA';
 import CorpAddQnADone from './app/corporate/mypage/AddQnADone';
 import CorpEditInfo from './app/corporate/mypage/EditInfo';
+import CorpMatchingResult from './app/corporate/mypage/MatchingResult';
 
 import Step5Complete from './app/student/forms/Step5Complete';
 
@@ -135,6 +136,10 @@ export default function App() {
       <Route path="/corporatemypage/addqna" element={<CorpAddQnA />} />
       <Route path="/corporatemypage/addqnadone" element={<CorpAddQnADone />} />
       <Route path="/corporatemypage/editinfo" element={<CorpEditInfo />} />
+      <Route
+        path="/corporatemypage/matchingresult"
+        element={<CorpMatchingResult />}
+      />
     </Routes>
   );
 }

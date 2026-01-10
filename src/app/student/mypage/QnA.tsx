@@ -227,7 +227,7 @@ export default function QnA() {
                 <div className="flex flex-1"></div>
                 <>
                   <button
-                    onClick={() => navigate('/corporatemypage/addqna')}
+                    onClick={() => navigate('/studentmypage/addqna')}
                     className="pl-4 pr-5 py-2.5 bg-blue-600 rounded-xl inline-flex justify-start items-center gap-1 hover:bg-blue-700 transition"
                   >
                     <Plus size={20} color="white" strokeWidth={2} />

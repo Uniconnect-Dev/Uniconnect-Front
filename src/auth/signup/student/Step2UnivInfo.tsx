@@ -2,6 +2,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '@/components/layout/AuthLayout';
+import { initStudentOrgProfile } from '@/services/profile.service';
+import { uploadFile } from '@/services/s3.service';
+import { AppError } from '@/lib/error/AppError';
 
 // 국내 모든 대학교 리스트 (가나다순)
 const UNIVERSITIES = [
@@ -48,6 +51,7 @@ export default function Step2UnivInfo() {
     schoolName: '',
     department: '',
     advisorName: '',
+    phone: '',
     agreeToTerms: false,
   });
   const [showSchoolDropdown, setShowSchoolDropdown] = useState(false);
@@ -55,6 +59,60 @@ export default function Step2UnivInfo() {
   const [hoveredIndex, setHoveredIndex] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // API 연동 관련 상태
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // 로고 업로드 관련 상태
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState('');
+  const [logoUploading, setLogoUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('이미지 파일만 업로드할 수 있습니다.');
+      return;
+    }
+
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+    setLogoUploading(true);
+    setErrorMessage('');
+
+    try {
+      const response = await uploadFile(file, { type: 'student_org_logo' });
+      if (response.data) {
+        setLogoUrl(response.data.url || response.data.key);
+      }
+    } catch (error) {
+      setLogoFile(null);
+      setLogoPreview(null);
+      if (error instanceof AppError) {
+        setErrorMessage(error.message);
+      } else if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('로고 업로드 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
+  const handleLogoRemove = () => {
+    setLogoFile(null);
+    setLogoPreview(null);
+    setLogoUrl('');
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  };
 
   // 검색어 포함된 학교 필터링 (최대 6개)
   const filteredSchools = UNIVERSITIES
@@ -109,13 +167,43 @@ export default function Step2UnivInfo() {
     }
   };
 
-  const isFormValid = formData.schoolName && formData.department && formData.advisorName && formData.agreeToTerms;
+  const isFormValid = formData.schoolName && formData.department && formData.advisorName && formData.phone && formData.agreeToTerms && logoUrl; // 로고 필수
 
-  const handleSubmit = () => {
-    if (isFormValid) {
-      // TODO: 회원가입 API 호출
-      console.log('회원가입 완료:', formData);
+  const handleSubmit = async () => {
+    if (!isFormValid || isLoading) return;
+
+    // localStorage에서 이메일 가져오기
+    const email = localStorage.getItem('signupEmail') || '';
+    if (!email) {
+      setErrorMessage('이메일 정보가 없습니다. 다시 회원가입을 진행해주세요.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      await initStudentOrgProfile({
+        schoolName: formData.schoolName,
+        organizationName: formData.department,
+        managerName: formData.advisorName,
+        phone: formData.phone,
+        email: email,
+        logoUrl: logoUrl,
+      });
+
+      // 임시 저장 데이터 정리
+      localStorage.removeItem('signupEmail');
+
       navigate('/signup/complete');
+    } catch (error) {
+      if (error instanceof AppError) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('단체 정보 등록 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -139,6 +227,51 @@ export default function Step2UnivInfo() {
           <p className="text-[16px] text-[#949BA7] mb-8 tracking-[-0.3px]">
             아래 내용을 입력해 주세요.
           </p>
+
+          {/* 로고 업로드 (필수) */}
+          <div className="mb-6">
+            <label className="block text-[15px] font-medium text-[#6C727E] mb-1.5 tracking-[-0.24px]">
+              단체 로고 <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center gap-4">
+              {logoPreview ? (
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200">
+                  <img src={logoPreview} alt="로고 미리보기" className="w-full h-full object-cover" />
+                  {logoUploading && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleLogoRemove}
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <label className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#008FFF] hover:bg-[#F9FAFB] transition-colors">
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="hidden"
+                  />
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9AA1AD" strokeWidth="2">
+                    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                </label>
+              )}
+              <div className="text-[12px] text-[#9AA1AD]">
+                <p>JPG, PNG 형식</p>
+                <p>권장 크기: 200x200px</p>
+              </div>
+            </div>
+          </div>
 
           {/* 학교명 */}
           <div className="mb-8 relative" ref={dropdownRef}>
@@ -237,6 +370,22 @@ export default function Step2UnivInfo() {
             />
           </div>
 
+          {/* 연락처 */}
+          <div className="mb-8">
+            <label className="block text-[15px] font-medium text-[#6C727E] mb-1.5 tracking-[-0.24px]">
+              연락처
+            </label>
+            <input
+              type="tel"
+              placeholder="010-0000-0000"
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              className="w-full h-[48px] px-4 border text-[15px] border-gray-300 rounded-xl focus:outline-none focus:border-[#008FFF]"
+            />
+          </div>
+
           {/* 개인정보 수집 및 이용 동의 */}
           <div className="mb-12">
             <label className="flex items-center gap-2 cursor-pointer">
@@ -269,24 +418,39 @@ export default function Step2UnivInfo() {
             </label>
           </div>
 
+          {/* 에러 메시지 */}
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-[13px]">{errorMessage}</p>
+            </div>
+          )}
+
           {/* 버튼 */}
           <div className="flex gap-3">
             <button
               onClick={() => navigate('/signup/student/step1')}
-              className="flex-1 h-[48px] border border-[#008FFF] text-[#008FFF] rounded-lg text-[15px] font-semibold hover:bg-[#008FFF] hover:text-white transition-colors"
+              disabled={isLoading}
+              className="flex-1 h-[48px] border border-[#008FFF] text-[#008FFF] rounded-lg text-[15px] font-semibold hover:bg-[#008FFF] hover:text-white transition-colors disabled:opacity-50"
             >
               이전
             </button>
             <button
               onClick={handleSubmit}
-              disabled={!isFormValid}
+              disabled={!isFormValid || isLoading}
               className={`flex-1 h-[48px] rounded-lg text-[15px] font-semibold transition-colors ${
-                isFormValid
+                isFormValid && !isLoading
                   ? 'bg-[#008FFF] text-white hover:bg-[#0077CC]'
                   : 'bg-gray-200 text-[#B4BBC7]'
               }`}
             >
-              회원가입
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  처리 중...
+                </div>
+              ) : (
+                '회원가입'
+              )}
             </button>
           </div>
         </div>

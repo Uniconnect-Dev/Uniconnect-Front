@@ -2,6 +2,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '@/components/layout/AuthLayout';
+import { signupWithoutEmail, login } from '@/services/auth.service';
+import { setAccessToken, setUserId } from '@/lib/auth/token';
+import { AppError } from '@/lib/error/AppError';
 
 export default function Step1StaffInfo() {
   const navigate = useNavigate();
@@ -22,6 +25,8 @@ export default function Step1StaffInfo() {
   const [timer, setTimer] = useState(0);
   const [passwordError, setPasswordError] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // 타이머 효과
   React.useEffect(() => {
@@ -75,9 +80,45 @@ export default function Step1StaffInfo() {
 
   const isFormValid = idCheckStatus === 'available' && emailVerified && formData.password && formData.passwordConfirm && !passwordError;
 
-  const handleNext = () => {
-    if (isFormValid) {
+  const handleNext = async () => {
+    if (!isFormValid || isLoading) return;
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      // 1. 회원가입 API 호출
+      await signupWithoutEmail({
+        username: formData.name,
+        password: formData.password,
+        passwordConfirm: formData.passwordConfirm,
+        managerName: formData.name,
+        email: formData.email,
+        userrole: 'StudentOrg',
+        userStatus: 'Active',
+      });
+
+      // 2. 로그인 API 호출
+      const loginResponse = await login({
+        loginId: formData.name,
+        password: formData.password,
+      });
+
+      // 3. 토큰 및 사용자 정보 저장
+      setAccessToken(loginResponse.accessToken);
+      setUserId(loginResponse.userId);
+      localStorage.setItem('signupEmail', formData.email);
+
+      // 4. 다음 단계로 이동
       navigate('/signup/student/step2');
+    } catch (error) {
+      if (error instanceof AppError) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('회원가입 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -258,24 +299,39 @@ export default function Step1StaffInfo() {
             )}
           </div>
 
+          {/* 에러 메시지 */}
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-[13px]">{errorMessage}</p>
+            </div>
+          )}
+
           {/* 버튼 */}
           <div className="flex gap-3">
             <button
               onClick={() => navigate('/signup')}
-              className="flex-1 h-[48px] border border-[#008FFF] text-[#008FFF] rounded-lg text-[15px] font-semibold hover:bg-[#008FFF] hover:text-white transition-colors"
+              disabled={isLoading}
+              className="flex-1 h-[48px] border border-[#008FFF] text-[#008FFF] rounded-lg text-[15px] font-semibold hover:bg-[#008FFF] hover:text-white transition-colors disabled:opacity-50"
             >
               이전
             </button>
             <button
               onClick={handleNext}
-              disabled={!isFormValid}
+              disabled={!isFormValid || isLoading}
               className={`flex-1 h-[48px] rounded-lg text-[15px] font-semibold transition-colors ${
-                isFormValid
+                isFormValid && !isLoading
                   ? 'bg-[#008FFF] text-white hover:bg-[#0077CC]'
                   : 'bg-gray-200 text-[#B4BBC7]'
               }`}
             >
-              다음
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  처리 중...
+                </div>
+              ) : (
+                '다음'
+              )}
             </button>
           </div>
         </div>

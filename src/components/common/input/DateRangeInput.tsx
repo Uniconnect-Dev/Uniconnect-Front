@@ -8,7 +8,15 @@ interface Props {
   startLabel?: string;
   endLabel?: string;
   placeholder?: string;
+  startPlaceholder?: string;
+  endPlaceholder?: string;
   height?: number;
+  inputWidth?: number;
+  /* controlled mode */
+  startValue?: string;
+  endValue?: string;
+  onStartChange?: (v: string) => void;
+  onEndChange?: (v: string) => void;
 }
 
 function isSameDay(a: Date, b: Date) {
@@ -61,11 +69,39 @@ export default function DateRangeInput({
   startLabel = '',
   endLabel = '',
   placeholder = 'YYYY.MM.DD',
+  startPlaceholder,
+  endPlaceholder,
   height = 56,
+  inputWidth,
+  startValue,
+  endValue,
+  onStartChange,
+  onEndChange,
 }: Props) {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const isControlled = startValue !== undefined;
+
+  const [internalStart, setInternalStart] = useState('');
+  const [internalEnd, setInternalEnd] = useState('');
   const [tempDate, setTempDate] = useState<Date | null>(null);
+
+  const startDate = isControlled ? startValue : internalStart;
+  const endDate = isControlled ? (endValue ?? '') : internalEnd;
+
+  const setStartDate = (v: string) => {
+    if (isControlled && onStartChange) {
+      onStartChange(v);
+    } else {
+      setInternalStart(v);
+    }
+  };
+
+  const setEndDate = (v: string) => {
+    if (isControlled && onEndChange) {
+      onEndChange(v);
+    } else {
+      setInternalEnd(v);
+    }
+  };
 
   const [isOpen, setIsOpen] = useState(false);
   const [activeInput, setActiveInput] = useState<Active>(null);
@@ -112,10 +148,12 @@ export default function DateRangeInput({
   const days = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
 
   const inputBase = `
-    w-full rounded-[14px] border px-4 pl-11
-    text-[16px] cursor-pointer bg-white outline-none
+    rounded-lg border px-4 pl-10
+    text-[14px] cursor-pointer bg-white outline-none
     transition-colors
   `;
+
+  const inputWidthClass = inputWidth ? '' : 'w-full';
 
   return (
     <div ref={containerRef} className="flex flex-col gap-2 relative">
@@ -127,65 +165,65 @@ export default function DateRangeInput({
       )}
 
       {/* inputs */}
-      <div className="flex gap-4 items-end">
+      <div className="flex gap-2 items-center">
         {/* 시작일 */}
-        <div className="flex flex-col gap-2 flex-1">
+        <div className={`flex flex-col gap-2 ${inputWidth ? '' : 'flex-1'}`}>
           {startLabel && (
             <label className="text-[#6C727E] font-medium text-[16px] tracking-[-0.24px]">
               {startLabel}
             </label>
           )}
           <div className="relative">
-            <Calendar 
-              className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${
-                activeInput === 'start' ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
+            <Calendar
+              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
+                activeInput === 'start' || startDate ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
               }`}
             />
             <input
               readOnly
               value={startDate}
-              placeholder={placeholder}
+              placeholder={startPlaceholder ?? placeholder}
               onFocus={() => {
                 setActiveInput('start');
                 setIsOpen(true);
               }}
-              style={{ height }}
-              className={`${inputBase} ${
-                activeInput === 'start' 
-                  ? 'border-[#007AFF] text-[#007AFF]' 
+              style={{ height, width: inputWidth }}
+              className={`${inputBase} ${inputWidthClass} ${
+                activeInput === 'start' || startDate
+                  ? 'border-[#007AFF] text-[#007AFF]'
                   : 'border-[#E6E8EC] text-[#2D3139]'
               }`}
             />
           </div>
         </div>
 
-        <span className="text-[#C7CDD6] pb-4">~</span>
+        <span className="text-[#C7CDD6]">~</span>
 
         {/* 종료일 */}
-        <div className="flex flex-col gap-2 flex-1">
+        <div className={`flex flex-col gap-2 ${inputWidth ? '' : 'flex-1'}`}>
           {endLabel && (
             <label className="text-[#6C727E] font-medium text-[16px] tracking-[-0.24px]">
               {endLabel}
             </label>
           )}
           <div className="relative">
-            <Calendar 
-              className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${
-                activeInput === 'end' ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
+            <Calendar
+              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
+                activeInput === 'end' || endDate ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
               }`}
             />
             <input
               readOnly
               value={endDate}
-              placeholder={placeholder}
+              placeholder={endPlaceholder ?? placeholder}
               onFocus={() => {
                 setActiveInput('end');
                 setIsOpen(true);
               }}
-              style={{ height }}
-              className={`${inputBase} ${
-                activeInput === 'end' 
-                  ? 'border-[#007AFF] text-[#007AFF]' 
+              style={{ height, width: inputWidth }}
+              className={`${inputBase} ${inputWidthClass} ${
+                activeInput === 'end' || endDate
+                  ? 'border-[#007AFF] text-[#007AFF]'
                   : 'border-[#E6E8EC] text-[#2D3139]'
               }`}
             />

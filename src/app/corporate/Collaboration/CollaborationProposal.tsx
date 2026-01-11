@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CorporateLayout from '@/components/layout/CorporateLayout';
 
 // 공통 폼 컴포넌트
@@ -7,14 +8,23 @@ import TextInput from '@/components/common/input/TextInputControl';
 import DateRangeInput from '@/components/common/input/DateRangeInput';
 
 // 협업 관련 컴포넌트
-import { 
-  CollaborationMethodSection, 
-  CollaborationMethod 
+import {
+  CollaborationMethodSection,
+  CollaborationMethod
 } from '@/components/domain/Collaboration/CollaborationMethodSection';
-import { 
-  CollaborationOutcomeSection, 
-  CollaborationOutcome 
+import {
+  CollaborationOutcomeSection,
+  CollaborationOutcome
 } from '@/components/domain/Collaboration/CollaborationOutcomeSection';
+
+// API 서비스
+import {
+  createProposal,
+  uploadProposalAttachment,
+  submitProposal,
+} from '@/services/partnership.service';
+import type { ProposalType, PeriodType } from '@/services/partnership.types';
+import { AppError } from '@/lib/error/AppError';
 
 /* =========================
    공통 라벨 스타일
@@ -125,17 +135,30 @@ function RadioCardOption({
    메인 컴포넌트
 ========================= */
 export default function CollaborationProposal() {
+  const navigate = useNavigate();
+
   const [proposalFile, setProposalFile] = useState<File | null>(null);
   const [isProposalDragging, setIsProposalDragging] = useState(false);
-  
+
   /* 제안 분류 */
   const [type, setType] = useState<'bulk' | 'etc'>('bulk');
 
-  /* 산업군 */
+  /* 기업 정보 */
+  const [contactName, setContactName] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+
+  /* 제휴 정보 */
+  const [productOrServiceName, setProductOrServiceName] = useState('');
   const [industries, setIndustries] = useState<string[]>([]);
 
   /* 희망 협업 기간 */
   const [periodType, setPeriodType] = useState<'always' | 'fixed'>('always');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  /* 제휴 내용 */
+  const [proposalContent, setProposalContent] = useState('');
 
   /* 희망 협업 방향 */
   const [collaborationMethods, setCollaborationMethods] = useState<CollaborationMethod[]>([
@@ -150,6 +173,98 @@ export default function CollaborationProposal() {
   /* 정보 제공 동의 */
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [agreeMarketing, setAgreeMarketing] = useState(false);
+
+  /* API 상태 */
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  /* 날짜 포맷 변환 (YYYY.MM.DD -> YYYY-MM-DD) */
+  const formatDateForApi = (dateStr: string): string => {
+    if (!dateStr) return '';
+    return dateStr.replace(/\./g, '-');
+  };
+
+  /* 폼 유효성 검사 */
+  const isFormValid =
+    contactName &&
+    contactPhone &&
+    contactEmail &&
+    productOrServiceName &&
+    industries.length > 0 &&
+    proposalContent &&
+    (periodType === 'always' || (startDate && endDate)) &&
+    agreePrivacy;
+
+  /* 제출 핸들러 */
+  const handleSubmit = async () => {
+    if (!isFormValid || isLoading) return;
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      // 1. 협업 제안 생성
+      const proposalType: ProposalType = type === 'bulk' ? 'Discount' : 'Etc';
+      const apiPeriodType: PeriodType = periodType === 'always' ? 'Always' : 'Fixed';
+
+      // collaborationMethods를 JSON 형태로 변환
+      const collaborationMethodsJson = {
+        methods: collaborationMethods
+          .filter(m => m.category || m.description)
+          .map(m => ({ category: m.category, description: m.description })),
+      };
+
+      // collaborationOutcomes를 JSON 형태로 변환
+      const expectedOutcomesJson = {
+        outcomes: collaborationOutcomes
+          .filter(o => o.content)
+          .map(o => o.content),
+      };
+
+      const createResponse = await createProposal({
+        proposalType,
+        contactName,
+        contactPhone,
+        contactEmail,
+        productOrServiceName,
+        industry: industries.join(', '),
+        periodType: apiPeriodType,
+        ...(apiPeriodType === 'Fixed' && {
+          startDate: formatDateForApi(startDate),
+          endDate: formatDateForApi(endDate),
+        }),
+        proposalContent,
+        collaborationMethodsJson,
+        expectedOutcomesJson,
+        agreePrivacy,
+        agreeMarketing,
+      });
+
+      const proposalId = createResponse.data;
+
+      // 2. 첨부파일 업로드 (파일이 있는 경우)
+      if (proposalFile) {
+        await uploadProposalAttachment(proposalId, proposalFile);
+      }
+
+      // 3. 최종 제출
+      await submitProposal(proposalId);
+
+      // 성공 시 이동 (완료 페이지 또는 목록)
+      alert('협업 제안이 성공적으로 등록되었습니다.');
+      navigate('/corporate');
+    } catch (error) {
+      if (error instanceof AppError) {
+        setErrorMessage(error.message);
+      } else if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('협업 제안 등록 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <CorporateLayout>
@@ -192,26 +307,35 @@ export default function CollaborationProposal() {
 
           <div className="flex gap-10">
             <div className="flex flex-col gap-2 flex-1 min-w-0">
-              <FieldLabel>기업명</FieldLabel>
-              <TextInput value="유니커넥트" readOnly />
+              <FieldLabel>담당자명</FieldLabel>
+              <TextInput
+                placeholder="담당자명을 입력해주세요."
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+              />
             </div>
 
             <div className="flex flex-col gap-2 flex-1 min-w-0">
-              <FieldLabel>담당자명</FieldLabel>
-              <TextInput placeholder="담당자명을 입력해주세요." />
+              <FieldLabel>전화번호</FieldLabel>
+              <TextInput
+                placeholder="010-0000-0000"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+              />
             </div>
           </div>
 
           <div className="flex gap-10">
             <div className="flex flex-col gap-2 flex-1 min-w-0">
-              <FieldLabel>전화번호</FieldLabel>
-              <TextInput placeholder="010-0000-0000" />
+              <FieldLabel>이메일</FieldLabel>
+              <TextInput
+                placeholder="example@company.com"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+              />
             </div>
 
-            <div className="flex flex-col gap-2 flex-1 min-w-0">
-              <FieldLabel>이메일</FieldLabel>
-              <TextInput placeholder="example@company.com" />
-            </div>
+            <div className="flex-1 min-w-0" />
           </div>
         </section>
 
@@ -223,7 +347,11 @@ export default function CollaborationProposal() {
 
           <div className="flex flex-col gap-2">
             <FieldLabel>제품/서비스명</FieldLabel>
-            <TextInput placeholder="제품/서비스명을 입력해주세요." />
+            <TextInput
+              placeholder="제품/서비스명을 입력해주세요."
+              value={productOrServiceName}
+              onChange={(e) => setProductOrServiceName(e.target.value)}
+            />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -300,6 +428,10 @@ export default function CollaborationProposal() {
                 startLabel="시작일"
                 endLabel="종료일"
                 placeholder="YYYY.MM.DD"
+                startValue={startDate}
+                endValue={endDate}
+                onStartChange={setStartDate}
+                onEndChange={setEndDate}
               />
             </div>
           )}
@@ -313,6 +445,8 @@ export default function CollaborationProposal() {
             <textarea
               placeholder="제휴 요청 내용을 상세히 작성해주세요. 구체적인 내용일수록 빠른 검토가 가능합니다."
               maxLength={500}
+              value={proposalContent}
+              onChange={(e) => setProposalContent(e.target.value)}
               className="
                 w-full h-[160px] p-4 rounded-xl
                 border border-[#DADDE3]
@@ -467,19 +601,34 @@ export default function CollaborationProposal() {
           </label>
         </section>
 
+        {/* ================= 에러 메시지 ================= */}
+        {errorMessage && (
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-red-600 text-[14px]">{errorMessage}</p>
+          </div>
+        )}
+
         {/* ================= 등록하기 버튼 ================= */}
         <div className="mt-10">
           <button
-            type="submit"
-            disabled={!agreePrivacy}
+            type="button"
+            onClick={handleSubmit}
+            disabled={!isFormValid || isLoading}
             className={`
               w-full h-[56px] rounded-xl
               text-white text-[16px] font-semibold
               transition-colors
-              ${agreePrivacy ? 'bg-[#007AFF] hover:bg-[#0066DD]' : 'bg-[#C7CDD6] cursor-not-allowed'}
+              ${isFormValid && !isLoading ? 'bg-[#007AFF] hover:bg-[#0066DD]' : 'bg-[#C7CDD6] cursor-not-allowed'}
             `}
           >
-            등록하기
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                처리 중...
+              </div>
+            ) : (
+              '등록하기'
+            )}
           </button>
         </div>
       </div>

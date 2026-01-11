@@ -17,6 +17,12 @@ import Step3BusinessInfo from './auth/signup/corporate/Step3BusinessInfo';
 import Step1StaffInfo from './auth/signup/student/Step1StaffInfo';
 import Step2UnivInfo from './auth/signup/student/Step2UnivInfo';
 
+// 기업 - 학생 단체 서치
+import StudentGroupSearch from './app/corporate/StudentGroupSearch';
+
+// 학생 단체 - 기업 서치
+import CorporateSearch from './app/student/CorporateSearch';
+
 
 // 학생 쇼핑몰
 import Studentshopping from './app/student/Studentshopping';
@@ -61,6 +67,14 @@ export default function App() {
         element={<Step2BusinessLicense />}
       />
       <Route path="/signup/corporate/step3" element={<Step3BusinessInfo />} />
+
+      {/* 기업 - 학생 단체 서치 */}
+      <Route path="/StudentGroupSearch" element={<StudentGroupSearch />} />
+
+      {/* 학생 단체 - 기업 서치 */}
+      <Route path="/CorporateSearch" element={<CorporateSearch />} />
+
+      CorporateSearch
 
       {/* 학생 쇼핑몰 */}
       <Route path="/studentshopping" element={<Studentshopping />} />

@@ -158,77 +158,79 @@ function MatchingTable({
   onSelectEvent: (eventName: string) => void;
 }) {
   return (
-    <div className="w-full max-h-[576px] bg-white rounded-3xl border border-zinc-200 overflow-y-auto">
-      <table className="w-full border-collapse">
-        {/* Header */}
-        <thead>
-          <tr className="h-14 border-b border-zinc-200 text-gray-400 text-sm font-medium">
-            <th className="w-12 pl-5 text-left"></th>
-            <th className="w-32 pl-5 text-left">예상 비용</th>
-            <th className="w-64 pl-5 text-left">단체명</th>
-            <th className="text-left pl-5">행사명</th>
-            <th className="w-48 pl-5 text-left">분류</th>
-            <th className="w-28 pl-5 text-left">노출 인원</th>
-          </tr>
-        </thead>
+    <div className="w-full h-full bg-white rounded-3xl border border-zinc-200 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto">
+        <table className="w-full border-collapse">
+          {/* Header */}
+          <thead className="sticky top-0 bg-white z-10">
+            <tr className="h-14 border-b border-zinc-200 text-gray-400 text-sm font-medium">
+              <th className="w-12 pl-5 text-left"></th>
+              <th className="w-32 pl-5 text-left">예상 비용</th>
+              <th className="w-64 pl-5 text-left">단체명</th>
+              <th className="text-left pl-5">행사명</th>
+              <th className="w-48 pl-5 text-left">분류</th>
+              <th className="w-28 pl-5 text-left">노출 인원</th>
+            </tr>
+          </thead>
 
-        {/* Body */}
-        <tbody className="text-sm font-medium text-gray-600">
-          <tr className="h-10 hover:bg-slate-100 transition-colors">
-            <td className="pl-5">
-              <Checkbox />
-            </td>
-            <td className="pl-5">20~30만 원</td>
-            <td className="pl-5">고려대학교 학생회</td>
-            <td className="pl-5">
-              <div
-                onClick={() => onSelectEvent('고려대학교 문과 대학 축제')}
-                className="line-clamp-1 cursor-pointer transition-colors hover:text-blue-600 hover:font-bold"
-              >
-                고려대학교 문과 대학 축제
-              </div>
-            </td>
-            <td className="pl-5">
-              <div className="flex gap-1">
-                <Tag label="남녀공학" />
-                <Tag label="축제" />
-                <Tag label="F&B" />
-              </div>
-            </td>
-            <td className="pl-5">15,000</td>
-          </tr>
+          {/* Body */}
+          <tbody className="text-sm font-medium text-gray-600">
+            <tr className="h-10 hover:bg-slate-100 transition-colors">
+              <td className="pl-5">
+                <Checkbox />
+              </td>
+              <td className="pl-5">20~30만 원</td>
+              <td className="pl-5">고려대학교 학생회</td>
+              <td className="pl-5">
+                <div
+                  onClick={() => onSelectEvent('고려대학교 문과 대학 축제')}
+                  className="line-clamp-1 cursor-pointer transition-colors hover:text-blue-600 hover:font-bold"
+                >
+                  고려대학교 문과 대학 축제
+                </div>
+              </td>
+              <td className="pl-5">
+                <div className="flex gap-1">
+                  <Tag label="남녀공학" />
+                  <Tag label="축제" />
+                  <Tag label="F&B" />
+                </div>
+              </td>
+              <td className="pl-5">15,000</td>
+            </tr>
 
-          <tr className="h-10 hover:bg-slate-100 transition-colors">
-            <td className="pl-5">
-              <Checkbox />
-            </td>
-            <td className="pl-5">20~30만 원</td>
-            <td className="pl-5">이화여대 중앙 실전 IT 창업 학회 UNIS</td>
-            <td className="pl-5">
-              <div
-                onClick={() => onSelectEvent('창업 동아리 연합 해커톤')}
-                className="
-                  line-clamp-1
-                  cursor-pointer
-                  transition-colors
-                  hover:text-blue-600
-                  hover:font-bold
-                "
-              >
-                창업 동아리 연합 해커톤
-              </div>
-            </td>
-            <td className="pl-5">
-              <div className="flex gap-1">
-                <Tag label="이화여대" />
-                <Tag label="IT" />
-                <Tag label="창업" />
-              </div>
-            </td>
-            <td className="pl-5">2,000</td>
-          </tr>
-        </tbody>
-      </table>
+            <tr className="h-10 hover:bg-slate-100 transition-colors">
+              <td className="pl-5">
+                <Checkbox />
+              </td>
+              <td className="pl-5">20~30만 원</td>
+              <td className="pl-5">이화여대 중앙 실전 IT 창업 학회 UNIS</td>
+              <td className="pl-5">
+                <div
+                  onClick={() => onSelectEvent('창업 동아리 연합 해커톤')}
+                  className="
+                    line-clamp-1
+                    cursor-pointer
+                    transition-colors
+                    hover:text-blue-600
+                    hover:font-bold
+                  "
+                >
+                  창업 동아리 연합 해커톤
+                </div>
+              </td>
+              <td className="pl-5">
+                <div className="flex gap-1">
+                  <Tag label="이화여대" />
+                  <Tag label="IT" />
+                  <Tag label="창업" />
+                </div>
+              </td>
+              <td className="pl-5">2,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -270,7 +272,7 @@ export default function Step3Matching() {
             <RequestStatus activeStep={3} />
           </div>
 
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col min-h-0 mb-2">
             <MatchingTable
               onSelectEvent={(eventName) => {
                 setSelectedEvent(eventName);

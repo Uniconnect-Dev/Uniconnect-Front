@@ -1,13 +1,21 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
 import RequestStatus from '@/components/common/RequestStatus';
-import { ChevronDown } from 'lucide-react';
-import { Calendar } from 'lucide-react';
+import { ChevronDown, Calendar } from 'lucide-react';
 
-import { useState, useRef, useEffect } from 'react';
+/* =========================
+   공통 타입
+========================= */
+type InputProps = {
+  label: string;
+  placeholder?: string;
+};
 
-function Textinput({ label, placeholder }) {
+/* =========================
+   Text Input
+========================= */
+function Textinput({ label, placeholder }: InputProps) {
   return (
     <div className="flex flex-1 flex-col gap-2">
       <label className="text-gray-500 font-semibold">{label}</label>
@@ -19,7 +27,10 @@ function Textinput({ label, placeholder }) {
   );
 }
 
-function Dropdowninput({ label, placeholder }) {
+/* =========================
+   Dropdown Input
+========================= */
+function Dropdowninput({ label, placeholder }: InputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [value, setValue] = useState('');
 
@@ -33,7 +44,6 @@ function Dropdowninput({ label, placeholder }) {
     '옵션 7',
   ];
 
-  // 입력값과 일치하는 옵션을 최상단으로 정렬
   const sortedOptions = [...options].sort((a, b) => {
     const aMatches = a.toLowerCase().includes(value.toLowerCase());
     const bMatches = b.toLowerCase().includes(value.toLowerCase());
@@ -43,25 +53,25 @@ function Dropdowninput({ label, placeholder }) {
     return 0;
   });
 
-  const handleSelect = (option) => {
+  const handleSelect = (option: string) => {
     setValue(option);
     setIsOpen(false);
   };
 
-  const handleButtonClick = (e) => {
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     setIsOpen((prev) => !prev);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
-    if (!isOpen) setIsOpen(true); // 타이핑 시작하면 드롭다운 열기
+    if (!isOpen) setIsOpen(true);
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && isOpen && sortedOptions.length > 0) {
       e.preventDefault();
-      handleSelect(sortedOptions[0]); // 최상단 옵션 선택
+      handleSelect(sortedOptions[0]);
     }
   };
 
@@ -79,27 +89,27 @@ function Dropdowninput({ label, placeholder }) {
           className="w-full p-4 pr-12 text-gray-600 placeholder:text-gray-400 rounded-xl outline outline-1 outline-offset-[-1px] outline-zinc-200"
         />
         <button
-          onClick={handleButtonClick}
-          className="absolute right-4 top-1/2 -translate-y-1/2 p-0 m-0 flex items-center"
           type="button"
+          onClick={handleButtonClick}
+          className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center"
         >
           <ChevronDown size={16} color="#6C727E" />
         </button>
       </div>
 
-      {/* 드롭다운 메뉴 */}
       {isOpen && (
         <div className="absolute top-full mt-2 w-full bg-white rounded-xl z-10 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.06)] overflow-hidden">
           <ul className="flex flex-col max-h-60 overflow-y-auto">
             {sortedOptions.map((option, index) => {
               const isMatch =
                 value && option.toLowerCase().includes(value.toLowerCase());
+
               return (
                 <li
                   key={index}
                   onClick={() => handleSelect(option)}
-                  className={`p-2 text-gray-600 font-medium hover:bg-gray-100 cursor-pointer ${
-                    isMatch ? 'bg-gray-100' : 'bg-white'
+                  className={`p-2 text-gray-600 font-medium cursor-pointer hover:bg-gray-100 ${
+                    isMatch ? 'bg-gray-100' : ''
                   }`}
                 >
                   {option}
@@ -113,21 +123,24 @@ function Dropdowninput({ label, placeholder }) {
   );
 }
 
-function Dateinput({ label, placeholder }) {
+/* =========================
+   Date Input
+========================= */
+function Dateinput({ label, placeholder }: InputProps) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isStartOpen, setIsStartOpen] = useState(false);
   const [isEndOpen, setIsEndOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [activeInput, setActiveInput] = useState(null);
-  const containerRef = useRef(null); // 컨테이너 참조 추가
+  const [activeInput, setActiveInput] = useState<'start' | 'end' | null>(null);
 
-  // 외부 클릭 감지
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target)
+        !containerRef.current.contains(event.target as Node)
       ) {
         setIsStartOpen(false);
         setIsEndOpen(false);
@@ -135,170 +148,136 @@ function Dateinput({ label, placeholder }) {
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const getDaysInMonth = (date) => {
+  const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startDayOfWeek = firstDay.getDay();
 
-    const days = [];
+    const days: (Date | null)[] = [];
 
-    for (let i = 0; i < startDayOfWeek; i++) {
-      days.push(null);
-    }
-
-    for (let i = 1; i <= daysInMonth; i++) {
+    for (let i = 0; i < firstDay.getDay(); i++) days.push(null);
+    for (let i = 1; i <= lastDay.getDate(); i++) {
       days.push(new Date(year, month, i));
     }
 
     return days;
   };
 
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}.${month}.${day}`;
+  const formatDate = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}.${m}.${d}`;
   };
 
-  const handleDateSelect = (date) => {
-    const formattedDate = formatDate(date);
-
+  const handleDateSelect = (date: Date) => {
+    const formatted = formatDate(date);
     if (activeInput === 'start') {
-      setStartDate(formattedDate);
+      setStartDate(formatted);
       setIsStartOpen(false);
     } else if (activeInput === 'end') {
-      setEndDate(formattedDate);
+      setEndDate(formatted);
       setIsEndOpen(false);
     }
   };
 
-  const handlePrevMonth = () => {
-    setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
-    );
-  };
-
-  const handleNextMonth = () => {
-    setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
-    );
-  };
-
-  const handleStartFocus = () => {
-    setActiveInput('start');
-    setIsStartOpen(true);
-    setIsEndOpen(false);
-  };
-
-  const handleEndFocus = () => {
-    setActiveInput('end');
-    setIsEndOpen(true);
-    setIsStartOpen(false);
-  };
-
   const days = getDaysInMonth(currentMonth);
-  const monthYear = `${currentMonth.getFullYear()}.${(
+  const monthYear = `${currentMonth.getFullYear()}.${String(
     currentMonth.getMonth() + 1
-  )
-    .toString()
-    .padStart(2, '0')}`;
+  ).padStart(2, '0')}`;
 
   return (
-    <div
-      ref={containerRef}
-      className="flex flex-1 min-w-0 flex-col gap-2 relative"
-    >
-      {' '}
-      {/* ref 추가 */}
+    <div ref={containerRef} className="flex flex-1 flex-col gap-2 relative">
       <label className="text-gray-500 font-semibold">{label}</label>
+
       <div className="flex gap-2 items-center">
-        {/* 시작 날짜 */}
-        <div className="relative flex-1 min-w-0">
-          <Calendar
-            size={5}
-            color="#949BA7"
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
-          />
+        <div className="relative flex-1">
+          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            onFocus={handleStartFocus}
+            onFocus={() => {
+              setActiveInput('start');
+              setIsStartOpen(true);
+              setIsEndOpen(false);
+            }}
             placeholder={placeholder}
             className="w-full p-4 pl-12 rounded-xl outline outline-1 outline-zinc-200"
           />
         </div>
 
-        <span className="shrink-0">~</span>
+        <span>~</span>
 
-        {/* 종료 날짜 */}
-        <div className="relative flex-1 min-w-0">
-          <Calendar
-            size={5}
-            color="#949BA7"
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
-          />
+        <div className="relative flex-1">
+          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            onFocus={handleEndFocus}
+            onFocus={() => {
+              setActiveInput('end');
+              setIsEndOpen(true);
+              setIsStartOpen(false);
+            }}
             placeholder={placeholder}
             className="w-full p-4 pl-12 rounded-xl outline outline-1 outline-zinc-200"
           />
         </div>
       </div>
-      {/* 캘린더 팝업 */}
+
       {(isStartOpen || isEndOpen) && (
-        <div
-          className={`absolute top-full mt-4 w-80 h-75 bg-white rounded-2xl z-10 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.06)] p-4 ${
-            isStartOpen ? 'left-0' : 'right-0' // 시작날짜면 left-0, 종료날짜면 right-0
-          }`}
-        >
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <button onClick={handlePrevMonth} className="m-2.25">
+        <div className="absolute top-full mt-4 w-80 bg-white rounded-2xl z-10 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.06)] p-4">
+          <div className="flex justify-between items-center mb-4">
+            <button
+              onClick={() =>
+                setCurrentMonth(
+                  new Date(
+                    currentMonth.getFullYear(),
+                    currentMonth.getMonth() - 1
+                  )
+                )
+              }
+            >
               &lt;
             </button>
-            <span className="text-lg font-bold">{monthYear}</span>
-            <button onClick={handleNextMonth} className="m-2.25">
+            <span className="font-bold">{monthYear}</span>
+            <button
+              onClick={() =>
+                setCurrentMonth(
+                  new Date(
+                    currentMonth.getFullYear(),
+                    currentMonth.getMonth() + 1
+                  )
+                )
+              }
+            >
               &gt;
             </button>
           </div>
 
-          {/* 요일 헤더 */}
-          <div className="grid grid-cols-7 gap-auto mb-2">
-            {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
-              <div
-                key={day}
-                className="w-10 h-6 flex text-zinc-200 text-xs font-medium items-center justify-center"
-              >
-                {day}
+          <div className="grid grid-cols-7 text-xs text-gray-300 mb-2">
+            {['일', '월', '화', '수', '목', '금', '토'].map((d) => (
+              <div key={d} className="text-center">
+                {d}
               </div>
             ))}
           </div>
 
-          {/* 날짜 그리드 */}
-          <div className="grid grid-cols-7 gap-auto">
-            {days.map((day, index) => (
-              <div key={index} className="w-10 h-10">
-                {day ? (
-                  <button
-                    onClick={() => handleDateSelect(day)}
-                    className="w-full h-full flex items-center justify-center text-gray-400 font-medium hover:bg-sky-100 hover:text-sky-500 p-2 rounded-lg transition-colors"
-                  >
-                    {day.getDate()}
-                  </button>
-                ) : (
-                  <div />
-                )}
-              </div>
-            ))}
+          <div className="grid grid-cols-7 gap-1">
+            {days.map((day, idx) =>
+              day ? (
+                <button
+                  key={idx}
+                  onClick={() => handleDateSelect(day)}
+                  className="w-10 h-10 rounded-lg text-gray-500 hover:bg-sky-100 hover:text-sky-500"
+                >
+                  {day.getDate()}
+                </button>
+              ) : (
+                <div key={idx} />
+              )
+            )}
           </div>
         </div>
       )}
@@ -306,83 +285,65 @@ function Dateinput({ label, placeholder }) {
   );
 }
 
-export default function Step1BasicInfot() {
-  const [description, setDescription] = useState(''); //제품/서비스 정렬 onChange 관련 코드
+/* =========================
+   Page
+========================= */
+export default function Step1BasicInfo() {
+  const [description, setDescription] = useState('');
   const navigate = useNavigate();
-  const handleNext = () => {
-    navigate('/corporatesamplingrequest/step2');
-  };
+
   return (
     <CorporateLayout>
-      {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
-      {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
       <div className="flex flex-col min-h-full">
-        <div className="flex justify-between w-full">
+        <div className="flex justify-between">
           <div>
-            <h1 className="text-2xl font-bold mb-2">샘플링 요청</h1>
-            <p className="text-sm text-gray-500 mb-6">
-              제품 샘플링 및 협업 제안서
-            </p>
+            <h1 className="text-2xl font-bold">샘플링 요청</h1>
+            <p className="text-sm text-gray-500">제품 샘플링 및 협업 제안서</p>
           </div>
           <RequestStatus activeStep={1} />
         </div>
-        <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100 mb-6"></div>
-        {/* 샘플링 요청 폼*/}
-        <div className="w-full flex flex-col gap-7">
+
+        <div className="my-6 h-px bg-gray-100" />
+
+        <div className="flex flex-col gap-7">
           <Textinput
             label="제품 / 서비스명"
             placeholder="프로모션을 진행할 제품이나 서비스명을 입력해주세요."
           />
-          <div className="w-full flex flex-row gap-12">
-            {/*산업군*/}
-            <Dropdowninput
-              label="산업군"
-              placeholder="산업군을 선택해주세요."
-            />
-            {/*샘플링 목적*/}
-            <Dropdowninput
-              label="샘플링 목적"
-              placeholder="샘플링 목적을 선택해주세요."
-            />
+
+          <div className="flex gap-12">
+            <Dropdowninput label="산업군" placeholder="산업군 선택" />
+            <Dropdowninput label="샘플링 목적" placeholder="목적 선택" />
           </div>
-          <div className="w-full flex flex-row gap-12">
-            {/*샘플링 시기*/}
+
+          <div className="flex gap-12">
             <Dateinput label="샘플링 시기" placeholder="YYYY.MM.DD" />
-            {/*제품 개수*/}
-            <Textinput
-              label="제품 개수"
-              placeholder="제공할 제품 개수를 입력해주세요."
-            />
+            <Textinput label="제품 개수" placeholder="제품 개수 입력" />
           </div>
-          {/*제품/서비스 설명*/}
-          <div className="flex flex-1 flex-col gap-2">
+
+          <div className="flex flex-col gap-2">
             <label className="text-gray-500 font-semibold">
               제품 / 서비스 설명
             </label>
             <textarea
               value={description}
-              onChange={(e) => {
-                if (e.target.value.length <= 300) {
-                  setDescription(e.target.value);
-                }
-              }}
-              placeholder="샘플링을 진행할 제품/서비스에 대한 간단한 설명을 작성해주세요."
-              className="w-full h-48 p-5 rounded-xl outline outline-1 outline-zinc-200 items-start"
+              onChange={(e) =>
+                e.target.value.length <= 300 && setDescription(e.target.value)
+              }
+              className="h-48 p-5 rounded-xl outline outline-1 outline-zinc-200"
             />
-            <p className="w-full text-gray-400 text-xs text-right mb-7">
+            <p className="text-xs text-gray-400 text-right">
               {description.length}/300
             </p>
           </div>
         </div>
-        {/*다음 버튼 하단 정렬 영역*/}
-        <div className="mt-auto flex justify-end items-end">
+
+        <div className="mt-auto flex justify-end">
           <button
-            onClick={handleNext}
-            className="h-14 w-[200px] bg-[#E9ECEF] rounded-xl transition-colors hover:bg-gray-200 group"
+            onClick={() => navigate('/corporatesamplingrequest/step2')}
+            className="h-14 w-[200px] bg-gray-200 rounded-xl hover:bg-gray-300"
           >
-            <span className="text-[#B4BBC7] font-medium text-lg group-hover:text-gray-500 tracking-[-0.27px]">
-              다음
-            </span>
+            다음
           </button>
         </div>
       </div>

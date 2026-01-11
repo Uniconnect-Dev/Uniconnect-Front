@@ -2,9 +2,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '@/components/layout/AuthLayout';
+import { initCompanyProfile } from '@/services/profile.service';
+import { uploadFile } from '@/services/s3.service';
+import { getUserId } from '@/lib/auth/token';
+import { AppError } from '@/lib/error/AppError';
 
 // 임의 데이터 (실제 데이터셋으로 교체 가능)
-const BUSINESS_TYPES = ['제조업', '도매 및 소매업', '정보통신업', '전문, 과학 및 기술 서비스업', '사업시설 관리, 사업 지원 및 임대 서비스업', '교육 서비스업'];
+// TODO: 실제 API에서 업종 목록을 가져와야 함
+const BUSINESS_TYPES: { id: number; name: string }[] = [
+  { id: 1, name: '제조업' },
+  { id: 2, name: '도매 및 소매업' },
+  { id: 3, name: '정보통신업' },
+  { id: 4, name: '전문, 과학 및 기술 서비스업' },
+  { id: 5, name: '사업시설 관리, 사업 지원 및 임대 서비스업' },
+  { id: 6, name: '교육 서비스업' },
+];
 const BUSINESS_ITEMS = ['소프트웨어 개발 및 공급', '데이터베이스 및 온라인 정보제공업', '광고 대행업', '경영 컨설팅업', '전자상거래 소매업', '컴퓨터 시스템 통합 자문 및 구축 서비스업'];
 
 export default function Step3BusinessInfo() {
@@ -17,16 +29,69 @@ export default function Step3BusinessInfo() {
     address: { street: '', detail: '' },
     businessType: '', // 업태
     businessItem: '', // 종목
+    industryId: 0, // 업종 ID
   });
 
   // 드롭다운 관련 상태
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showItemDropdown, setShowItemDropdown] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const typeRef = useRef<HTMLDivElement>(null);
   const itemRef = useRef<HTMLDivElement>(null);
 
+  // 로고 업로드 관련 상태
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState('');
+  const [logoUploading, setLogoUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('이미지 파일만 업로드할 수 있습니다.');
+      return;
+    }
+
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+    setLogoUploading(true);
+    setErrorMessage('');
+
+    try {
+      const response = await uploadFile(file, { type: 'company_logo' });
+      if (response.data) {
+        setLogoUrl(response.data.url || response.data.key);
+      }
+    } catch (error) {
+      setLogoFile(null);
+      setLogoPreview(null);
+      if (error instanceof AppError) {
+        setErrorMessage(error.message);
+      } else if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('로고 업로드 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
+  const handleLogoRemove = () => {
+    setLogoFile(null);
+    setLogoPreview(null);
+    setLogoUrl('');
+    if (logoInputRef.current) {
+      logoInputRef.current.value = '';
+    }
+  };
+
   // 필터링 로직
-  const filteredTypes = BUSINESS_TYPES.filter(t => t.includes(formData.businessType)).slice(0, 5);
+  const filteredTypes = BUSINESS_TYPES.filter(t => t.name.includes(formData.businessType)).slice(0, 5);
   const filteredItems = BUSINESS_ITEMS.filter(i => i.includes(formData.businessItem)).slice(0, 5);
 
   // 외부 클릭 닫기
@@ -39,16 +104,46 @@ export default function Step3BusinessInfo() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const isFormValid = 
-    formData.businessNumber.length >= 10 && 
-    formData.legalName && 
-    formData.representative && 
+  const isFormValid =
+    formData.businessNumber.length >= 10 &&
+    formData.legalName &&
+    formData.representative &&
     formData.openingDate &&
     formData.businessType &&
-    formData.businessItem;
+    formData.businessItem &&
+    formData.industryId > 0 &&
+    logoUrl; // 로고 필수
 
-  const handleSubmit = () => {
-    navigate('/signup/complete');
+  const handleSubmit = async () => {
+    if (!isFormValid || isLoading) return;
+
+    const userId = getUserId();
+    if (!userId) {
+      setErrorMessage('로그인 정보가 없습니다. 다시 회원가입을 진행해주세요.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      await initCompanyProfile({
+        brandName: formData.legalName,
+        logoUrl: logoUrl,
+        mainContactId: userId,
+        industryId: formData.industryId,
+      });
+
+      navigate('/signup/complete');
+    } catch (error) {
+      if (error instanceof AppError) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('기업 정보 등록 중 오류가 발생했습니다.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -64,6 +159,51 @@ export default function Step3BusinessInfo() {
 
           <h1 className="text-[24px] font-bold text-[#191F28] tracking-[-0.42px]">사업자 정보 입력</h1>
           <p className="text-[16px] text-[#949BA7] mb-8 tracking-[-0.3px]">사업자 정보를 정확히 입력해 주세요.</p>
+
+          {/* 로고 업로드 (필수) */}
+          <div className="mb-6">
+            <label className="block text-[14px] font-medium text-[#6C727E] mb-1.5">
+              기업 로고 <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center gap-4">
+              {logoPreview ? (
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200">
+                  <img src={logoPreview} alt="로고 미리보기" className="w-full h-full object-cover" />
+                  {logoUploading && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleLogoRemove}
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <label className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-[#008FFF] hover:bg-[#F9FAFB] transition-colors">
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="hidden"
+                  />
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9AA1AD" strokeWidth="2">
+                    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                </label>
+              )}
+              <div className="text-[12px] text-[#9AA1AD]">
+                <p>JPG, PNG 형식</p>
+                <p>권장 크기: 200x200px</p>
+              </div>
+            </div>
+          </div>
 
           <div className="space-y-4 mb-8">
             <div>
@@ -101,8 +241,8 @@ export default function Step3BusinessInfo() {
                 />
                 {showTypeDropdown && formData.businessType && filteredTypes.length > 0 && (
                   <div className="absolute z-10 w-[calc(100%-52px)] right-0 top-[52px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                    {filteredTypes.map((t, i) => (
-                      <button key={i} type="button" onClick={() => { setFormData({...formData, businessType: t}); setShowTypeDropdown(false); }} className="w-full px-4 py-3 text-left text-[13px] hover:bg-gray-50 border-b border-gray-50 last:border-0">{t}</button>
+                    {filteredTypes.map((t) => (
+                      <button key={t.id} type="button" onClick={() => { setFormData({...formData, businessType: t.name, industryId: t.id}); setShowTypeDropdown(false); }} className="w-full px-4 py-3 text-left text-[13px] hover:bg-gray-50 border-b border-gray-50 last:border-0">{t.name}</button>
                     ))}
                   </div>
                 )}
@@ -130,24 +270,39 @@ export default function Step3BusinessInfo() {
             </div>
           </div>
 
+          {/* 에러 메시지 */}
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-[13px]">{errorMessage}</p>
+            </div>
+          )}
+
           {/* 하단 버튼 세트 */}
           <div className="flex gap-3 mt-4">
             <button
               onClick={() => navigate('/signup/corporate/step2')}
-              className="flex-1 h-[48px] border border-[#008FFF] text-[#008FFF] rounded-lg font-semibold text-[15px] hover:bg-[#F0F9FF] transition-colors"
+              disabled={isLoading}
+              className="flex-1 h-[48px] border border-[#008FFF] text-[#008FFF] rounded-lg font-semibold text-[15px] hover:bg-[#F0F9FF] transition-colors disabled:opacity-50"
             >
               이전
             </button>
             <button
               onClick={handleSubmit}
-              disabled={!isFormValid}
+              disabled={!isFormValid || isLoading}
               className={`flex-1 h-[48px] rounded-lg font-semibold text-[15px] transition-colors ${
-                isFormValid 
-                  ? 'bg-[#008FFF] text-white hover:bg-[#0077CC]' 
+                isFormValid && !isLoading
+                  ? 'bg-[#008FFF] text-white hover:bg-[#0077CC]'
                   : 'bg-gray-200 text-[#B4BBC7] cursor-not-allowed'
               }`}
             >
-              가입완료
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  처리 중...
+                </div>
+              ) : (
+                '가입완료'
+              )}
             </button>
           </div>
         </div>

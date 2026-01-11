@@ -1,7 +1,9 @@
 // src/auth/signup/corporate/Step2BusinessLicense.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '@/components/layout/AuthLayout';
+import { uploadFile } from '@/services/s3.service';
+import { AppError } from '@/lib/error/AppError';
 
 export default function Step2BusinessLicense() {
   const navigate = useNavigate();
@@ -9,8 +11,10 @@ export default function Step2BusinessLicense() {
   const [uploading, setUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('PDF, JPG, PNG 형식의 파일만 업로드할 수 있습니다.');
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadedKey, setUploadedKey] = useState<string | null>(null);
 
   const validateFile = (selectedFile: File): boolean => {
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
@@ -21,36 +25,50 @@ export default function Step2BusinessLicense() {
     return true;
   };
 
-  const processFile = (selectedFile: File) => {
+  const processFile = async (selectedFile: File) => {
     if (!validateFile(selectedFile)) return;
+
     setFile(selectedFile);
     setShowError(false);
     setUploading(true);
     setUploadProgress(0);
-  };
 
-  useEffect(() => {
-    if (uploading) {
-      const duration = 1500;
-      const interval = 30;
-      const steps = duration / interval;
-      const increment = 100 / steps;
-      let currentProgress = 0;
-
-      const timer = setInterval(() => {
-        currentProgress += increment;
-        if (currentProgress >= 100) {
-          setUploadProgress(100);
-          setUploading(false);
-          setUploadComplete(true);
-          clearInterval(timer);
-        } else {
-          setUploadProgress(currentProgress);
+    // 진행률 애니메이션 (실제 업로드와 병행)
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return 90;
         }
-      }, interval);
-      return () => clearInterval(timer);
+        return prev + 10;
+      });
+    }, 100);
+
+    try {
+      const response = await uploadFile(selectedFile, { type: 'business_license' });
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      setUploadedKey(response.data.key);
+      setUploadComplete(true);
+
+      // 업로드된 key를 localStorage에 저장 (Step3에서 사용 가능)
+      localStorage.setItem('businessLicenseKey', response.data.key);
+    } catch (error) {
+      clearInterval(progressInterval);
+      setFile(null);
+      setUploadProgress(0);
+
+      if (error instanceof AppError) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('파일 업로드 중 오류가 발생했습니다.');
+      }
+      setShowError(true);
+    } finally {
+      setUploading(false);
     }
-  }, [uploading]);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -198,8 +216,8 @@ export default function Step2BusinessLicense() {
             <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF4D4F" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             </div>
-            <h3 className="text-[18px] font-bold text-[#191F28] mb-2">파일 형식 오류</h3>
-            <p className="text-[14px] text-[#6C727E] mb-6">PDF, JPG, PNG 형식의<br/>파일만 업로드할 수 있습니다.</p>
+            <h3 className="text-[18px] font-bold text-[#191F28] mb-2">업로드 오류</h3>
+            <p className="text-[14px] text-[#6C727E] mb-6">{errorMessage}</p>
             <button
               onClick={() => setShowError(false)}
               className="w-full py-3 bg-[#191F28] text-white rounded-xl font-semibold hover:bg-black transition-colors"

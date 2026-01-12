@@ -4,22 +4,28 @@ import CorporateLayout from '../../../components/layout/CorporateLayout';
 import RequestStatus from '@/components/common/RequestStatus';
 import { ChevronDown, Calendar } from 'lucide-react';
 
+import { createSamplingProposal } from '@/services/sampling/sampling.service';
+
 /* =========================
    공통 타입
 ========================= */
 type InputProps = {
   label: string;
   placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 };
 
 /* =========================
    Text Input
 ========================= */
-function Textinput({ label, placeholder }: InputProps) {
+function Textinput({ label, placeholder, value, onChange }: InputProps) {
   return (
     <div className="flex flex-1 flex-col gap-2">
       <label className="text-gray-500 font-semibold">{label}</label>
       <input
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
         className="w-full p-4 rounded-xl outline outline-1 outline-zinc-200"
       />
@@ -27,10 +33,17 @@ function Textinput({ label, placeholder }: InputProps) {
   );
 }
 
+type DropdownProps = {
+  label: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+};
+
 /* =========================
    Dropdown Input
 ========================= */
-function Dropdowninput({ label, placeholder }: InputProps) {
+function Dropdowninput({ label, placeholder, onChange }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [value, setValue] = useState('');
 
@@ -55,6 +68,7 @@ function Dropdowninput({ label, placeholder }: InputProps) {
 
   const handleSelect = (option: string) => {
     setValue(option);
+    onChange?.(option);
     setIsOpen(false);
   };
 
@@ -123,10 +137,15 @@ function Dropdowninput({ label, placeholder }: InputProps) {
   );
 }
 
+type DateInputProps = {
+  label: string;
+  onChange: (start: string, end: string) => void;
+};
+
 /* =========================
    Date Input
 ========================= */
-function Dateinput({ label, placeholder }: InputProps) {
+function Dateinput({ label, onChange }: DateInputProps) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isStartOpen, setIsStartOpen] = useState(false);
@@ -176,12 +195,17 @@ function Dateinput({ label, placeholder }: InputProps) {
 
   const handleDateSelect = (date: Date) => {
     const formatted = formatDate(date);
+
     if (activeInput === 'start') {
       setStartDate(formatted);
       setIsStartOpen(false);
-    } else if (activeInput === 'end') {
+      onChange(formatted, endDate);
+    }
+
+    if (activeInput === 'end') {
       setEndDate(formatted);
       setIsEndOpen(false);
+      onChange(startDate, formatted);
     }
   };
 
@@ -204,7 +228,6 @@ function Dateinput({ label, placeholder }: InputProps) {
               setIsStartOpen(true);
               setIsEndOpen(false);
             }}
-            placeholder={placeholder}
             className="w-full p-4 pl-12 rounded-xl outline outline-1 outline-zinc-200"
           />
         </div>
@@ -220,7 +243,6 @@ function Dateinput({ label, placeholder }: InputProps) {
               setIsEndOpen(true);
               setIsStartOpen(false);
             }}
-            placeholder={placeholder}
             className="w-full p-4 pl-12 rounded-xl outline outline-1 outline-zinc-200"
           />
         </div>
@@ -289,8 +311,34 @@ function Dateinput({ label, placeholder }: InputProps) {
    Page
 ========================= */
 export default function Step1BasicInfo() {
+  const [productName, setProductName] = useState('');
+  const [industry, setIndustry] = useState('');
+  const [samplingPurpose, setSamplingPurpose] = useState('');
+  const [productCount, setProductCount] = useState('');
+  const [samplingStartDate, setSamplingStartDate] = useState('');
+  const [samplingEndDate, setSamplingEndDate] = useState('');
   const [description, setDescription] = useState('');
+
   const navigate = useNavigate();
+
+  const handleNext = async () => {
+    try {
+      const res = await createSamplingProposal({
+        productName,
+        industry,
+        samplingPurpose,
+        samplingStartDate,
+        samplingEndDate,
+        productCount: Number(productCount),
+        detailRequest: description,
+      });
+
+      // 성공 → step2로 이동
+      navigate('/corporatesamplingrequest/step2');
+    } catch (error: any) {
+      alert(error.message || '샘플링 요청 생성 실패');
+    }
+  };
 
   return (
     <CorporateLayout>
@@ -309,16 +357,37 @@ export default function Step1BasicInfo() {
           <Textinput
             label="제품 / 서비스명"
             placeholder="프로모션을 진행할 제품이나 서비스명을 입력해주세요."
+            value={productName}
+            onChange={setProductName}
           />
 
           <div className="flex gap-12">
-            <Dropdowninput label="산업군" placeholder="산업군 선택" />
-            <Dropdowninput label="샘플링 목적" placeholder="목적 선택" />
+            <Dropdowninput
+              label="산업군"
+              placeholder="산업군 선택"
+              onChange={setIndustry}
+            />
+            <Dropdowninput
+              label="샘플링 목적"
+              placeholder="목적 선택"
+              onChange={setSamplingPurpose}
+            />
           </div>
 
           <div className="flex gap-12">
-            <Dateinput label="샘플링 시기" placeholder="YYYY.MM.DD" />
-            <Textinput label="제품 개수" placeholder="제품 개수 입력" />
+            <Dateinput
+              label="샘플링 시기"
+              onChange={(start, end) => {
+                setSamplingStartDate(start);
+                setSamplingEndDate(end);
+              }}
+            />
+            <Textinput
+              label="제품 개수"
+              placeholder="제품 개수 입력"
+              value={productCount}
+              onChange={setProductCount}
+            />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -340,7 +409,7 @@ export default function Step1BasicInfo() {
 
         <div className="mt-auto flex justify-end">
           <button
-            onClick={() => navigate('/corporatesamplingrequest/step2')}
+            onClick={handleNext}
             className="h-14 w-[200px] bg-gray-200 rounded-xl hover:bg-gray-300"
           >
             다음

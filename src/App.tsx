@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { CampaignFormProvider } from './context/CampaignFormContext';
 
 // 로그인
 import Login from './auth/login/Login';
@@ -75,6 +76,7 @@ import CollaborationProposal from './app/corporate/Collaboration/CollaborationPr
 
 export default function App() {
   return (
+    <CampaignFormProvider>
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
@@ -171,5 +173,6 @@ export default function App() {
         element={<CorpPaymentMethod />}
       />
     </Routes>
+    </CampaignFormProvider>
   );
 }

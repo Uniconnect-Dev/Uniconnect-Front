@@ -1,5 +1,8 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { CampaignFormProvider } from './context/CampaignFormContext';
+
+// 랜딩페이지
+import LandingPage from './app/landing';
 
 // 로그인
 import Login from './auth/login/Login';
@@ -77,7 +80,7 @@ export default function App() {
   return (
     <CampaignFormProvider>
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
 
       {/* 회원가입 */}
@@ -174,128 +177,8 @@ export default function App() {
         path="/corporatemypage/paymentmethod"
         element={<CorpPaymentMethod />}
       />
+      <Route path="/corporatemypage/dashboard" element={<CorpDashBoard />} />
     </Routes>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        {/* 회원가입 */}
-        <Route path="/signup" element={<SelectUserType />} />
-        <Route path="/signup/complete" element={<SignUpComplete />} />
-        {/* 학생 회원가입 */}
-        <Route path="/signup/student/step1" element={<Step1StaffInfo />} />
-        <Route path="/signup/student/step2" element={<Step2UnivInfo />} />
-        {/* 기업 회원가입 */}
-        <Route path="/signup/corporate/step1" element={<Step1CompanyInfo />} />
-        <Route
-          path="/signup/corporate/step2"
-          element={<Step2BusinessLicense />}
-        />
-        <Route path="/signup/corporate/step3" element={<Step3BusinessInfo />} />
-
-        {/* 기업 - 학생 단체 서치 */}
-        <Route path="/StudentGroupSearch" element={<StudentGroupSearch />} />
-
-        {/* 학생 단체 - 기업 서치 */}
-        <Route path="/CorporateSearch" element={<CorporateSearch />} />
-
-        {/* 학생 쇼핑몰 */}
-        <Route path="/studentshopping" element={<Studentshopping />} />
-        <Route path="/studentshopping/:companyId" element={<CompanyDetail />} />
-        <Route
-          path="/studentshopping/:companyId/products/:productId"
-          element={<ProductDetail />}
-        />
-        <Route path="/studentshopping/cart" element={<Cart />} />
-        <Route path="/studentshopping/order" element={<Order />} />
-        <Route
-          path="/studentshopping/order/complete"
-          element={<OrderComplete />}
-        />
-        {/* 학생 단체 제휴 / 샘플링 요청 */}
-        <Route path="/studentsampling/step1" element={<Step1StudentInfo />} />
-        <Route
-          path="/studentsampling/step2"
-          element={<Step2StudentEventInfo />}
-        />
-        <Route
-          path="/studentsampling/step3"
-          element={<Step3ChooseCorporate />}
-        />
-        <Route path="/studentsampling/step4" element={<Step4Agreements />} />
-        <Route path="/studentsampling/step5" element={<Step5Complete />} />
-
-        {/* 학생 단체 마이페이지*/}
-        <Route path="/studentmypage/contract" element={<StuContract />} />
-        <Route path="/studentmypage/qna" element={<StuQnA />} />
-        <Route path="/studentmypage/qnadetail" element={<StuQnADetail />} />
-        <Route path="/studentmypage/addqna" element={<StuAddQnA />} />
-        <Route path="/studentmypage/addqnadone" element={<StuAddQnADone />} />
-        <Route path="/studentmypage/editinfo" element={<StuEditInfo />} />
-        <Route
-          path="/studentmypage/writecontract"
-          element={<WriteContract />}
-        />
-        <Route
-          path="/studentmypage/writecontractdone"
-          element={<WriteContractDone />}
-        />
-        {/* 기업 샘플링 요청 */}
-        <Route
-          path="/corporatesamplingrequest/step1"
-          element={<Step1BasicInfo />}
-        />
-        <Route
-          path="/CollaborationProposal"
-          element={<CollaborationProposal />}
-        />
-        <Route
-          path="/corporatesamplingrequest/step2"
-          element={<Step2TargetSet />}
-        />
-        <Route
-          path="/corporatesamplingrequest/step3"
-          element={<Step3Matching />}
-        />
-        <Route
-          path="/corporatesamplingrequest/step4"
-          element={<Step4Terms />}
-        />
-        <Route
-          path="/corporatesamplingrequest/stepDone"
-          element={<StepDone />}
-        />
-        {/* 기업 마이페이지*/}
-        <Route path="/corporatemypage/contract" element={<CorpContract />} />
-        <Route path="/corporatemypage/qna" element={<CorpQnA />} />
-        <Route path="/corporatemypage/qnadetail" element={<CorpQnADetail />} />
-        <Route path="/corporatemypage/addqna" element={<CorpAddQnA />} />
-        <Route
-          path="/corporatemypage/addqnadone"
-          element={<CorpAddQnADone />}
-        />
-        <Route path="/corporatemypage/editinfo" element={<CorpEditInfo />} />
-        <Route
-          path="/corporatemypage/matchingresult"
-          element={<CorpMatchingResult />}
-        />
-        <Route
-          path="/corporatemypage/pollmanage"
-          element={<CorpPollManage />}
-        />
-        <Route
-          path="/corporatemypage/paymenthistory"
-          element={<CorpPaymentHistory />}
-        />
-        <Route
-          path="/corporatemypage/paymenthistorydetail"
-          element={<CorpPaymentHistoryDetail />}
-        />
-        <Route
-          path="/corporatemypage/paymentmethod"
-          element={<CorpPaymentMethod />}
-        />
-        <Route path="/corporatemypage/dashboard" element={<CorpDashBoard />} />
-      </Routes>
     </CampaignFormProvider>
   );
 }

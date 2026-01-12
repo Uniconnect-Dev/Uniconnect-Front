@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
-interface FileUploaderProps {
+export interface FileUploaderProps {
   label?: string;
   maxFiles?: number;
+  onFileChange?: (file: File | null) => void;
 }
 
 export default function FileUploader({
   label = '제안서 첨부 (선택)',
   maxFiles = 6,
+  onFileChange,
 }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -17,9 +19,10 @@ export default function FileUploader({
     return allowed.includes(file.type);
   };
 
-  const handleFile = (file: File) => {
-    if (!validateFile(file)) return;
-    setFile(file);
+  const handleFile = (selectedFile: File) => {
+    if (!validateFile(selectedFile)) return;
+    setFile(selectedFile);
+    onFileChange?.(selectedFile);
   };
 
   return (
@@ -78,7 +81,10 @@ export default function FileUploader({
         <div className="border border-[#DADDE3] rounded-xl p-4 flex items-center justify-between">
           <span className="text-sm truncate">{file.name}</span>
           <button
-            onClick={() => setFile(null)}
+            onClick={() => {
+              setFile(null);
+              onFileChange?.(null);
+            }}
             className="text-[#949BA7]"
           >
             ×

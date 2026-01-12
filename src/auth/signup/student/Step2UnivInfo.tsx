@@ -146,7 +146,9 @@ export default function Step2UnivInfo() {
   };
 
   const handleSchoolInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+    const value = e.target.value;
+    setSearchQuery(value);
+    setFormData({ ...formData, schoolName: value });
     setShowSchoolDropdown(true);
   };
 

@@ -49,11 +49,21 @@ export default function Step2BusinessLicense() {
 
       clearInterval(progressInterval);
       setUploadProgress(100);
-      setUploadedKey(response.data.key);
+      if (response.data) {
+        setUploadedKey(response.data.key);
+      } else {
+        setShowError(true);
+        setErrorMessage('응답 데이터가 없습니다.');
+      }
       setUploadComplete(true);
 
       // 업로드된 key를 localStorage에 저장 (Step3에서 사용 가능)
-      localStorage.setItem('businessLicenseKey', response.data.key);
+      if (response.data) {
+        localStorage.setItem('businessLicenseKey', response.data.key);
+      } else {
+        setShowError(true);
+        setErrorMessage('응답 데이터가 없습니다.');
+      }
     } catch (error) {
       clearInterval(progressInterval);
       setFile(null);

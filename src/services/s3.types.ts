@@ -6,10 +6,10 @@ export interface S3UploadMeta {
 }
 
 export interface S3UploadResponse {
-  success: boolean;
+  code: string;
   message: string;
   data: {
-    url: string;
+    url?: string;
     key: string;
   } | null;
 }

@@ -4,6 +4,7 @@ interface Props {
   placeholder?: string;
   readOnly?: boolean;
   height?: number;
+  type?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -12,10 +13,12 @@ export default function TextInputControl({
   placeholder,
   readOnly = false,
   height = 56,
+  type = 'text',
   onChange,
 }: Props) {
   return (
     <input
+      type={type}
       value={value}
       onChange={onChange}
       placeholder={placeholder}

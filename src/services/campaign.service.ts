@@ -1,8 +1,6 @@
 // src/services/campaign.service.ts
 
 import { api } from '@/lib/api/client';
-import axios from 'axios';
-import { getAccessToken } from '@/lib/auth/token';
 import type {
   FirstPageInfoResponse,
   FirstPageInfoRequest,
@@ -13,8 +11,6 @@ import type {
   SaveFirstPageResponse,
   RecommendedCompany,
 } from './campaign.types';
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * 첫 페이지 기본 정보 조회 (학교명, 단체명)
@@ -51,18 +47,11 @@ export async function uploadCampaignProposal(
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await axios.post<UploadProposalResponse>(
-    `${BASE_URL}/api/campaigns/${campaignId}/proposal`,
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${getAccessToken()}`,
-      },
-    }
-  );
-
-  return response.data;
+  return api.post(`/api/campaigns/${campaignId}/proposal`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 }
 
 /**

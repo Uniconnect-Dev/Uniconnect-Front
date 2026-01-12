@@ -1,19 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import StudentLayout from '../../../components/layout/StudentLayout';
 import ShortTermForm from './ShortTermForm';
 import LongTermForm from './LongTermForm';
 import RequestStatus from '@/components/common/RequestStatus';
+import { useCampaignForm } from '@/context/CampaignFormContext';
+import type { CollaborationType } from '@/services/campaign.types';
 
 export default function Step2StudentEventInfo() {
   const navigate = useNavigate();
-  const [direction, setDirection] = useState<'short' | 'long'>('short');
+  const { formData, updateFormData } = useCampaignForm();
+
+  const handleDirectionChange = (direction: CollaborationType) => {
+    updateFormData({ collaborationType: direction });
+  };
+
+  const handleNext = () => {
+    // 필수 필드 검증
+    if (!formData.name || !formData.locationName || !formData.startDate || !formData.endDate) {
+      alert('행사 개요를 모두 입력해주세요.');
+      return;
+    }
+    if (!formData.expectedParticipants || !formData.expectedExposures) {
+      alert('참여자 구성 정보를 입력해주세요.');
+      return;
+    }
+    navigate('/studentsampling/step3');
+  };
 
   return (
     <StudentLayout>
       {/* px-6을 추가하여 화면 끝에 붙어 잘리는 현상을 물리적으로 방지 */}
       <div className="flex flex-col h-full w-full max-w-[960px] mx-auto overflow-y-auto pb-10 px-6 scrollbar-hide">
-        
+
         {/* ================= 상단 헤더 ================= */}
         <div className="flex justify-between items-start w-full mt-4 mb-2">
           <div>
@@ -25,7 +44,7 @@ export default function Step2StudentEventInfo() {
             </p>
           </div>
 
-          {/* ✅ Step 상태 표시 */}
+          {/* Step 상태 표시 */}
           <RequestStatus activeStep={2} />
         </div>
 
@@ -35,7 +54,7 @@ export default function Step2StudentEventInfo() {
 
         {/* ================= 본문 영역 ================= */}
         <div className="flex flex-col gap-12 w-full">
-          
+
           {/* 협업 방향성 선택 */}
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-1">
@@ -47,15 +66,15 @@ export default function Step2StudentEventInfo() {
             </div>
 
             <div className="flex flex-col gap-5">
-              <DirectionCard 
-                active={direction === 'short'} 
-                onClick={() => setDirection('short')}
+              <DirectionCard
+                active={formData.collaborationType === 'Sampling'}
+                onClick={() => handleDirectionChange('Sampling')}
                 title="샘플링"
                 desc="One-time product sampling for evaluation or promotional purposes."
               />
-              <DirectionCard 
-                active={direction === 'long'} 
-                onClick={() => setDirection('long')}
+              <DirectionCard
+                active={formData.collaborationType === 'Partnership'}
+                onClick={() => handleDirectionChange('Partnership')}
                 title="장기 협업"
                 desc="Long-term collaboration with recurring deliveries and dedicated support."
               />
@@ -63,21 +82,21 @@ export default function Step2StudentEventInfo() {
           </section>
 
           {/* 폼 렌더링 */}
-          {direction === 'short' ? <ShortTermForm /> : <LongTermForm />}
+          {formData.collaborationType === 'Sampling' ? <ShortTermForm /> : <LongTermForm />}
         </div>
 
         {/* ================= 하단 버튼 ================= */}
         <div className="mt-16 flex justify-between items-center w-full pb-10">
-          <button 
-            onClick={() => navigate('/studentsampling/step1')} 
+          <button
+            onClick={() => navigate('/studentsampling/step1')}
             className="h-14 w-[160px] border border-gray-300 rounded-xl
               text-[#949BA7] hover:bg-gray-50 transition-colors"
           >
             이전
           </button>
 
-          <button 
-            onClick={() => navigate('/studentsampling/step3')} 
+          <button
+            onClick={handleNext}
             className="h-14 w-[200px] bg-[#007AFF] rounded-xl
               text-white font-bold hover:bg-[#0062CC] transition-colors"
           >
@@ -92,7 +111,12 @@ export default function Step2StudentEventInfo() {
 /* =========================
    Direction Card
 ========================= */
-function DirectionCard({ active, onClick, title, desc }: any) {
+function DirectionCard({ active, onClick, title, desc }: {
+  active: boolean;
+  onClick: () => void;
+  title: string;
+  desc: string;
+}) {
   return (
     <button
       onClick={onClick}

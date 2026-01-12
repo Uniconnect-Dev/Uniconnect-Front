@@ -23,3 +23,16 @@ export const getUserId = (): number | null => {
 export const clearUserId = () => {
   localStorage.removeItem('userId');
 };
+
+export const setStudentOrgId = (studentOrgId: number) => {
+  localStorage.setItem('studentOrgId', String(studentOrgId));
+};
+
+export const getStudentOrgId = (): number | null => {
+  const id = localStorage.getItem('studentOrgId');
+  return id ? Number(id) : null;
+};
+
+export const clearStudentOrgId = () => {
+  localStorage.removeItem('studentOrgId');
+};

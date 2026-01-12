@@ -24,6 +24,7 @@ import PromotionDetailBody from '@/components/domain/promotion/PromotionDetailBo
 import { FormSectionHeader } from '@/components/common/FormInputs';
 import FileUploader from '@/components/common/file/FileUploader';
 import ProductRequestSection from '@/components/domain/product/ProductRequestSection';
+import { useCampaignForm } from '@/context/CampaignFormContext';
 
 /* =========================
    공통 라벨 스타일
@@ -44,6 +45,8 @@ interface Promotion {
 }
 
 export default function ShortTermForm() {
+  const { formData, updateFormData } = useCampaignForm();
+
   /* =========================
      행사 구성
   ========================= */
@@ -54,6 +57,16 @@ export default function ShortTermForm() {
       details: [''],
     },
   ]);
+
+  // 행사 구성 변경 시 Context 업데이트
+  const handleEventsChange = (newEvents: EventComposition[]) => {
+    setEvents(newEvents);
+    // 행사 구성을 JSON 문자열로 저장
+    const eventProgramsStr = JSON.stringify(
+      newEvents.map((e) => ({ category: e.category, details: e.details }))
+    );
+    updateFormData({ eventPrograms: eventProgramsStr });
+  };
 
   /* =========================
      참여자 특성
@@ -93,20 +106,33 @@ export default function ShortTermForm() {
     setPromotions((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const updatePromotion = (
-    id: string,
-    next: Partial<Promotion>
-  ) => {
-    setPromotions((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, ...next } : p
-      )
+  const updatePromotion = (id: string, next: Partial<Promotion>) => {
+    const newPromotions = promotions.map((p) =>
+      p.id === id ? { ...p, ...next } : p
     );
+    setPromotions(newPromotions);
+    // 프로모션 정보를 JSON 문자열로 저장
+    const marketingMethodsStr = JSON.stringify(
+      newPromotions.map((p) => ({
+        type: p.type,
+        expectedCount: p.expectedCount,
+        description: p.description,
+      }))
+    );
+    updateFormData({ marketingMethods: marketingMethodsStr });
   };
 
-  function setProductRequest(arg0: (prev: any) => any): void {
-    throw new Error('Function not implemented.');
-  }
+  /* =========================
+     파일 업로드 핸들러
+  ========================= */
+  const handleFileChange = (file: File | null) => {
+    updateFormData({ proposalFile: file });
+  };
+
+  /* =========================
+     세부 요청 사항
+  ========================= */
+  const [extraRequestLength, setExtraRequestLength] = useState(0);
 
   return (
     <div className="flex flex-col gap-12 animate-fadeIn">
@@ -117,25 +143,42 @@ export default function ShortTermForm() {
         <div className="flex gap-10">
           <div className="flex flex-col gap-2 flex-1 min-w-0">
             <FieldLabel>행사명</FieldLabel>
-            <TextInput placeholder="행사명을 입력해주세요." />
+            <TextInput
+              placeholder="행사명을 입력해주세요."
+              value={formData.name}
+              onChange={(e) => updateFormData({ name: e.target.value })}
+            />
           </div>
 
           <div className="flex flex-col gap-2 flex-1 min-w-0">
             <FieldLabel>행사 진행 장소</FieldLabel>
-            <TextInput placeholder="행사 진행 장소를 입력해주세요." />
+            <TextInput
+              placeholder="행사 진행 장소를 입력해주세요."
+              value={formData.locationName}
+              onChange={(e) => updateFormData({ locationName: e.target.value })}
+            />
           </div>
         </div>
 
         <div className="flex gap-10">
           <div className="flex flex-col gap-2 flex-1 min-w-0">
             <FieldLabel>행사 진행 시기</FieldLabel>
-            <DateInput placeholder="YYYY.MM.DD" label="" />
+            <DateInput
+              placeholder="YYYY.MM.DD"
+              label=""
+              startDate={formData.startDate}
+              endDate={formData.endDate}
+              onStartDateChange={(date) => updateFormData({ startDate: date })}
+              onEndDateChange={(date) => updateFormData({ endDate: date })}
+            />
           </div>
 
           <TextInputWithCounter
             label="한 줄 소개"
             placeholder="행사에 대한 한 줄 소개를 작성해주세요."
             maxLength={30}
+            value={formData.purpose}
+            onChange={(value) => updateFormData({ purpose: value })}
           />
         </div>
       </section>
@@ -147,13 +190,47 @@ export default function ShortTermForm() {
         <FormSectionHeaderrequired title="참여자 구성" />
 
         <div className="flex gap-10">
-          <TextInput placeholder="예상 참여 인원 수" />
-          <TextInput placeholder="예상 노출 인원 수" />
+          <div className="flex flex-col gap-2 flex-1 min-w-0">
+            <FieldLabel>예상 참여 인원 수</FieldLabel>
+            <TextInput
+              placeholder="예상 참여 인원 수"
+              type="number"
+              value={formData.expectedParticipants?.toString() || ''}
+              onChange={(e) =>
+                updateFormData({ expectedParticipants: Number(e.target.value) || 0 })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-2 flex-1 min-w-0">
+            <FieldLabel>예상 노출 인원 수</FieldLabel>
+            <TextInput
+              placeholder="예상 노출 인원 수"
+              type="number"
+              value={formData.expectedExposures?.toString() || ''}
+              onChange={(e) =>
+                updateFormData({ expectedExposures: Number(e.target.value) || 0 })
+              }
+            />
+          </div>
         </div>
 
         <div className="flex gap-10">
-          <TextInput placeholder="연령대" />
-          <TextInput placeholder="전공" />
+          <div className="flex flex-col gap-2 flex-1 min-w-0">
+            <FieldLabel>연령대</FieldLabel>
+            <TextInput
+              placeholder="연령대 (예: 20대 초반)"
+              value={formData.targetAgeDesc}
+              onChange={(e) => updateFormData({ targetAgeDesc: e.target.value })}
+            />
+          </div>
+          <div className="flex flex-col gap-2 flex-1 min-w-0">
+            <FieldLabel>전공</FieldLabel>
+            <TextInput
+              placeholder="전공 (예: 컴퓨터공학, 경영학)"
+              value={formData.targetMajorDesc}
+              onChange={(e) => updateFormData({ targetMajorDesc: e.target.value })}
+            />
+          </div>
         </div>
       </section>
 
@@ -170,14 +247,21 @@ export default function ShortTermForm() {
               '건국대', '동국대', '숙명여대', '국민대',
             ]}
             value={studentTypes}
-            onChange={setStudentTypes}
+            onChange={(values) => {
+              setStudentTypes(values);
+              // TODO: 실제 태그 ID로 변환 필요
+              // updateFormData({ studentTypeTagIds: values.map(v => tagIdMap[v]) });
+            }}
           />
 
           <StudentTypeSelector
             title="지역"
             options={['서울', '수도권', '충청', '전라', '경상', '강원', '제주']}
             value={regions}
-            onChange={setRegions}
+            onChange={(values) => {
+              setRegions(values);
+              // TODO: 실제 태그 ID로 변환 필요
+            }}
           />
         </div>
 
@@ -186,29 +270,51 @@ export default function ShortTermForm() {
             title="취미"
             options={['운동', '게임', '여행', '음악', '패션', '독서', '요리']}
             value={hobbies}
-            onChange={setHobbies}
+            onChange={(values) => {
+              setHobbies(values);
+              // TODO: 실제 태그 ID로 변환 필요
+            }}
           />
 
           <StudentTypeSelector
             title="관심사 / 라이프스타일"
             options={['친환경', '가성비', '프리미엄', '트렌디', '미니멀']}
             value={lifestyles}
-            onChange={setLifestyles}
+            onChange={(values) => {
+              setLifestyles(values);
+              // TODO: 실제 태그 ID로 변환 필요
+            }}
           />
         </div>
       </section>
+
+      {/* ================= 제품 요청 ================= */}
+      <ProductRequestSection
+        item1={formData.preferredIndustry1}
+        item2={formData.preferredIndustry2}
+        quantity={formData.recommendedSamplingQty?.toString() || ''}
+        fee={formData.boothFee?.toString() || ''}
+        onChange={(next) => {
+          updateFormData({
+            ...(next.item1 !== undefined && { preferredIndustry1: next.item1 }),
+            ...(next.item2 !== undefined && { preferredIndustry2: next.item2 }),
+            ...(next.quantity !== undefined && { recommendedSamplingQty: Number(next.quantity) || 0 }),
+            ...(next.fee !== undefined && { boothFee: Number(next.fee) || 0 }),
+          });
+        }}
+      />
 
       {/* ================= 행사 구성 ================= */}
       <EventCompositionSection
         title="행사 구성"
         required
         value={events}
-        onChange={setEvents}
+        onChange={handleEventsChange}
       />
 
       {/* ================= 프로모션 목록 ================= */}
       <section className="flex flex-col gap-4">
- 
+
         <div
           className={`grid gap-6 ${
             promotions.length > 1 ? 'grid-cols-2' : 'grid-cols-1'
@@ -258,6 +364,11 @@ export default function ShortTermForm() {
           <textarea
             placeholder="세부 요청 사항을 입력해주세요."
             maxLength={500}
+            value={formData.extraRequest}
+            onChange={(e) => {
+              updateFormData({ extraRequest: e.target.value });
+              setExtraRequestLength(e.target.value.length);
+            }}
             className="
               w-full h-[160px] p-4 rounded-xl
               border border-[#DADDE3]
@@ -266,12 +377,12 @@ export default function ShortTermForm() {
           />
 
           <p className="text-right text-xs text-[#9AA1AD]">
-            0/500
+            {extraRequestLength}/500
           </p>
         </div>
 
         {/* 파일 업로드 */}
-        <FileUploader />
+        <FileUploader onFileChange={handleFileChange} />
       </section>
     </div>
   );

@@ -12,12 +12,19 @@ export interface CollaborationMethodsJson {
     sns?: string[];
     contentType?: string;
   };
+  // 자유 입력 형태 지원
+  methods?: {
+    category: string;
+    description: string;
+  }[];
 }
 
 export interface ExpectedOutcomesJson {
   target?: string;
   expectedReach?: number;
   kpi?: string[];
+  // 자유 입력 형태 지원
+  outcomes?: string[];
 }
 
 export interface CreateProposalRequest {

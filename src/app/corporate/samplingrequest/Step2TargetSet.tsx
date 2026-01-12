@@ -148,7 +148,7 @@ export default function Step2TargetSet() {
             <div className="flex flex-col gap-3 items-start">
               <p className="text-gray-600 font-semibold">직접 입력</p>
               <div className="flex gap-2">
-                <Chip label="+" />
+                <Chip label="+" selected={false} onToggle={() => {}} />
               </div>
             </div>
           </div>

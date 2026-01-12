@@ -34,7 +34,7 @@ import Order from './app/student/Order';
 import OrderComplete from './app/student/OrderComplete';
 
 // 학생 단체 제휴/샘플링 요청
-import Step1StudentInfo from './app/student/forms/Step1StudentInfo';
+import Step1StudentInfo from './app/student/forms/Step1StudentInfo'; 
 import Step2StudentEventInfo from './app/student/forms/Step2StudentEventInfo';
 import Step3ChooseCorporate from './app/student/forms/Step3ChooseCorporate';
 import Step4Agreements from './app/student/forms/Step4Agreements';
@@ -80,12 +80,15 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
+
       {/* 회원가입 */}
       <Route path="/signup" element={<SelectUserType />} />
       <Route path="/signup/complete" element={<SignUpComplete />} />
+
       {/* 학생 회원가입 */}
       <Route path="/signup/student/step1" element={<Step1StaffInfo />} />
       <Route path="/signup/student/step2" element={<Step2UnivInfo />} />
+
       {/* 기업 회원가입 */}
       <Route path="/signup/corporate/step1" element={<Step1CompanyInfo />} />
       <Route

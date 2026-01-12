@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import StudentLayout from '../../components/layout/StudentLayout';
+import { getProductDetail } from '@/services/product.service';
+import { CATEGORY_DISPLAY_MAP, type ProductDetail as ProductDetailType, type ProductCategory } from '@/services/product.types';
 
 interface CartItem {
   productId: string;
@@ -11,17 +13,37 @@ interface CartItem {
 
 export default function ProductDetail() {
   const navigate = useNavigate();
-  const { productId } = useParams();
+  const { companyId, productId } = useParams();
   const [count, setCount] = useState(1);
   const [showToast, setShowToast] = useState(false);
+  const [product, setProduct] = useState<ProductDetailType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const price = 4500;
-  const productName = '더블 치즈버거 세트';
+  // 제품 상세 정보 조회
+  useEffect(() => {
+    const fetchProductDetail = async () => {
+      if (!productId) return;
+
+      setIsLoading(true);
+      try {
+        const response = await getProductDetail(Number(productId));
+        setProduct(response);
+      } catch (error) {
+        console.error('제품 상세 조회 실패:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProductDetail();
+  }, [productId]);
 
   /* ===============================
      장바구니 저장 로직
   =============================== */
   const addToCart = () => {
+    if (!product) return;
+
     const raw = localStorage.getItem('cart');
     const cart: CartItem[] = raw ? JSON.parse(raw) : [];
 
@@ -34,8 +56,8 @@ export default function ProductDetail() {
     } else {
       cart.push({
         productId: productId!,
-        name: productName,
-        price,
+        name: product.productName,
+        price: product.price,
         quantity: count,
       });
     }
@@ -56,6 +78,37 @@ export default function ProductDetail() {
 
     return () => clearTimeout(timer);
   }, [showToast]);
+
+  // 기업 상세 페이지로 이동
+  const handleCompanyClick = () => {
+    if (product) {
+      navigate(`/studentshopping/${product.companyId}`);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <StudentLayout>
+        <div className="flex items-center justify-center h-full">
+          <p className="text-gray-400">로딩 중...</p>
+        </div>
+      </StudentLayout>
+    );
+  }
+
+  if (!product) {
+    return (
+      <StudentLayout>
+        <div className="flex items-center justify-center h-full">
+          <p className="text-gray-400">제품을 찾을 수 없습니다.</p>
+        </div>
+      </StudentLayout>
+    );
+  }
+
+  const categoryDisplay = product.industryName
+    ? CATEGORY_DISPLAY_MAP[product.industryName as ProductCategory] || product.industryName
+    : '';
 
   return (
     <StudentLayout>
@@ -97,13 +150,21 @@ export default function ProductDetail() {
         <div className="grid grid-cols-[auto,1fr] gap-12 items-start mb-10">
           {/* 이미지 | 상품 정보 */}
           <div className="grid grid-cols-[222px,1fr] gap-6">
-            <div className="w-[222px] h-[222px] bg-gray-200 rounded-lg" />
+            <div className="w-[222px] h-[222px] bg-gray-200 rounded-lg overflow-hidden">
+              {product.thumbnailUrl && (
+                <img
+                  src={product.thumbnailUrl}
+                  alt={product.productName}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
             <div>
               <h1 className="text-[24px] font-medium tracking-[-0.36px] mb-1">
-                {productName}
+                {product.productName}
               </h1>
               <p className="text-[22px] font-medium text-gray-400 tracking-[-0.33px]">
-                {price.toLocaleString()}원
+                {product.price.toLocaleString()}원
               </p>
             </div>
           </div>
@@ -154,7 +215,7 @@ export default function ProductDetail() {
                 총 상품 금액
               </p>
               <p className="text-[28px] font-medium tracking-[-0.24px]">
-                {(price * count).toLocaleString()}원
+                {(product.price * count).toLocaleString()}원
               </p>
             </div>
 
@@ -177,24 +238,45 @@ export default function ProductDetail() {
         {/* ================= 제품 정보 ================= */}
         <div className="mt-8">
           <h2 className="text-[18px] font-regular mb-3 text-gray-500 tracking-[-0.27px]">제품 정보</h2>
-          <div className="w-[960px] h-[500px] bg-gray-100 rounded-lg" />
+          <div className="w-[960px] min-h-[500px] bg-gray-100 rounded-lg overflow-hidden">
+            {product.detailImageUrl && (
+              <img
+                src={product.detailImageUrl}
+                alt={`${product.productName} 상세 정보`}
+                className="w-full h-auto"
+              />
+            )}
+          </div>
         </div>
 
         {/* ================= 기업 정보 ================= */}
         <div className="mt-12 mb-2">
           <h2 className="text-[18px] font-regular mb-3 text-gray-500 tracking-[-0.27px]">기업</h2>
-          <div className="border border-gray-300 rounded-lg p-4 flex items-center gap-4 mb-1.5">
-            <div className="w-[80px] h-[80px] bg-gray-200 rounded-lg" />
+          <button
+            onClick={handleCompanyClick}
+            className="w-full border border-gray-300 rounded-lg p-4 flex items-center gap-4 mb-1.5 hover:bg-gray-50 transition-colors text-left"
+          >
+            <div className="w-[80px] h-[80px] bg-gray-200 rounded-lg overflow-hidden">
+              {product.thumbnailUrl && (
+                <img
+                  src={product.thumbnailUrl}
+                  alt={product.companyName}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
             <div>
               <h2 className="text-[20px] font-semibold text-gray-900 tracking-[-0.3px] flex items-center gap-2">
-                크라이치즈버거
+                {product.companyName}
                 <img src="/arrow.png" alt="arrow" className="h-4" />
               </h2>
-              <span className="inline-block mt-2 font-regular px-3 py-1 bg-[#E3F4FF] text-[#007AFF] text-[14px] rounded-[16px]">
-                F&B
-              </span>
+              {categoryDisplay && (
+                <span className="inline-block mt-2 font-regular px-3 py-1 bg-[#E3F4FF] text-[#007AFF] text-[14px] rounded-[16px]">
+                  {categoryDisplay}
+                </span>
+              )}
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </StudentLayout>

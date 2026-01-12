@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 // 로그인
 import Login from './auth/login/Login';
 
-SignUpComplete;
 // 회원가입 공통
 import SelectUserType from './auth/signup/SelectUserType';
 import SignUpComplete from './auth/signup/SignUpComplete';
@@ -25,8 +24,6 @@ import StudentGroupSearch from './app/corporate/StudentGroupSearch';
 import CorporateSearch from './app/student/CorporateSearch';
 
 
-=======
-
 // 학생 쇼핑몰
 import Studentshopping from './app/student/Studentshopping';
 import CompanyDetail from './app/student/CompanyDetail';
@@ -40,7 +37,6 @@ import Step1StudentInfo from './app/student/forms/Step1StudentInfo';
 import Step2StudentEventInfo from './app/student/forms/Step2StudentEventInfo';
 import Step3ChooseCorporate from './app/student/forms/Step3ChooseCorporate';
 import Step4Agreements from './app/student/forms/Step4Agreements';
-import Step5Agreements from './app/student/forms/Step5Complete';
 
 //학생 마이페이지
 import StuContract from './app/student/mypage/Contract';
@@ -101,8 +97,6 @@ export default function App() {
 
       {/* 학생 단체 - 기업 서치 */}
       <Route path="/CorporateSearch" element={<CorporateSearch />} />
-
-      CorporateSearch
 
       {/* 학생 쇼핑몰 */}
       <Route path="/studentshopping" element={<Studentshopping />} />

@@ -25,6 +25,13 @@ import { FormSectionHeader } from '@/components/common/FormInputs';
 import FileUploader from '@/components/common/file/FileUploader';
 import ProductRequestSection from '@/components/domain/product/ProductRequestSection';
 import { useCampaignForm } from '@/context/CampaignFormContext';
+import {
+  STUDENT_TYPE_OPTIONS,
+  REGION_OPTIONS,
+  HOBBY_OPTIONS,
+  LIFESTYLE_OPTIONS,
+  getTagIdsByNames,
+} from '@/constants/hashtags';
 
 /* =========================
    공통 라벨 스타일
@@ -241,26 +248,25 @@ export default function ShortTermForm() {
         <div className="flex gap-10">
           <StudentTypeSelector
             title="학생 유형"
-            options={[
-              '이화여대', '연세대', '고려대', '성균관대',
-              '한양대', '서강대', '중앙대', '경희대',
-              '건국대', '동국대', '숙명여대', '국민대',
-            ]}
+            options={STUDENT_TYPE_OPTIONS.map((opt) => opt.name)}
             value={studentTypes}
             onChange={(values) => {
               setStudentTypes(values);
-              // TODO: 실제 태그 ID로 변환 필요
-              // updateFormData({ studentTypeTagIds: values.map(v => tagIdMap[v]) });
+              updateFormData({
+                studentTypeTagIds: getTagIdsByNames(STUDENT_TYPE_OPTIONS, values),
+              });
             }}
           />
 
           <StudentTypeSelector
             title="지역"
-            options={['서울', '수도권', '충청', '전라', '경상', '강원', '제주']}
+            options={REGION_OPTIONS.map((opt) => opt.name)}
             value={regions}
             onChange={(values) => {
               setRegions(values);
-              // TODO: 실제 태그 ID로 변환 필요
+              updateFormData({
+                regionTagIds: getTagIdsByNames(REGION_OPTIONS, values),
+              });
             }}
           />
         </div>
@@ -268,21 +274,25 @@ export default function ShortTermForm() {
         <div className="flex gap-10">
           <StudentTypeSelector
             title="취미"
-            options={['운동', '게임', '여행', '음악', '패션', '독서', '요리']}
+            options={HOBBY_OPTIONS.map((opt) => opt.name)}
             value={hobbies}
             onChange={(values) => {
               setHobbies(values);
-              // TODO: 실제 태그 ID로 변환 필요
+              updateFormData({
+                hobbyTagIds: getTagIdsByNames(HOBBY_OPTIONS, values),
+              });
             }}
           />
 
           <StudentTypeSelector
             title="관심사 / 라이프스타일"
-            options={['친환경', '가성비', '프리미엄', '트렌디', '미니멀']}
+            options={LIFESTYLE_OPTIONS.map((opt) => opt.name)}
             value={lifestyles}
             onChange={(values) => {
               setLifestyles(values);
-              // TODO: 실제 태그 ID로 변환 필요
+              updateFormData({
+                lifestyleTagIds: getTagIdsByNames(LIFESTYLE_OPTIONS, values),
+              });
             }}
           />
         </div>

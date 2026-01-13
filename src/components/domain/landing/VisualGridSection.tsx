@@ -7,7 +7,7 @@ import imgFrame2087329382 from "@/assets/landing/1954a584a9b0be9044a4a1dc5d7956f
 function Frame29() {
   return (
     <div className="bg-[#e3f4ff] content-stretch flex items-center justify-center px-[16px] py-[12px] relative rounded-[16px] shrink-0">
-      <p className="font-['SUIT:ExtraBold',sans-serif] leading-[1.4] not-italic relative shrink-0 text-[#007aff] text-[24px] text-nowrap tracking-[-0.36px]">STEP 3</p>
+      <p className="font-['SUITE:ExtraBold',sans-serif] leading-[1.4] not-italic relative shrink-0 text-[#007aff] text-[24px] text-nowrap tracking-[-0.36px]">STEP 3</p>
     </div>
   );
 }
@@ -20,7 +20,7 @@ function Frame30() {
         <br aria-hidden="true" />
         데이터로 명확하게 확인해요.
       </p>
-      <div className="font-['SUIT:Bold',sans-serif] leading-[1.4] relative shrink-0 text-[#6c727e] text-[24px] tracking-[-0.36px]">
+      <div className="font-['SUITE:Bold',sans-serif] leading-[1.4] relative shrink-0 text-[#6c727e] text-[24px] tracking-[-0.36px]">
         <p className="mb-0">학생들의 기본적인 정보부터 제품 관련 경험,</p>
         <p>KPI 기반 인사이트까지 파악할 수 있어요.</p>
       </div>

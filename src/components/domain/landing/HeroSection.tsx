@@ -1,4 +1,5 @@
 import svgPaths from "@/svg-vam1vhmzcx";
+import { useNavigate } from "react-router-dom";
 
 function Group1() {
   return (
@@ -3022,9 +3023,14 @@ function Frame16() {
 }
 
 function Button() {
+  const navigate = useNavigate();
   return (
-    <div className="bg-[#007aff] content-stretch flex items-center justify-center p-[20px] relative rounded-[20px] shrink-0 w-[218px]" data-name="Button">
-      <p className="font-['SUIT:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[22px] text-center text-white tracking-[-0.33px] w-[144px]">무료로 시작하기</p>
+    <div
+      className="bg-[#007aff] content-stretch flex items-center justify-center p-[20px] relative rounded-[20px] shrink-0 w-[218px] cursor-pointer hover:bg-[#0066dd] transition-colors"
+      data-name="Button"
+      onClick={() => navigate('/signup')}
+    >
+      <p className="font-['SUITE:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[22px] text-center text-white tracking-[-0.33px] w-[144px]">무료로 시작하기</p>
     </div>
   );
 }
@@ -3055,7 +3061,7 @@ function MakiArrow() {
 function Button1() {
   return (
     <div className="content-stretch flex gap-[6px] items-center justify-center p-[20px] relative rounded-[12px] shrink-0" data-name="Button">
-      <p className="font-['SUIT:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[#3a404a] text-[22px] text-center text-nowrap tracking-[-0.33px]">서비스 소개서 받기</p>
+      <p className="font-['SUITE:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[#3a404a] text-[22px] text-center text-nowrap tracking-[-0.33px]">서비스 소개서 받기</p>
       <MakiArrow />
     </div>
   );
@@ -3081,7 +3087,10 @@ function Frame17() {
 
 function Group4() {
   return (
-    <div className="absolute h-[14.569px] left-[48px] top-[28.72px] w-[180px]">
+    <div
+      className="absolute h-[14.569px] left-[48px] top-[28.72px] w-[180px] cursor-pointer"
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+    >
       <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 180 14.569">
         <g id="Group 2085665311">
           <g id="Vector">
@@ -3112,7 +3121,10 @@ function Group4() {
 
 function Frame2() {
   return (
-    <div className="content-stretch flex items-center justify-center px-[16px] py-0 relative shrink-0">
+    <div
+      className="content-stretch flex items-center justify-center px-[16px] py-0 relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+    >
       <p className="font-['Pretendard:Bold',sans-serif] leading-[24px] not-italic relative shrink-0 text-[#191f28] text-[16px] text-nowrap tracking-[-0.24px]">소개</p>
     </div>
   );
@@ -3120,17 +3132,27 @@ function Frame2() {
 
 function Frame3() {
   return (
-    <div className="content-stretch flex items-center justify-center px-[16px] py-0 relative shrink-0">
+    <a
+      href="https://u--x.notion.site/FAQ-1fa0fb8090ab807685aefcc1bd71047c?source=copy_link"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="content-stretch flex items-center justify-center px-[16px] py-0 relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity no-underline"
+    >
       <p className="font-['Pretendard:Bold',sans-serif] leading-[24px] not-italic relative shrink-0 text-[#191f28] text-[16px] text-nowrap tracking-[-0.24px]">FAQ</p>
-    </div>
+    </a>
   );
 }
 
 function Frame4() {
   return (
-    <div className="content-stretch flex items-center justify-center px-[16px] py-0 relative shrink-0">
+    <a
+      href="https://u--x.notion.site/FAQ-1fa0fb8090ab807685aefcc1bd71047c?source=copy_link"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="content-stretch flex items-center justify-center px-[16px] py-0 relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity no-underline"
+    >
       <p className="font-['Pretendard:Bold',sans-serif] leading-[24px] not-italic relative shrink-0 text-[#191f28] text-[16px] text-nowrap tracking-[-0.24px]">문의하기</p>
-    </div>
+    </a>
   );
 }
 
@@ -3145,16 +3167,24 @@ function Frame1() {
 }
 
 function Frame5() {
+  const navigate = useNavigate();
   return (
-    <div className="content-stretch flex items-center justify-center px-[16px] py-[8px] relative shrink-0">
+    <div
+      className="content-stretch flex items-center justify-center px-[16px] py-[8px] relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+      onClick={() => navigate('/login')}
+    >
       <p className="font-['Pretendard:SemiBold',sans-serif] leading-[24px] not-italic relative shrink-0 text-[#3a404a] text-[16px] text-nowrap tracking-[-0.24px]">로그인</p>
     </div>
   );
 }
 
 function Frame6() {
+  const navigate = useNavigate();
   return (
-    <div className="content-stretch flex items-center justify-center px-[16px] py-[8px] relative shrink-0">
+    <div
+      className="content-stretch flex items-center justify-center px-[16px] py-[8px] relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+      onClick={() => navigate('/signup')}
+    >
       <p className="font-['Pretendard:SemiBold',sans-serif] leading-[24px] not-italic relative shrink-0 text-[#1369ec] text-[16px] text-nowrap tracking-[-0.24px]">회원가입</p>
     </div>
   );
@@ -3180,9 +3210,13 @@ function Frame7() {
 
 function Gnb() {
   return (
-    <div className="absolute backdrop-blur-[3px] backdrop-filter bg-[rgba(255,255,255,0.04)] h-[72px] left-0 overflow-clip top-0 w-[1440px]" data-name="GNB">
-      <Group4 />
-      <Frame7 />
+    <div className="fixed h-[88px] left-0 top-0 w-full z-50" data-name="GNB">
+      <div className="absolute inset-0 backdrop-blur-[12px] backdrop-filter" style={{ maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)' }} />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%)' }} />
+      <div className="relative h-[72px]">
+        <Group4 />
+        <Frame7 />
+      </div>
     </div>
   );
 }

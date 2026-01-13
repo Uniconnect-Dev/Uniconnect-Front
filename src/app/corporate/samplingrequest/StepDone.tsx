@@ -19,15 +19,15 @@ export default function StepDone() {
       {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
       {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
       <div className="flex flex-col h-full">
-        <div className="flex justify-between w-full">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">접수 완료</h1>
-            <p className="text-sm text-gray-500 mb-6">
-              다양한 학생 단체에게 제품과 서비스를 홍보하세요.
-            </p>
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center gap-2">
+            <img src="/File_Blue.png" alt="" className="w-5 h-5" />
+            <h1 className="text-[20px] font-semibold text-[#2D3139]">
+              접수 완료
+            </h1>
           </div>
         </div>
-        <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100 mb-6"></div>
+        <div className="border-t border-gray-200 mb-6" />
 
         {/*성공적으로 접수되었습니다*/}
         <div className="flex flex-1 flex-col justify-center items-center">

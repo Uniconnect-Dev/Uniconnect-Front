@@ -1,8 +1,17 @@
-import CorporateLayout from '../../../components/layout/CorporateLayout';
 import { useState, useEffect, useRef } from 'react';
-import { ChevronDown, ChevronLeft, ChevronUp, Calendar } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronUp,
+  Calendar,
+  Download,
+} from 'lucide-react';
+import CorporateLayout from '../../../components/layout/CorporateLayout';
 
-// ============ 공통 컴포넌트 ============
+import { dashboardApi } from '@/services/dashboard/dashboard.service';
+import * as T from '@/services/dashboard/dashbosrd.types';
+
+// ============ 공통 컴포넌트 (스타일 유지) ============
 
 function OrgCard({
   category = '학생 단체',
@@ -14,7 +23,7 @@ function OrgCard({
       <img
         className="w-10 h-10 rounded-full flex-shrink-0"
         src={imageUrl}
-        alt="Organization logo"
+        alt="Org logo"
       />
       <div className="flex flex-col justify-center items-start">
         <div className="text-gray-400 text-base font-semibold leading-6">
@@ -28,103 +37,90 @@ function OrgCard({
   );
 }
 
-type InputProps = {
+function Textinput({
+  label,
+  placeholder,
+  value,
+  onChange,
+}: {
   label: string;
   placeholder?: string;
   value?: string;
-  onChange?: (value: string) => void;
-};
-
-function Textinput({ label, placeholder, value, onChange }: InputProps) {
+  onChange?: (v: string) => void;
+}) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 text-left">
       <label className="text-gray-500 font-semibold">{label}</label>
       <input
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
-        className="w-full p-4 rounded-xl outline outline-1 outline-zinc-200"
+        className="w-full p-4 rounded-xl outline outline-1 outline-zinc-200 focus:outline-blue-500 transition-all"
       />
     </div>
   );
 }
 
-type DateInputProps = {
+function Dateinput({
+  label,
+  value,
+  onChange,
+}: {
   label: string;
   value?: string;
   onChange: (date: string) => void;
-};
-
-function Dateinput({ label, value, onChange }: DateInputProps) {
-  const [date, setDate] = useState(value || '');
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClick = (e: MouseEvent) => {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
+        !containerRef.current.contains(e.target as Node)
+      )
         setIsOpen(false);
-      }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
+  const getDays = (date: Date) => {
+    const y = date.getFullYear(),
+      m = date.getMonth();
+    const first = new Date(y, m, 1),
+      last = new Date(y, m + 1, 0);
     const days: (Date | null)[] = [];
-
-    for (let i = 0; i < firstDay.getDay(); i++) days.push(null);
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      days.push(new Date(year, month, i));
-    }
-
+    for (let i = 0; i < first.getDay(); i++) days.push(null);
+    for (let i = 1; i <= last.getDate(); i++) days.push(new Date(y, m, i));
     return days;
   };
 
-  const formatDate = (date: Date) => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}.${m}.${d}`;
-  };
-
-  const handleDateSelect = (selectedDate: Date) => {
-    const formatted = formatDate(selectedDate);
-    setDate(formatted);
-    setIsOpen(false);
+  const handleSelect = (d: Date) => {
+    const formatted = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}.${String(d.getDate()).padStart(2, '0')}`;
     onChange(formatted);
+    setIsOpen(false);
   };
-
-  const days = getDaysInMonth(currentMonth);
-  const monthYear = `${currentMonth.getFullYear()}.${String(
-    currentMonth.getMonth() + 1
-  ).padStart(2, '0')}`;
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-2 relative">
+    <div ref={containerRef} className="flex flex-col gap-2 relative text-left">
       <label className="text-gray-500 font-semibold">{label}</label>
       <div className="relative">
         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input
-          value={date}
+          value={value}
           readOnly
           onFocus={() => setIsOpen(true)}
           className="w-full p-4 pl-12 rounded-xl outline outline-1 outline-zinc-200 cursor-pointer"
           placeholder="YYYY.MM.DD"
         />
       </div>
-
       {isOpen && (
-        <div className="absolute top-full mt-4 w-80 bg-white rounded-2xl z-10 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.06)] p-4">
+        <div className="absolute top-full mt-2 w-80 bg-white rounded-2xl z-30 shadow-xl p-4">
           <div className="flex justify-between items-center mb-4">
             <button
               onClick={() =>
@@ -138,7 +134,10 @@ function Dateinput({ label, value, onChange }: DateInputProps) {
             >
               &lt;
             </button>
-            <span className="font-bold">{monthYear}</span>
+            <span className="font-bold">
+              {currentMonth.getFullYear()}.
+              {String(currentMonth.getMonth() + 1).padStart(2, '0')}
+            </span>
             <button
               onClick={() =>
                 setCurrentMonth(
@@ -152,27 +151,23 @@ function Dateinput({ label, value, onChange }: DateInputProps) {
               &gt;
             </button>
           </div>
-
-          <div className="grid grid-cols-7 text-xs text-gray-300 mb-2">
+          <div className="grid grid-cols-7 gap-1">
             {['일', '월', '화', '수', '목', '금', '토'].map((d) => (
-              <div key={d} className="text-center">
+              <div key={d} className="text-center text-xs text-gray-300">
                 {d}
               </div>
             ))}
-          </div>
-
-          <div className="grid grid-cols-7 gap-1">
-            {days.map((day, idx) =>
+            {getDays(currentMonth).map((day, i) =>
               day ? (
                 <button
-                  key={idx}
-                  onClick={() => handleDateSelect(day)}
+                  key={i}
+                  onClick={() => handleSelect(day)}
                   className="w-10 h-10 rounded-lg text-gray-500 hover:bg-sky-100 hover:text-sky-500"
                 >
                   {day.getDate()}
                 </button>
               ) : (
-                <div key={idx} />
+                <div key={i} />
               )
             )}
           </div>
@@ -182,52 +177,32 @@ function Dateinput({ label, value, onChange }: DateInputProps) {
   );
 }
 
-type ToggleTagSetProps = {
-  label?: string;
-  tags?: string[];
-  value?: number;
-  onChange?: (value: string, index: number) => void;
-};
-
 function ToggleTagSet({
-  label = '발송 여부',
-  tags = ['미발송', '발송 완료'],
-  value = 0,
+  label,
+  tags,
+  value,
   onChange,
-}: ToggleTagSetProps) {
-  const [selected, setSelected] = useState<number>(value);
-
-  const handleSelect = (index: number) => {
-    setSelected(index);
-    onChange?.(tags[index], index);
-  };
-
+}: {
+  label: string;
+  tags: string[];
+  value: number;
+  onChange: (v: string, i: number) => void;
+}) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 text-left">
       <label className="text-gray-500 font-semibold">{label}</label>
-      <div className="inline-flex justify-start items-start gap-2 flex-wrap">
-        {tags.map((tag: string, index: number) => (
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag, i) => (
           <button
-            key={index}
-            onClick={() => handleSelect(index)}
-            className={`
-              px-3 py-1.5 rounded-lg flex justify-center items-center gap-2.5
-              transition-all
-              ${
-                selected === index
-                  ? 'bg-sky-100'
-                  : 'outline outline-1 outline-offset-[-1px] outline-zinc-200 hover:bg-gray-50'
-              }
-            `}
+            key={i}
+            onClick={() => onChange(tag, i)}
+            className={`px-3 py-1.5 rounded-lg border transition-all ${
+              value === i
+                ? 'bg-sky-100 border-sky-500 text-sky-600'
+                : 'border-zinc-200 text-gray-500 hover:bg-gray-50'
+            }`}
           >
-            <span
-              className={`
-                text-base font-medium leading-6
-                ${selected === index ? 'text-blue-600' : 'text-gray-500'}
-              `}
-            >
-              {tag}
-            </span>
+            <span className="text-base font-medium">{tag}</span>
           </button>
         ))}
       </div>
@@ -235,46 +210,54 @@ function ToggleTagSet({
   );
 }
 
-type FileUploadProps = {
-  label: string;
-  optional?: boolean;
-  value?: File | null;
-  onChange?: (file: File | null) => void;
-};
-
 function FileUpload({
   label,
-  optional = false,
+  optional,
   value,
   onChange,
-}: FileUploadProps) {
+}: {
+  label: string;
+  optional?: boolean;
+  value: File | null;
+  onChange: (f: File | null) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-row gap-1">
+    <div className="flex flex-col gap-2 text-left">
+      <div className="flex gap-1">
         <label className="text-gray-500 font-semibold">{label}</label>
-        {optional && <p className="text-gray-400 font-medium">(선택)</p>}
+        {optional && <span className="text-gray-400">(선택)</span>}
       </div>
-      <div className="h-fit p-[41px] rounded-xl outline outline-1 outline-zinc-200 flex flex-col justify-center items-center">
-        <div className="w-14 h-14 relative bg-gray-100 rounded-xl border border-dashed border-gray-400 overflow-hidden flex justify-center items-center">
-          <img src="/Upload.svg" alt="Upload" />
+      <div className="p-10 rounded-xl outline outline-1 outline-zinc-200 flex flex-col items-center">
+        <div className="w-14 h-14 bg-gray-100 rounded-xl border border-dashed border-gray-400 flex justify-center items-center mb-2">
+          {value ? (
+            <div className="text-[10px] p-1 text-center truncate w-full">
+              {value.name}
+            </div>
+          ) : (
+            <Download className="text-gray-400" size={24} />
+          )}
         </div>
-        <div className="text-sm font-semibold mt-2.5">파일 드롭하기</div>
-        <div className="text-gray-400 text-sm font-semibold mb-1">or</div>
-        <button className="w-fit px-3.5 py-1.5 bg-blue-600 rounded-[100px] gap-2.5">
-          <span className="text-white text-sm font-semibold">파일 업로드</span>
+        <p className="text-sm font-semibold">
+          {value ? '파일 선택됨' : '파일 드롭하기'}
+        </p>
+        <p className="text-gray-400 text-xs mb-2">or</p>
+        <button
+          onClick={() => inputRef.current?.click()}
+          className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold"
+        >
+          파일 업로드
         </button>
+        <input
+          type="file"
+          className="hidden"
+          ref={inputRef}
+          onChange={(e) => onChange(e.target.files?.[0] || null)}
+        />
       </div>
     </div>
   );
 }
-
-type SectionCardProps = {
-  title: string;
-  isComplete: boolean;
-  isOpen: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-};
 
 function SectionCard({
   title,
@@ -282,35 +265,35 @@ function SectionCard({
   isOpen,
   onToggle,
   children,
-}: SectionCardProps) {
+}: {
+  title: string;
+  isComplete: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="p-5 rounded-[20px] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col">
+    <div className="p-5 rounded-[20px] outline outline-1 outline-zinc-200 flex flex-col bg-white">
       <button
         onClick={onToggle}
-        className={`flex flex-row justify-between items-center ${
-          isOpen ? 'mb-5' : ''
-        }`}
+        className={`flex justify-between items-center ${isOpen ? 'mb-5' : ''}`}
       >
-        <div className="flex flex-row gap-3">
+        <div className="flex items-center gap-3">
           <span className="text-zinc-700 text-lg font-semibold">{title}</span>
-          {isComplete ? (
-            <div className="px-2 py-0.5 bg-emerald-50 rounded-3xl inline-flex justify-center items-center gap-2.5">
-              <span className="text-emerald-600 text-xs font-semibold leading-4">
-                작성 완료
-              </span>
-            </div>
-          ) : (
-            <div className="px-2 py-0.5 bg-pink-100 rounded-3xl inline-flex justify-center items-center gap-2.5">
-              <span className="text-red-500 text-xs font-semibold">
-                입력 필요
-              </span>
-            </div>
-          )}
+          <div
+            className={`px-2 py-0.5 rounded-3xl ${
+              isComplete
+                ? 'bg-emerald-50 text-emerald-600'
+                : 'bg-pink-100 text-red-500'
+            } text-xs font-semibold`}
+          >
+            {isComplete ? '작성 완료' : '입력 필요'}
+          </div>
         </div>
         {isOpen ? (
-          <ChevronUp size={16} color="#949BA7" />
+          <ChevronUp size={16} className="text-gray-400" />
         ) : (
-          <ChevronDown size={16} color="#949BA7" />
+          <ChevronDown size={16} className="text-gray-400" />
         )}
       </button>
       {isOpen && <div className="flex flex-col gap-7">{children}</div>}
@@ -321,15 +304,13 @@ function SectionCard({
 // ============ 메인 컴포넌트 ============
 
 export default function DashBoard() {
-  // 학생 단체 - 수령 정보
+  const collaborationId = 123; // 실제 ID
+
+  // --- 학생 State ---
   const [recipientName, setRecipientName] = useState('');
   const [recipientPhone, setRecipientPhone] = useState('');
   const [recipientAddress, setRecipientAddress] = useState('');
-
-  // 학생 단체 - 홍보물
   const [promoFile, setPromoFile] = useState<File | null>(null);
-
-  // 학생 단체 - 인수증
   const [receiptTime, setReceiptTime] = useState('');
   const [receiptLocation, setReceiptLocation] = useState('');
   const [productCount, setProductCount] = useState('');
@@ -337,89 +318,147 @@ export default function DashBoard() {
   const [expiryDate, setExpiryDate] = useState('');
   const [remarks, setRemarks] = useState('');
   const [productStatus, setProductStatus] = useState(0);
+  const [receiptImage, setReceiptImage] = useState<File | null>(null);
 
-  // 기업 - 제품 정보
+  // --- 기업 State ---
   const [productName, setProductName] = useState('');
-  const [companyProductCount, setCompanyProductCount] = useState('');
-  const [companyProductUnit, setCompanyProductUnit] = useState('');
-  const [productDescription, setProductDescription] = useState('');
-
-  // 기업 - 홍보 컨텐츠
+  const [coProductCount, setCoProductCount] = useState('');
+  const [coProductUnit, setCoProductUnit] = useState('');
+  const [productDesc, setProductDesc] = useState('');
   const [productPhoto, setProductPhoto] = useState<File | null>(null);
   const [companyLogo, setCompanyLogo] = useState<File | null>(null);
-
-  // 기업 - 발송 정보
   const [shippingDate, setShippingDate] = useState('');
   const [shippingStatus, setShippingStatus] = useState(0);
-  const [trackingNumber, setTrackingNumber] = useState('');
+  const [trackingNo, setTrackingNo] = useState('');
 
-  // 섹션 열림/닫힘 상태
   const [sections, setSections] = useState({
-    studentReceipt: true,
-    studentPromo: true,
-    studentReceipt2: true,
-    companyProduct: true,
-    companyPromo: true,
-    companyShipping: true,
+    s1: true,
+    s2: true,
+    s3: true,
+    c1: true,
+    c2: true,
+    c3: true,
   });
 
-  const toggleSection = (section: keyof typeof sections) => {
-    setSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  // 제출 로직 (전체 API 호출)
+  const handleSubmitAll = async () => {
+    try {
+      // 1. 학생 수령 정보
+      const p1 = dashboardApi.postReceiveInfo({
+        collaborationId,
+        receiverName: recipientName,
+        receiverPhone: recipientPhone,
+        note: recipientAddress,
+      });
+
+      // 2. 기업 제품 정보
+      const p2 = dashboardApi.postProductInfo({
+        collaborationId,
+        productName,
+        quantity: Number(coProductCount),
+        description: productDesc,
+      });
+
+      // 3. 기업 발송 정보
+      const p3 = dashboardApi.patchShippingInfo({
+        collaborationId,
+        shippingDate: shippingDate.replace(/\./g, '-'),
+        isShipped: shippingStatus > 0,
+        trackingNo,
+      });
+
+      // 4. 파일 업로드들 (선택사항 포함)
+      const uploads = [];
+      if (promoFile)
+        uploads.push(
+          dashboardApi.postContentUpload({
+            collaborationId,
+            uploaderType: 'StudentOrg',
+            caption: '학생홍보물',
+            image: promoFile,
+          })
+        );
+      if (productPhoto)
+        uploads.push(
+          dashboardApi.postContentUpload({
+            collaborationId,
+            uploaderType: 'Company',
+            caption: '제품사진',
+            image: productPhoto,
+          })
+        );
+      if (companyLogo)
+        uploads.push(
+          dashboardApi.postContentUpload({
+            collaborationId,
+            uploaderType: 'Company',
+            caption: '기업로고',
+            image: companyLogo,
+          })
+        );
+
+      // 5. 인수증 (이미지 필수 체크)
+      if (receiptImage) {
+        uploads.push(
+          dashboardApi.postReceiptSubmit({
+            json: {
+              receiptTime: receiptTime.replace(/\./g, '-'),
+              location: receiptLocation,
+              receivedQuantity: Number(productCount),
+              unit: productUnit,
+              expirationDate: expiryDate.replace(/\./g, '-'),
+              hasDefect: productStatus === 2,
+              remarks,
+            },
+            receiptImage,
+          })
+        );
+      }
+
+      await Promise.all([p1, p2, p3, ...uploads]);
+      alert('모든 정보가 성공적으로 제출되었습니다.');
+    } catch (e) {
+      console.error(e);
+      alert('제출 중 오류가 발생했습니다. 모든 필수 항목을 확인해주세요.');
+    }
   };
 
-  // 완료 상태 체크
-  const isStudentReceiptComplete =
-    recipientName.trim() !== '' &&
-    recipientPhone.trim() !== '' &&
-    recipientAddress.trim() !== '';
-
-  const isStudentPromoComplete = true; // 선택 사항이므로 항상 완료
-
-  const isStudentReceipt2Complete =
-    receiptTime.trim() !== '' &&
-    receiptLocation.trim() !== '' &&
-    productCount.trim() !== '' &&
-    productUnit.trim() !== '' &&
-    expiryDate.trim() !== '' &&
-    remarks.trim() !== '';
-
-  const isCompanyProductComplete =
-    productName.trim() !== '' &&
-    companyProductCount.trim() !== '' &&
-    companyProductUnit.trim() !== '' &&
-    productDescription.trim() !== '';
-
-  const isCompanyPromoComplete = true; // 선택 사항이므로 항상 완료
-
-  const isCompanyShippingComplete =
-    shippingDate.trim() !== '' && trackingNumber.trim() !== '';
+  const isS1Comp =
+    recipientName !== '' && recipientPhone !== '' && recipientAddress !== '';
+  const isS3Comp =
+    receiptTime !== '' &&
+    receiptLocation !== '' &&
+    productCount !== '' &&
+    receiptImage !== null;
+  const isC1Comp = productName !== '' && coProductCount !== '';
+  const isC3Comp = shippingDate !== '' && trackingNo !== '';
 
   return (
     <CorporateLayout>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 max-w-[1200px] mx-auto pb-24 relative">
         {/* 헤더 */}
         <div className="flex flex-col gap-5">
-          <button className="inline-flex w-fit pl-1.5 pr-3 py-1.5 bg-slate-100 rounded-lg justify-start items-center gap-1 hover:bg-slate-200 active:scale-98 transition-all">
+          <button className="inline-flex w-fit pl-1.5 pr-3 py-1.5 bg-slate-100 rounded-lg items-center gap-1 hover:bg-slate-200 transition-all">
             <ChevronLeft size={16} color="#949BA7" />
-            <div className="text-gray-400 font-semibold">이전</div>
+            <span className="text-gray-400 font-semibold">이전</span>
           </button>
-          <div className="text-zinc-700 text-xl font-bold">협업 대시보드</div>
+          <h1 className="text-zinc-700 text-xl font-bold text-left">
+            협업 대시보드
+          </h1>
         </div>
 
-        <div className="flex flex-row gap-7">
-          {/* 학생 단체 */}
+        <div className="flex flex-row gap-7 items-start">
+          {/* 왼쪽: 학생 단체 */}
           <div className="flex-1 flex flex-col gap-5">
             <OrgCard
               category="학생 단체"
               organizationName="한양대학교 총학생회 000"
             />
-
-            {/* 수령 정보 */}
             <SectionCard
               title="수령 정보"
-              isComplete={isStudentReceiptComplete}
-              isOpen={sections.studentReceipt}
-              onToggle={() => toggleSection('studentReceipt')}
+              isComplete={isS1Comp}
+              isOpen={sections.s1}
+              onToggle={() => setSections((p) => ({ ...p, s1: !p.s1 }))}
             >
               <Textinput
                 label="제품 수령인"
@@ -440,13 +479,11 @@ export default function DashBoard() {
                 onChange={setRecipientAddress}
               />
             </SectionCard>
-
-            {/* 홍보물 */}
             <SectionCard
               title="홍보물"
-              isComplete={isStudentPromoComplete}
-              isOpen={sections.studentPromo}
-              onToggle={() => toggleSection('studentPromo')}
+              isComplete={true}
+              isOpen={sections.s2}
+              onToggle={() => setSections((p) => ({ ...p, s2: !p.s2 }))}
             >
               <FileUpload
                 label="별첨 자료"
@@ -455,13 +492,11 @@ export default function DashBoard() {
                 onChange={setPromoFile}
               />
             </SectionCard>
-
-            {/* 인수증 */}
             <SectionCard
               title="인수증"
-              isComplete={isStudentReceipt2Complete}
-              isOpen={sections.studentReceipt2}
-              onToggle={() => toggleSection('studentReceipt2')}
+              isComplete={isS3Comp}
+              isOpen={sections.s3}
+              onToggle={() => setSections((p) => ({ ...p, s3: !p.s3 }))}
             >
               <Dateinput
                 label="수령 시각"
@@ -474,19 +509,23 @@ export default function DashBoard() {
                 value={receiptLocation}
                 onChange={setReceiptLocation}
               />
-              <div className="flex flex-row gap-4">
-                <Textinput
-                  label="제품 개수"
-                  placeholder="개수를 입력해주세요"
-                  value={productCount}
-                  onChange={setProductCount}
-                />
-                <Textinput
-                  label="단위"
-                  placeholder="ex) 개/박스 등"
-                  value={productUnit}
-                  onChange={setProductUnit}
-                />
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Textinput
+                    label="제품 개수"
+                    placeholder="개수"
+                    value={productCount}
+                    onChange={setProductCount}
+                  />
+                </div>
+                <div className="flex-1">
+                  <Textinput
+                    label="단위"
+                    placeholder="ex) 개/박스"
+                    value={productUnit}
+                    onChange={setProductUnit}
+                  />
+                </div>
               </div>
               <Dateinput
                 label="제품 유통 기한"
@@ -495,7 +534,7 @@ export default function DashBoard() {
               />
               <Textinput
                 label="비고"
-                placeholder="특이사항을 입력해주세요"
+                placeholder="특이사항 입력"
                 value={remarks}
                 onChange={setRemarks}
               />
@@ -503,65 +542,70 @@ export default function DashBoard() {
                 label="제품 이상 여부"
                 tags={['검수 대기', '이상 없음', '이상 발견']}
                 value={productStatus}
-                onChange={(_, index) => setProductStatus(index)}
+                onChange={(_, i) => setProductStatus(i)}
+              />
+              <FileUpload
+                label="인수증 사진"
+                value={receiptImage}
+                onChange={setReceiptImage}
               />
             </SectionCard>
           </div>
 
-          {/* 기업 */}
+          {/* 오른쪽: 기업 */}
           <div className="flex-1 flex flex-col gap-5">
             <OrgCard category="기업" organizationName="크라이치즈버거" />
-
-            {/* 제품 정보 */}
             <SectionCard
               title="제품 정보"
-              isComplete={isCompanyProductComplete}
-              isOpen={sections.companyProduct}
-              onToggle={() => toggleSection('companyProduct')}
+              isComplete={isC1Comp}
+              isOpen={sections.c1}
+              onToggle={() => setSections((p) => ({ ...p, c1: !p.c1 }))}
             >
               <Textinput
                 label="제공/서비스명"
-                placeholder="제공 예정인 제품/서비스명을 입력해주세요."
+                placeholder="제품명 입력"
                 value={productName}
                 onChange={setProductName}
               />
-              <div className="flex flex-row gap-4">
-                <Textinput
-                  label="제품 개수"
-                  placeholder="개수를 입력해주세요."
-                  value={companyProductCount}
-                  onChange={setCompanyProductCount}
-                />
-                <Textinput
-                  label="단위"
-                  placeholder="ex) 개/박스 등"
-                  value={companyProductUnit}
-                  onChange={setCompanyProductUnit}
-                />
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Textinput
+                    label="제품 개수"
+                    placeholder="개수"
+                    value={coProductCount}
+                    onChange={setCoProductCount}
+                  />
+                </div>
+                <div className="flex-1">
+                  <Textinput
+                    label="단위"
+                    placeholder="ex) 개/박스"
+                    value={coProductUnit}
+                    onChange={setCoProductUnit}
+                  />
+                </div>
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 text-left">
                 <label className="text-gray-500 font-semibold">제품 설명</label>
                 <textarea
-                  value={productDescription}
+                  value={productDesc}
                   onChange={(e) =>
                     e.target.value.length <= 500 &&
-                    setProductDescription(e.target.value)
+                    setProductDesc(e.target.value)
                   }
                   className="h-32 p-5 rounded-xl outline outline-1 outline-zinc-200"
-                  placeholder="제품 설명을 입력해주세요"
+                  placeholder="설명 입력"
                 />
                 <p className="text-xs text-gray-400 text-right">
-                  {productDescription.length}/500
+                  {productDesc.length}/500
                 </p>
               </div>
             </SectionCard>
-
-            {/* 홍보 컨텐츠 */}
             <SectionCard
               title="홍보 컨텐츠"
-              isComplete={isCompanyPromoComplete}
-              isOpen={sections.companyPromo}
-              onToggle={() => toggleSection('companyPromo')}
+              isComplete={true}
+              isOpen={sections.c2}
+              onToggle={() => setSections((p) => ({ ...p, c2: !p.c2 }))}
             >
               <FileUpload
                 label="제품 사진"
@@ -576,13 +620,11 @@ export default function DashBoard() {
                 onChange={setCompanyLogo}
               />
             </SectionCard>
-
-            {/* 발송 정보 */}
             <SectionCard
               title="발송 정보"
-              isComplete={isCompanyShippingComplete}
-              isOpen={sections.companyShipping}
-              onToggle={() => toggleSection('companyShipping')}
+              isComplete={isC3Comp}
+              isOpen={sections.c3}
+              onToggle={() => setSections((p) => ({ ...p, c3: !p.c3 }))}
             >
               <Dateinput
                 label="발송 예정 일자"
@@ -598,16 +640,37 @@ export default function DashBoard() {
                   '배송 중',
                 ]}
                 value={shippingStatus}
-                onChange={(_, index) => setShippingStatus(index)}
+                onChange={(_, i) => setShippingStatus(i)}
               />
               <Textinput
                 label="운송장 번호"
-                placeholder="운송장 번호를 입력해주세요."
-                value={trackingNumber}
-                onChange={setTrackingNumber}
+                placeholder="운송장 번호 입력"
+                value={trackingNo}
+                onChange={setTrackingNo}
               />
             </SectionCard>
           </div>
+        </div>
+
+        {/* 하단 고정 버튼 영역 (보내주신 디자인 적용) */}
+        <div className="flex justify-end items-center gap-4 mt-auto">
+          {/* 다운로드 버튼 */}
+          <button className="w-48 h-14 px-7 bg-white rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500 flex justify-center items-center gap-2.5 hover:bg-sky-50 transition-colors">
+            <Download size={20} color="#007aff" />
+            <div className="text-center text-sky-500 text-lg font-semibold leading-7">
+              다운로드
+            </div>
+          </button>
+
+          {/* 제출하기 버튼 */}
+          <button
+            onClick={handleSubmitAll}
+            className="w-48 h-14 px-7 bg-blue-600 rounded-xl flex justify-center items-center gap-2.5 hover:bg-blue-700 active:scale-95 transition-all"
+          >
+            <div className="flex-1 text-center text-white text-lg font-semibold leading-7">
+              제출하기
+            </div>
+          </button>
         </div>
       </div>
     </CorporateLayout>

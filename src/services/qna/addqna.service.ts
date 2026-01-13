@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { getAccessToken } from '@/lib/auth/token';
-import type { CreateQnARequest, CreateQnAResponse } from './qna.types';
+import type { CreateQnARequest, CreateQnAResponse } from './addqna.types';
 
 export const createQnA = async (
   data: CreateQnARequest

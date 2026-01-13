@@ -2,7 +2,7 @@ import CorporateLayout from '@/components/layout/CorporateLayout';
 import { ChevronLeft, X } from 'lucide-react';
 import { useState, useRef, DragEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createQnA } from '@/services/qna/qna.service';
+import { createQnA } from '@/services/qna/addqna.service';
 
 export default function AddQnA() {
   const [title, setTitle] = useState('');

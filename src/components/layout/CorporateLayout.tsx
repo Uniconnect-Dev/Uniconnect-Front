@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { UserCircle } from 'lucide-react';
 import { getMyCompanyProfile } from '@/services/profile.service';
 import type { CompanyProfileResponse } from '@/services/profile.types';
 
@@ -40,8 +41,8 @@ export default function CorporateLayout({ children }: CorporateLayoutProps) {
   return (
     <div className="h-screen bg-[#F7F8FA] flex flex-col overflow-hidden">
       {/* 상단 네비게이션 바 - 고정 */}
-      <header className="w-full bg-white border-b border-gray-200 flex-shrink-0">
-        <div className="w-full mx-auto flex items-center justify-start h-[72px] px-12">
+      <header className="w-full bg-white border-b border-gray-200 flex-shrink-0 min-h-[72px]">
+        <div className="w-full mx-auto flex items-center justify-start h-[72px] px-12 overflow-visible">
           {/* 로고 */}
           <img
             src="/logo.png"
@@ -70,11 +71,10 @@ export default function CorporateLayout({ children }: CorporateLayoutProps) {
           </nav>
 
           {/* 아이콘 */}
-          <div className="flex items-center gap-4 ml-auto">
-            <img
-              src="/File.png"
-              alt="사용자"
-              className="w-6 h-6 cursor-pointer"
+          <div className="flex items-center gap-5 ml-auto pr-2">
+            <UserCircle
+              className="w-[24px] h-[24px] cursor-pointer text-gray-600 hover:text-[#008FFF] transition-colors"
+              onClick={() => navigate('/corporatemypage/dashboard')}
             />
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function CorporateLayout({ children }: CorporateLayoutProps) {
           {/* 첫 번째 박스: 사용자 정보 + 메뉴 - 전체의 64.5% (583/904) */}
           <div
             className="bg-white rounded-xl shadow-sm p-6 flex flex-col flex-shrink-0 overflow-y-auto"
-            //style={{ height: 'calc(64.5% - 12px)' }}
+            style={{ height: 'calc(64.5% - 12px)' }}
           >
             {/* 사용자 정보 */}
             <div className="mb-6 pb-6 border-b border-gray-200">
@@ -172,7 +172,7 @@ export default function CorporateLayout({ children }: CorporateLayoutProps) {
             </nav>
           </div>
 
-          {/* 두 번째 박스: 업데이트된 활동 - 전체의 35.5% (321/904) 
+          {/* 두 번째 박스: 업데이트된 활동 - 전체의 35.5% (321/904) */}
           <div
             className="bg-white rounded-xl shadow-sm p-6 flex flex-col flex-shrink-0 overflow-y-auto"
             style={{ height: 'calc(35.5% - 12px)' }}
@@ -203,7 +203,6 @@ export default function CorporateLayout({ children }: CorporateLayoutProps) {
               </span>
             </div>
           </div>
-          */}
         </aside>
 
         {/* 오른쪽 메인 콘텐츠 영역 (페이지마다 다름) - 독립 스크롤 */}

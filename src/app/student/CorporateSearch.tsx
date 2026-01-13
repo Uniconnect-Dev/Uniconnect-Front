@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import CorporateLayout from '@/components/layout/CorporateLayout';
+import StudentLayout from '@/components/layout/StudentLayout';
 import { Search, RotateCcw, Calendar, ChevronDown } from 'lucide-react';
 import DateRangeInput from '@/components/common/input/DateRangeInput';
 import { getCompanyList } from '@/services/company.service';
@@ -224,10 +224,13 @@ export default function CorporateSearch() {
     try {
       const data = await getCompanyList();
       // API 응답을 UI 타입에 맞게 변환
+      const s3BaseUrl = 'https://uniconnect-250909.s3.ap-northeast-2.amazonaws.com';
       const mapped: Company[] = data.map((item) => ({
         id: String(item.companyId),
         name: item.brandName,
-        imageUrl: item.logoUrl || undefined,
+        imageUrl: item.logoUrl
+          ? (item.logoUrl.startsWith('http') ? item.logoUrl : `${s3BaseUrl}/${item.logoUrl.replace(/^\//, '')}`)
+          : undefined,
         startDate: '',
         isAlways: true,
         tag: '제휴' as const,
@@ -260,14 +263,14 @@ export default function CorporateSearch() {
   );
 
   return (
-    <CorporateLayout>
+    <StudentLayout>
       <div className="flex flex-col h-full w-full max-w-[1200px] mx-auto px-6">
         {/* ================= 페이지 헤더 ================= */}
         <div className="mt-4 mb-4 flex-shrink-0">
           <div className="flex items-center gap-2">
             <img src="/File_Blue.png" alt="" className="w-5 h-5" />
             <h1 className="text-[20px] font-semibold text-[#2D3139]">
-              학생 단체 조회
+              기업 조회
             </h1>
           </div>
         </div>
@@ -391,6 +394,6 @@ export default function CorporateSearch() {
           )}
         </div>
       </div>
-    </CorporateLayout>
+    </StudentLayout>
   );
 }

@@ -335,22 +335,16 @@ export default function Step3Matching() {
         {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
         {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
         <div className="flex flex-col h-full">
-          <div className="flex justify-between w-full">
-            <div>
-              <h1 className="text-2xl font-bold mb-2">매칭 / 견적</h1>
-              <p className="text-sm text-gray-500 mb-6">
-                선택하신 키워드와 매칭되는 학생 단체입니다. <br />
-                샘플링 하길 원하는 행사를 선택해주세요.
-              </p>
-              <div className="flex flex-row gap-1 mb-2">
-                <img src="/inform.svg" alt="inform" />
-                <p className="text-gray-500 text-sm font-semibold">
-                  행사명을 클릭하면 상세 페이지로 이동합니다.
-                </p>
-              </div>
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-2">
+              <img src="/File_Blue.png" alt="" className="w-5 h-5" />
+              <h1 className="text-[20px] font-semibold text-[#2D3139]">
+                매칭 / 견적
+              </h1>
             </div>
             <RequestStatus activeStep={3} />
           </div>
+          <div className="border-t border-gray-200 mb-6" />
 
           <div className="flex-1 flex flex-col min-h-0 mb-2">
             {isLoading ? (

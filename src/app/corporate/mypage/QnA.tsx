@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+// QnA.tsx
+import React from 'react';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
-import axios from 'axios';
-import { getAccessToken } from '@/lib/auth/token';
+
+import { useState, useEffect } from 'react';
 
 import {
-  Search,
+  Plus,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -15,97 +16,185 @@ import Th from '../../../components/common/tableRelated/Th';
 import SortableTh from '@/components/common/tableRelated/SortableTh';
 import Tr from '@/components/common/tableRelated/Tr';
 import Td from '@/components/common/tableRelated/Td';
+import { useNavigate } from 'react-router-dom';
+import { getQnAList } from '@/services/qna/qna.services';
+import type { QnAItem } from '@/services/qna/qna.types';
 
-/* ================= 타입 ================= */
+type QnAStatus = 'before-ans' | 'complete';
 
-type MatchingStatus = 'waiting' | 'successed' | 'faild';
-type Process =
-  | 'contractConfirmed'
-  | 'contractWriting'
-  | 'manageForm'
-  | 'sendProduct'
-  | 'dataReport'
-  | 'payment';
-
-type CollaborationType = 'sampling' | 'partnership';
-type Direction = 'requested' | 'received';
-
-interface MatchingData {
+interface QnAData {
   id: string;
+  questionId: number;
   date: string;
-  organizationName: string;
-  collaborationType: CollaborationType;
-  status: MatchingStatus;
-  process: Process;
-  direction: Direction; // ⭐ 핵심
+  QnAName: string;
+  status: QnAStatus;
 }
 
-interface MatchingAPIResponse {
-  matchingId: number;
-  studentClub: string;
-  collaborationType: string;
-  matchedAt: string;
-  isRequester: boolean; // ⭐ 서버 기준
+function QnATable({ qnaList }: { qnaList: QnAData[] }) {
+  const navigate = useNavigate();
+
+  const handleRowClick = (questionId: number) => {
+    navigate(`/corporatemypage/qna/${questionId}`);
+  };
+
+  return (
+    <div className="w-full h-full rounded-3xl outline outline-1 outline-zinc-200 bg-white flex flex-col overflow-hidden relative">
+      <div className="flex-1 overflow-auto">
+        <table className="w-full border-collapse">
+          <thead className="bg-white border-b border-zinc-200 sticky top-0 z-10">
+            <tr className="h-14">
+              <Th className="w-24">연번</Th>
+              <SortableTh className="w-32">등록일</SortableTh>
+              <SortableTh>문의명</SortableTh>
+              <Th className="w-28 text-center">문의 상태</Th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {qnaList.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="text-center py-8 text-gray-400">
+                  조회된 Q&A 데이터가 없습니다.
+                </td>
+              </tr>
+            ) : (
+              qnaList.map((qna) => (
+                <tr
+                  key={qna.id}
+                  onClick={() => handleRowClick(qna.questionId)}
+                  className="h-14 border-b border-zinc-200 cursor-pointer hover:bg-gray-50 transition-colors"
+                >
+                  <td className="w-24 pl-7 text-gray-600 text-sm font-medium">
+                    {qna.id}
+                  </td>
+                  <td className="w-32 text-gray-600 text-sm font-medium">
+                    {qna.date}
+                  </td>
+                  <td className="text-gray-600 text-sm font-medium">
+                    <div className="line-clamp-1">{qna.QnAName}</div>
+                  </td>
+                  <td className="w-28 text-center">
+                    <QnAStatus status={qna.status} />
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="h-14 px-5 border-t border-zinc-200 bg-white flex justify-end items-center gap-[29px] flex-shrink-0">
+        <div className="flex items-center gap-7">
+          <ChevronsLeft size={20} color="#DADFE7" />
+          <ChevronLeft size={20} color="#DADFE7" />
+          <div className="text-gray-400 text-sm font-medium">1 페이지</div>
+          <ChevronRight size={20} color="#DADFE7" />
+          <ChevronsRight size={20} color="#DADFE7" />
+        </div>
+      </div>
+    </div>
+  );
 }
 
-/* ================= 탭 ================= */
+function QnAStatus({ status }: { status: QnAStatus }) {
+  if (status === 'before-ans') {
+    return (
+      <div className="px-2 py-0.5 bg-gray-100 rounded-3xl inline-flex justify-center items-center gap-2.5">
+        <div className="justify-start text-gray-400 text-xs font-semibold ">
+          답변 전
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-2 py-0.5 bg-emerald-50 rounded-3xl inline-flex justify-center items-center gap-2.5">
+      <div className="justify-start text-emerald-600 text-xs font-semibold ">
+        답변 완료
+      </div>
+    </div>
+  );
+}
+
+interface TabItem {
+  id: string;
+  label: string;
+  count: number;
+  activeBg: string;
+  activeText: string;
+  activeBadge: string;
+}
 
 function TabFilter({
   selectedTab,
   onTabChange,
   counts,
 }: {
-  selectedTab: 'requested' | 'received';
-  onTabChange: (tab: 'requested' | 'received') => void;
-  counts: { requested: number; received: number };
+  selectedTab: string;
+  onTabChange: (tabId: string) => void;
+  counts: { all: number; pending: number; completed: number };
 }) {
-  const tabs = [
+  const tabs: TabItem[] = [
     {
-      id: 'requested',
-      label: '요청한 매칭',
-      count: counts.requested,
+      id: 'all',
+      label: '전체',
+      count: counts.all,
       activeBg: 'bg-sky-100',
       activeText: 'text-sky-500',
       activeBadge: 'bg-sky-500',
     },
     {
-      id: 'received',
-      label: '받은 요청',
-      count: counts.received,
+      id: 'pending',
+      label: '답변 전',
+      count: counts.pending,
       activeBg: 'bg-gray-100',
       activeText: 'text-gray-500',
       activeBadge: 'bg-gray-500',
     },
-  ] as const;
+    {
+      id: 'completed',
+      label: '답변 완료',
+      count: counts.completed,
+      activeBg: 'bg-emerald-50',
+      activeText: 'text-emerald-600',
+      activeBadge: 'bg-emerald-600',
+    },
+  ];
 
   return (
-    <div className="w-80 pl-px rounded-xl outline outline-1 outline-zinc-200 inline-flex overflow-hidden">
+    <div className="w-80 pl-px rounded-xl outline outline-1 outline-offset-[-1px] outline-zinc-200 inline-flex items-center overflow-hidden">
       {tabs.map((tab) => {
         const isActive = selectedTab === tab.id;
+
         return (
-          <div key={tab.id} className="flex-1 p-1.5">
+          <div
+            key={tab.id}
+            className="flex-1 p-1.5 bg-white flex justify-center items-center"
+          >
             <button
               onClick={() => onTabChange(tab.id)}
-              className={`w-full px-3 py-1.5 rounded-lg flex justify-center items-center gap-1.5 ${
+              className={`flex-1 px-3 py-1.5 rounded-lg flex justify-center items-center gap-1.5 transition-colors ${
                 isActive ? tab.activeBg : ''
               }`}
             >
-              <span
-                className={`text-base ${
+              <div
+                className={`text-base leading-6 whitespace-nowrap ${
                   isActive
                     ? `font-semibold ${tab.activeText}`
                     : 'font-medium text-gray-400'
                 }`}
               >
                 {tab.label}
-              </span>
-              <span
-                className={`px-1 rounded-full text-xs font-semibold text-white ${
-                  isActive ? tab.activeBadge : 'bg-gray-400'
+              </div>
+
+              <div
+                className={`px-1 rounded-3xl flex justify-center items-center ${
+                  isActive ? `pl-[5px] pr-1 ${tab.activeBadge}` : 'bg-gray-400'
                 }`}
               >
-                {tab.count > 99 ? '99+' : tab.count}
-              </span>
+                <div className="text-white text-xs font-semibold leading-4 whitespace-nowrap">
+                  {tab.count > 99 ? '99+' : tab.count}
+                </div>
+              </div>
             </button>
           </div>
         );
@@ -114,121 +203,99 @@ function TabFilter({
   );
 }
 
-/* ================= 테이블 ================= */
-
-function MatchingTable({ matchings }: { matchings: MatchingData[] }) {
-  return (
-    <div className="w-full h-full rounded-3xl outline outline-1 outline-zinc-200 bg-white flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-auto">
-        <table className="w-full border-collapse">
-          <thead className="border-b border-zinc-200 sticky top-0 bg-white">
-            <tr className="h-14">
-              <Th className="w-24">연번</Th>
-              <SortableTh className="w-32">희망 협업일</SortableTh>
-              <SortableTh>기업명</SortableTh>
-              <Th className="w-28">협업 유형</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {matchings.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="py-10 text-center text-gray-400">
-                  조회된 매칭 데이터가 없습니다.
-                </td>
-              </tr>
-            ) : (
-              matchings.map((m) => (
-                <Tr key={m.id}>
-                  <Td className="pl-7">{m.id}</Td>
-                  <Td>{m.date}</Td>
-                  <Td>{m.organizationName}</Td>
-                  <Td>{m.collaborationType}</Td>
-                </Tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="h-14 px-5 border-t border-zinc-200 flex justify-end items-center gap-7">
-        <ChevronsLeft size={20} color="#DADFE7" />
-        <ChevronLeft size={20} color="#DADFE7" />
-        <span className="text-sm text-gray-400">1 페이지</span>
-        <ChevronRight size={20} color="#DADFE7" />
-        <ChevronsRight size={20} color="#DADFE7" />
-      </div>
-    </div>
-  );
-}
-
-/* ================= 메인 ================= */
-
-export default function MatchingResult() {
-  const [matchings, setMatchings] = useState<MatchingData[]>([]);
-  const [selectedTab, setSelectedTab] = useState<'requested' | 'received'>(
-    'requested'
-  );
+export default function QnA() {
+  const navigate = useNavigate();
+  const [selectedTab, setSelectedTab] = useState<string>('all');
+  const [qnaList, setQnaList] = useState<QnAData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    loadMatchings();
+    loadQnAList();
   }, []);
 
-  const loadMatchings = async () => {
-    const token = getAccessToken();
+  const loadQnAList = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getQnAList();
+      console.log('API Response:', response);
 
-    const res = await axios.get(
-      `${import.meta.env.VITE_API_BASE_URL}/api/contracts/matchings/company`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
+      if (response && Array.isArray(response)) {
+        const formattedData: QnAData[] = response.map(
+          (item: QnAItem, index: number) => ({
+            id: String(index + 1).padStart(2, '0'),
+            questionId: item.questionId,
+            date: item.answerCreatedAt
+              ? new Date(item.answerCreatedAt)
+                  .toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                  })
+                  .replace(/\. /g, '.')
+                  .replace(/\.$/, '')
+              : '-',
+            QnAName: item.title,
+            status: item.status === 'ANSWERED' ? 'complete' : 'before-ans',
+          })
+        );
+
+        setQnaList(formattedData);
+      } else {
+        setQnaList([]);
       }
-    );
-
-    const data: MatchingData[] = res.data.data.map(
-      (item: MatchingAPIResponse, index: number) => ({
-        id: String(index + 1).padStart(2, '0'),
-        date: new Date(item.matchedAt)
-          .toLocaleDateString('ko-KR')
-          .replace(/\. /g, '.')
-          .replace(/\.$/, ''),
-        organizationName: item.studentClub,
-        collaborationType:
-          item.collaborationType === '샘플링' ? 'sampling' : 'partnership',
-        status: 'waiting',
-        process: 'contractConfirmed',
-        direction: item.isRequester ? 'requested' : 'received',
-      })
-    );
-
-    setMatchings(data);
+    } catch (err) {
+      console.error('Q&A 데이터 로드 실패:', err);
+      setQnaList([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  /* ===== count 계산 ===== */
+  const filteredQnaList = qnaList.filter((qna) => {
+    if (selectedTab === 'all') return true;
+    if (selectedTab === 'pending') return qna.status === 'before-ans';
+    if (selectedTab === 'completed') return qna.status === 'complete';
+    return true;
+  });
+
   const counts = {
-    requested: matchings.filter((m) => m.direction === 'requested').length,
-    received: matchings.filter((m) => m.direction === 'received').length,
+    all: qnaList.length,
+    pending: qnaList.filter((q) => q.status === 'before-ans').length,
+    completed: qnaList.filter((q) => q.status === 'complete').length,
   };
-
-  const filteredMatchings = matchings.filter((m) =>
-    selectedTab === 'requested'
-      ? m.direction === 'requested'
-      : m.direction === 'received'
-  );
 
   return (
     <CorporateLayout>
-      <div className="flex flex-col h-full gap-4">
-        <div className="flex gap-2 items-center">
-          <img src="/building.svg" />
-          <h1 className="text-xl font-bold text-zinc-700">매칭 결과</h1>
+      <div className="flex flex-col h-full">
+        <div className="flex justify-between w-full flex-1">
+          <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-row gap-2">
+              <img src="/building.svg" />
+              <p className="text-zinc-700 text-xl font-bold">Q&A 문의함</p>
+            </div>
+            <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100" />
+            <div className="flex flex-row">
+              <TabFilter
+                selectedTab={selectedTab}
+                onTabChange={setSelectedTab}
+                counts={counts}
+              />
+              <div className="flex flex-1"></div>
+              <button
+                onClick={() => navigate('/corporatemypage/addqna')}
+                className="pl-4 pr-5 py-2.5 bg-blue-600 rounded-xl inline-flex justify-start items-center gap-1 hover:bg-blue-700 transition"
+              >
+                <Plus size={20} color="white" strokeWidth={2} />
+                <div className="justify-start text-white font-semibold">
+                  새 질문
+                </div>
+              </button>
+            </div>
+            <div className="flex-1 flex flex-col">
+              <QnATable qnaList={filteredQnaList} />
+            </div>
+          </div>
         </div>
-
-        <TabFilter
-          selectedTab={selectedTab}
-          onTabChange={setSelectedTab}
-          counts={counts}
-        />
-
-        <MatchingTable matchings={filteredMatchings} />
       </div>
     </CorporateLayout>
   );

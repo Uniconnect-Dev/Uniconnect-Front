@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getMyStudentOrgProfile } from '@/services/profile.service';
+import type { StudentOrgProfileResponse } from '@/services/profile.types';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -10,6 +12,20 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
+  const [profile, setProfile] = useState<StudentOrgProfileResponse | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getMyStudentOrgProfile();
+        setProfile(data);
+      } catch (error) {
+        console.error('프로필 조회 실패:', error);
+      }
+    };
+    fetchProfile();
+  }, []);
+
   return (
     <div className="h-screen bg-[#F7F8FA] flex flex-col overflow-hidden">
       {/* 상단 네비게이션 바 - 고정 */}
@@ -65,9 +81,9 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             {/* 사용자 정보 */}
             <div className="mb-6 pb-6 border-b border-gray-200">
               <p className="text-base font-semibold text-gray-900 mb-1">
-                홍길동 님
+                {profile?.managerName ?? '로딩 중...'} 님
               </p>
-              <p className="text-sm text-gray-500">OO대학교</p>
+              <p className="text-sm text-gray-500">{profile?.schoolName ?? ''}</p>
             </div>
 
             {/* 메뉴 */}

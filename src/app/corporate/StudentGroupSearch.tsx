@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CorporateLayout from '@/components/layout/CorporateLayout';
 import { Search, RotateCcw, Calendar } from 'lucide-react';
 import DateRangeInput from '@/components/common/input/DateRangeInput';
@@ -89,7 +90,7 @@ function PeriodSegment({
 /* =========================
    학생 단체 카드 컴포넌트
 ========================= */
-function StudentGroupCard({ data }: { data: StudentGroup }) {
+function StudentGroupCard({ data, onClick }: { data: StudentGroup; onClick: () => void }) {
   const formatDate = () => {
     if (data.endDate) {
       return `${data.startDate} ~ ${data.endDate}`;
@@ -98,11 +99,13 @@ function StudentGroupCard({ data }: { data: StudentGroup }) {
   };
 
   return (
-    <div className="
-      p-5 rounded-2xl border border-[#E6E8EC] bg-white
-      hover:shadow-md hover:border-[#007AFF]
-      transition-all cursor-pointer
-    ">
+    <div
+      onClick={onClick}
+      className="
+        p-5 rounded-2xl border border-[#E6E8EC] bg-white
+        hover:shadow-md hover:border-[#007AFF]
+        transition-all cursor-pointer
+      ">
       <div className="flex justify-between items-start">
         <div className="flex flex-col gap-2">
           {/* 태그 */}
@@ -115,7 +118,7 @@ function StudentGroupCard({ data }: { data: StudentGroup }) {
 
           {/* 수량 */}
           <p className="text-[28px] font-semibold text-[#2D3139]">
-            {data.quantity.toLocaleString()}개
+            {(data.quantity ?? 0).toLocaleString()}개
           </p>
         </div>
 
@@ -150,10 +153,11 @@ function StudentGroupCard({ data }: { data: StudentGroup }) {
    메인 컴포넌트
 ========================= */
 export default function StudentGroupSearch() {
+  const navigate = useNavigate();
+
   /* 학생단체 목록 상태 */
   const [studentGroups, setStudentGroups] = useState<StudentGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
 
   /* 검색어 */
@@ -214,17 +218,16 @@ export default function StudentGroupSearch() {
       const mapped: StudentGroup[] = response.content.map((item) => ({
         id: String(item.campaignId),
         type: '샘플링' as const, // API에 type이 없어서 기본값
-        quantity: item.productQuantity,
-        university: item.schoolName,
-        department: item.organizationName,
-        eventName: item.campaignName,
-        startDate: formatDateForUI(item.startDate),
+        quantity: item.productQuantity ?? 0,
+        university: item.schoolName || '',
+        department: item.organizationName || '',
+        eventName: item.campaignName || '',
+        startDate: formatDateForUI(item.startDate || ''),
         endDate: item.endDate ? formatDateForUI(item.endDate) : undefined,
         imageUrl: item.logoUrl || undefined,
       }));
 
       setStudentGroups(mapped);
-      setTotalPages(response.totalPages);
     } catch (err) {
       console.error('학생단체 캠페인 조회 실패:', err);
     } finally {
@@ -387,7 +390,11 @@ export default function StudentGroupSearch() {
           ) : (
             <div className="grid grid-cols-3 gap-5">
               {studentGroups.map((item) => (
-                <StudentGroupCard key={item.id} data={item} />
+                <StudentGroupCard
+                  key={item.id}
+                  data={item}
+                  onClick={() => navigate(`/StudentGroupSearch/${item.id}`)}
+                />
               ))}
             </div>
           )}

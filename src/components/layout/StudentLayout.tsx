@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getMyStudentOrgProfile } from '@/services/profile.service';
 import type { StudentOrgProfileResponse } from '@/services/profile.types';
 
@@ -8,17 +8,14 @@ const navItems = [
   { label: '제휴 / 장기 협업', path: '/studentsampling/step1' },
   { label: '쇼핑몰', path: '/studentshopping' },
 ];
-import { useNavigate, useLocation } from 'react-router-dom';
 
 interface StudentLayoutProps {
   children: React.ReactNode;
 }
 
 export default function StudentLayout({ children }: StudentLayoutProps) {
-  const location = useLocation();
   const navigate = useNavigate();
   const location = useLocation();
-  const isActive = (path: string) => location.pathname === path;
   const [profile, setProfile] = useState<StudentOrgProfileResponse | null>(null);
 
   const isActive = (path: string) => {

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import svgPaths from "../svg-vam1vhmzcx";
 import HeroSection from "@/components/domain/landing/HeroSection";
 import { IntroSection1, IntroSection2 } from "@/components/domain/landing/IntroSection";
@@ -7,26 +8,35 @@ import FinalCTASection from "@/components/domain/landing/FinalCTASection";
 
 function MdiInstagram() {
   return (
-    <div className="relative shrink-0 size-[24px]" data-name="mdi:instagram">
+    <a
+      href="https://www.instagram.com/uni___connect/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="relative shrink-0 size-[24px] cursor-pointer hover:opacity-70 transition-opacity"
+      data-name="mdi:instagram"
+    >
       <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
         <g id="mdi:instagram">
           <path d={svgPaths.p2c5f2300} fill="var(--fill-0, #949BA7)" id="Vector" />
         </g>
       </svg>
-    </div>
+    </a>
   );
 }
 
 function Frame8() {
   return (
-    <div className="relative shrink-0 size-[24px]">
+    <a
+      href="mailto:uniconnectbiz@gmail.com"
+      className="relative shrink-0 size-[24px] cursor-pointer hover:opacity-70 transition-opacity"
+    >
       <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
         <g id="Frame 2087329276">
           <rect height="14" id="Rectangle 32922" rx="3" stroke="var(--stroke-0, #949BA7)" strokeWidth="2" width="18" x="3" y="5" />
           <path d="M6.5 9L12 12L17.5 9" id="Vector 166" stroke="var(--stroke-0, #949BA7)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
         </g>
       </svg>
-    </div>
+    </a>
   );
 }
 
@@ -136,16 +146,27 @@ function Frame13() {
   );
 }
 
-function Floating() {
+function Floating({ isVisible }: { isVisible: boolean }) {
+  const handleClick = () => {
+    window.scrollTo({ top: 0 });
+  };
+
+  if (!isVisible) return null;
+
   return (
-    <div className="absolute bottom-[88px] left-[1264px] size-[64px]" data-name="floating">
+    <button
+      onClick={handleClick}
+      className="fixed bottom-[88px] right-[56px] size-[64px] cursor-pointer hover:opacity-80 transition-opacity z-50"
+      data-name="floating"
+      aria-label="최상단으로 이동"
+    >
       <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 64 64">
         <g id="floating">
           <rect fill="var(--fill-0, #585F69)" height="64" rx="32" width="64" />
           <path d={svgPaths.p4a3580} fill="var(--fill-0, #FBFCFD)" id="Union" />
         </g>
       </svg>
-    </div>
+    </button>
   );
 }
 
@@ -153,12 +174,39 @@ function Footer() {
   return (
     <div className="bg-[#fbfcfd] h-[298px] overflow-clip relative shrink-0 w-full" data-name="footer">
       <Frame13 />
-      <Floating />
     </div>
   );
 }
 
 export default function Component() {
+  const [showFloating, setShowFloating] = useState(false);
+
+  useEffect(() => {
+    const checkScrollability = () => {
+      return document.documentElement.scrollHeight > window.innerHeight;
+    };
+
+    const handleScroll = () => {
+      if (!checkScrollability()) {
+        setShowFloating(false);
+        return;
+      }
+
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      setShowFloating(scrollTop > 0);
+    };
+
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
+
   return (
     <div className="content-stretch flex flex-col items-start relative size-full" data-name="[공통] 랜딩 페이지">
       <HeroSection />
@@ -168,6 +216,7 @@ export default function Component() {
       <VisualGridSection />
       <FinalCTASection />
       <Footer />
+      <Floating isVisible={showFloating} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import svgPaths from "@/svg-vam1vhmzcx";
+import { useNavigate } from "react-router-dom";
 import img3 from "@/assets/landing/ea0d1d638a9e524c9fe70bb4488bf87b65b09d22.png";
 import imgGroup20856653161 from "@/assets/landing/9c7a8ba99d911d8368b4657091a58546b891be03.png";
 import imgFrame20873293521 from "@/assets/landing/49054a51dda0eb68fa2fa5a718366d5479980864.png";
@@ -20,8 +21,13 @@ function Frame46() {
 }
 
 function Button2() {
+  const navigate = useNavigate();
   return (
-    <div className="absolute bg-[#007aff] content-stretch flex items-center justify-center left-[calc(50%-539px)] p-[20px] rounded-[20px] top-[338px] translate-x-[-50%] w-[218px]" data-name="Button">
+    <div
+      className="absolute bg-[#007aff] content-stretch flex items-center justify-center left-[calc(50%-539px)] p-[20px] rounded-[20px] top-[338px] translate-x-[-50%] w-[218px] cursor-pointer hover:bg-[#0066dd] transition-colors"
+      data-name="Button"
+      onClick={() => navigate('/signup')}
+    >
       <p className="font-['SUITE:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[22px] text-center text-white tracking-[-0.33px] w-[144px]">무료로 시작하기</p>
     </div>
   );

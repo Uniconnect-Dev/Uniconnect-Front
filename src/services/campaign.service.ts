@@ -10,6 +10,8 @@ import type {
   SubmitCampaignResponse,
   SaveFirstPageResponse,
   RecommendedCompany,
+  StudentCampaignListResponse,
+  StudentCampaignSearchParams,
 } from './campaign.types';
 
 /**
@@ -68,4 +70,35 @@ export async function submitCampaign(
  */
 export async function getRecommendedCompanies(): Promise<RecommendedCompany[]> {
   return api.get('/api/sampling/campaigns/recommended-companies');
+}
+
+/**
+ * 학생단체 캠페인 전체 조회 (기업용)
+ */
+export async function getStudentCampaigns(
+  page: number = 0,
+  size: number = 10
+): Promise<StudentCampaignListResponse> {
+  return api.get('/api/company/campaigns', {
+    params: { page, size, sort: ['createdAt,DESC'] },
+  });
+}
+
+/**
+ * 학생단체 캠페인 검색 (기업용)
+ */
+export async function searchStudentCampaigns(
+  params: StudentCampaignSearchParams
+): Promise<StudentCampaignListResponse> {
+  const queryParams: Record<string, string | number | string[]> = {};
+
+  if (params.keyword) queryParams.keyword = params.keyword;
+  if (params.collaborationType) queryParams.collaborationType = params.collaborationType;
+  if (params.startDate) queryParams.startDate = params.startDate;
+  if (params.endDate) queryParams.endDate = params.endDate;
+  if (params.page !== undefined) queryParams.page = params.page;
+  if (params.size !== undefined) queryParams.size = params.size;
+  if (params.sort) queryParams.sort = params.sort;
+
+  return api.get('/api/company/campaigns/search', { params: queryParams });
 }

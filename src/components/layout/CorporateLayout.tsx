@@ -1,10 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getMyCompanyProfile } from '@/services/profile.service';
+import type { CompanyProfileResponse } from '@/services/profile.types';
 
-interface StudentLayoutProps {
+interface CorporateLayoutProps {
   children: React.ReactNode;
 }
 
-export default function StudentLayout({ children }: StudentLayoutProps) {
+export default function CorporateLayout({ children }: CorporateLayoutProps) {
+  const [profile, setProfile] = useState<CompanyProfileResponse | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getMyCompanyProfile();
+        setProfile(data);
+      } catch (error) {
+        console.error('프로필 조회 실패:', error);
+      }
+    };
+    fetchProfile();
+  }, []);
+
   return (
     <div className="h-screen bg-[#F7F8FA] flex flex-col overflow-hidden">
       {/* 상단 네비게이션 바 - 고정 */}
@@ -60,9 +76,9 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             {/* 사용자 정보 */}
             <div className="mb-6 pb-6 border-b border-gray-200">
               <p className="text-base font-semibold text-gray-900 mb-1">
-                홍길동 님
+                {profile?.brandName ?? '로딩 중...'}
               </p>
-              <p className="text-sm text-gray-500">OO대학교</p>
+              <p className="text-sm text-gray-500">{profile?.industryName ?? ''}</p>
             </div>
 
             {/* 메뉴 */}

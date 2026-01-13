@@ -2,6 +2,7 @@ import React from 'react';
 import StudentLayout from '../../../components/layout/StudentLayout';
 
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
   Download,
@@ -13,40 +14,65 @@ import {
 type TabType = 'history' | 'payment' | 'invoice' | 'refund';
 
 function Tabs() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [activeTab, setActiveTab] = useState<TabType>('history');
 
   const tabs = [
-    { id: 'history' as TabType, label: '결제 내역 조회' },
-    { id: 'payment' as TabType, label: '결제 수단 관리' },
-    { id: 'invoice' as TabType, label: '세금계산서/영수증 발행' },
-    { id: 'refund' as TabType, label: '환불 처리' },
+    {
+      id: 'history',
+      label: '결제 내역 조회',
+      path: '/studentmypage/paymenthistory',
+    },
+    {
+      id: 'payment',
+      label: '결제 수단 관리',
+      path: '/studentmypage/paymentmethod',
+    }, // 예시 경로
+    {
+      id: 'invoice',
+      label: '세금계산서/영수증 발행',
+      path: '/studentmypage/paymentmethod',
+    },
+    {
+      id: 'refund',
+      label: '환불 처리',
+      path: '/studentmypage/paymentmethod',
+    },
   ];
 
   return (
     <div className="w-full h-14 bg-white shadow-[0px_4px_24px_0px_rgba(0,0,0,0.06)] border-b border-gray-100 inline-flex justify-center items-center overflow-hidden rounded-xl">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => setActiveTab(tab.id)}
-          className={`flex-1 self-stretch p-1.5 flex justify-center items-center gap-2.5 ${
-            activeTab === tab.id ? 'bg-sky-100' : 'bg-white'
-          }`}
-        >
-          <div
-            className={`justify-start text-base ${
-              activeTab === tab.id
-                ? 'text-sky-500 font-semibold'
-                : 'text-gray-400 font-medium'
+      {tabs.map((tab) => {
+        // 현재 경로가 tab.path를 포함하고 있다면 활성화
+        const isActive = location.pathname.includes(tab.path);
+
+        return (
+          <button
+            key={tab.id}
+            onClick={() => navigate(tab.path)} // 클릭 시 해당 경로로 이동
+            className={`flex-1 self-stretch p-1.5 flex justify-center items-center gap-2.5 ${
+              isActive ? 'bg-sky-100' : 'bg-white'
             }`}
           >
-            {tab.label}
-          </div>
-        </button>
-      ))}
+            <div
+              className={`justify-start text-base ${
+                isActive
+                  ? 'text-sky-500 font-semibold'
+                  : 'text-gray-400 font-medium'
+              }`}
+            >
+              {tab.label}
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }
 export default function PaymentHistoryDetail() {
+  const navigate = useNavigate();
   return (
     <StudentLayout>
       <Tabs />
@@ -54,7 +80,10 @@ export default function PaymentHistoryDetail() {
         {/* Header Section */}
         <div className="self-stretch flex flex-col justify-start items-start gap-6">
           {/* Back Button */}
-          <button className="pl-1.5 pr-3 py-1.5 bg-slate-100 rounded-lg inline-flex justify-start items-center gap-1 hover:bg-slate-200 transition-colors">
+          <button
+            onClick={() => navigate(-1)}
+            className="pl-1.5 pr-3 py-1.5 bg-slate-100 rounded-lg inline-flex justify-start items-center gap-1 hover:bg-slate-200 transition-colors"
+          >
             <ChevronLeft size={16} color="#949BA7" />
             <span className="text-gray-400 text-base font-semibold">이전</span>
           </button>

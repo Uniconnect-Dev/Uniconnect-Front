@@ -42,11 +42,11 @@ import Step4Agreements from './app/student/forms/Step4Agreements';
 
 //학생 마이페이지
 import StuContract from './app/student/mypage/Contract';
-import StuQnA from './app/corporate/mypage/QnA';
-import StuQnADetail from './app/corporate/mypage/QnADetail';
-import StuAddQnA from './app/corporate/mypage/AddQnA';
-import StuAddQnADone from './app/corporate/mypage/AddQnADone';
-import StuEditInfo from './app/corporate/mypage/EditInfo';
+import StuQnA from './app/student/mypage/QnA';
+import StuQnADetail from './app/student/mypage/QnADetail';
+import StuAddQnA from './app/student/mypage/AddQnA';
+import StuAddQnADone from './app/student/mypage/AddQnADone';
+import StuEditInfo from './app/student/mypage/EditInfo';
 import WriteContract from './app/student/mypage/WriteContract';
 import WriteContractDone from './app/student/mypage/WriteContractDone';
 import StuMatchingResult from './app/student/mypage/MatchingResult';
@@ -140,7 +140,10 @@ export default function App() {
         {/* 학생 단체 마이페이지*/}
         <Route path="/studentmypage/contract" element={<StuContract />} />
         <Route path="/studentmypage/qna" element={<StuQnA />} />
-        <Route path="/studentmypage/qnadetail" element={<StuQnADetail />} />
+        <Route
+          path="/studentmypage/qna/:questionId"
+          element={<StuQnADetail />}
+        />
         <Route path="/studentmypage/addqna" element={<StuAddQnA />} />
         <Route path="/studentmypage/addqnadone" element={<StuAddQnADone />} />
         <Route path="/studentmypage/editinfo" element={<StuEditInfo />} />

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AuthLayout from '@/components/layout/AuthLayout';
 import { login } from '@/services/auth.service';
-import { setAccessToken } from '@/lib/auth/token';
+import { setAccessToken, setRefreshToken, setUserId, setUserRole } from '@/lib/auth/token';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
@@ -26,11 +26,20 @@ export default function Login() {
         password: pw,
       });
 
-      // accessToken 저장
+      // 토큰 및 사용자 정보 저장
       setAccessToken(res.accessToken);
+      setRefreshToken(res.refreshToken);
+      setUserId(res.userId);
+      setUserRole(res.role);
 
-      // 👉 일단 공통 대시보드로 이동
-      navigate('/student'); // 이후 role 분기 가능
+      // role에 따라 다른 페이지로 이동
+      if (res.role === 'Company') {
+        navigate('/StudentGroupSearch');
+      } else if (res.role === 'StudentOrg') {
+        navigate('/studentshopping');
+      } else {
+        navigate('/login');
+      }
 
     } catch (error: any) {
       setErrorMessage(

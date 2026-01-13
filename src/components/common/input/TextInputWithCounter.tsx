@@ -7,6 +7,7 @@ interface Props {
   maxLength?: number;
   readOnly?: boolean;
   height?: number;
+  onChange?: (value: string) => void;
 }
 
 export default function TextInputWithCounter({
@@ -16,8 +17,14 @@ export default function TextInputWithCounter({
   maxLength = 30,
   readOnly = false,
   height = 56,
+  onChange,
 }: Props) {
   const [text, setText] = useState(value);
+
+  // Sync with external value changes
+  React.useEffect(() => {
+    setText(value);
+  }, [value]);
 
   return (
     <div className="flex flex-1 flex-col gap-2 min-w-0">
@@ -35,7 +42,9 @@ export default function TextInputWithCounter({
         maxLength={maxLength}
         onChange={(e) => {
           if (readOnly) return;
-          setText(e.target.value);
+          const newValue = e.target.value;
+          setText(newValue);
+          onChange?.(newValue);
         }}
         style={{ height }}
         className={`

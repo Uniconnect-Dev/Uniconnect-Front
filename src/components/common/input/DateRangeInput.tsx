@@ -17,6 +17,11 @@ interface Props {
   endValue?: string;
   onStartChange?: (v: string) => void;
   onEndChange?: (v: string) => void;
+  /* alias props for backward compatibility */
+  startDate?: string;
+  endDate?: string;
+  onStartDateChange?: (v: string) => void;
+  onEndDateChange?: (v: string) => void;
 }
 
 function isSameDay(a: Date, b: Date) {
@@ -77,27 +82,38 @@ export default function DateRangeInput({
   endValue,
   onStartChange,
   onEndChange,
+  // alias props
+  startDate,
+  endDate,
+  onStartDateChange,
+  onEndDateChange,
 }: Props) {
-  const isControlled = startValue !== undefined;
+  // Support alias props (startDate/endDate as aliases for startValue/endValue)
+  const effectiveStartValue = startValue ?? startDate;
+  const effectiveEndValue = endValue ?? endDate;
+  const effectiveOnStartChange = onStartChange ?? onStartDateChange;
+  const effectiveOnEndChange = onEndChange ?? onEndDateChange;
+
+  const isControlled = effectiveStartValue !== undefined;
 
   const [internalStart, setInternalStart] = useState('');
   const [internalEnd, setInternalEnd] = useState('');
   const [tempDate, setTempDate] = useState<Date | null>(null);
 
-  const startDate = isControlled ? startValue : internalStart;
-  const endDate = isControlled ? (endValue ?? '') : internalEnd;
+  const startDateValue = isControlled ? effectiveStartValue : internalStart;
+  const endDateValue = isControlled ? (effectiveEndValue ?? '') : internalEnd;
 
-  const setStartDate = (v: string) => {
-    if (isControlled && onStartChange) {
-      onStartChange(v);
+  const setStartDateValue = (v: string) => {
+    if (isControlled && effectiveOnStartChange) {
+      effectiveOnStartChange(v);
     } else {
       setInternalStart(v);
     }
   };
 
-  const setEndDate = (v: string) => {
-    if (isControlled && onEndChange) {
-      onEndChange(v);
+  const setEndDateValue = (v: string) => {
+    if (isControlled && effectiveOnEndChange) {
+      effectiveOnEndChange(v);
     } else {
       setInternalEnd(v);
     }
@@ -116,8 +132,8 @@ export default function DateRangeInput({
         if (tempDate && activeInput) {
           const formatted = formatDate(tempDate);
           activeInput === 'start'
-            ? setStartDate(formatted)
-            : setEndDate(formatted);
+            ? setStartDateValue(formatted)
+            : setEndDateValue(formatted);
         }
         setTempDate(null);
         setIsOpen(false);
@@ -130,16 +146,16 @@ export default function DateRangeInput({
   }, [tempDate, activeInput]);
 
   const selectedStart = useMemo(() => {
-    if (!startDate) return null;
-    const [y, m, d] = startDate.split('.').map(Number);
+    if (!startDateValue) return null;
+    const [y, m, d] = startDateValue.split('.').map(Number);
     return new Date(y, m - 1, d);
-  }, [startDate]);
+  }, [startDateValue]);
 
   const selectedEnd = useMemo(() => {
-    if (!endDate) return null;
-    const [y, m, d] = endDate.split('.').map(Number);
+    if (!endDateValue) return null;
+    const [y, m, d] = endDateValue.split('.').map(Number);
     return new Date(y, m - 1, d);
-  }, [endDate]);
+  }, [endDateValue]);
 
   const selectedForActive =
     tempDate ??
@@ -176,12 +192,12 @@ export default function DateRangeInput({
           <div className="relative">
             <Calendar
               className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
-                activeInput === 'start' || startDate ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
+                activeInput === 'start' || startDateValue ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
               }`}
             />
             <input
               readOnly
-              value={startDate}
+              value={startDateValue}
               placeholder={startPlaceholder ?? placeholder}
               onFocus={() => {
                 setActiveInput('start');
@@ -189,7 +205,7 @@ export default function DateRangeInput({
               }}
               style={{ height, width: inputWidth }}
               className={`${inputBase} ${inputWidthClass} ${
-                activeInput === 'start' || startDate
+                activeInput === 'start' || startDateValue
                   ? 'border-[#007AFF] text-[#007AFF]'
                   : 'border-[#E6E8EC] text-[#2D3139]'
               }`}
@@ -209,12 +225,12 @@ export default function DateRangeInput({
           <div className="relative">
             <Calendar
               className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
-                activeInput === 'end' || endDate ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
+                activeInput === 'end' || endDateValue ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
               }`}
             />
             <input
               readOnly
-              value={endDate}
+              value={endDateValue}
               placeholder={endPlaceholder ?? placeholder}
               onFocus={() => {
                 setActiveInput('end');
@@ -222,7 +238,7 @@ export default function DateRangeInput({
               }}
               style={{ height, width: inputWidth }}
               className={`${inputBase} ${inputWidthClass} ${
-                activeInput === 'end' || endDate
+                activeInput === 'end' || endDateValue
                   ? 'border-[#007AFF] text-[#007AFF]'
                   : 'border-[#E6E8EC] text-[#2D3139]'
               }`}

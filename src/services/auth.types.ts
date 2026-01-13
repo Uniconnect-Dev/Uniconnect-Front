@@ -36,3 +36,15 @@ export interface SignupResponse {
   email: string;
   message: string;
 }
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  tokenType: string;
+  accessToken: string;
+  accessTokenExpiresIn: number;
+  refreshToken: string;
+  refreshTokenExpiresIn: number;
+}

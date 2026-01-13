@@ -1,4 +1,6 @@
 // src/lib/auth/token.ts
+
+// Access Token
 export const setAccessToken = (token: string) => {
   localStorage.setItem('accessToken', token);
 };
@@ -9,6 +11,41 @@ export const getAccessToken = () => {
 
 export const clearAccessToken = () => {
   localStorage.removeItem('accessToken');
+};
+
+// Refresh Token
+export const setRefreshToken = (token: string) => {
+  localStorage.setItem('refreshToken', token);
+};
+
+export const getRefreshToken = () => {
+  return localStorage.getItem('refreshToken');
+};
+
+export const clearRefreshToken = () => {
+  localStorage.removeItem('refreshToken');
+};
+
+// User Role
+export const setUserRole = (role: string) => {
+  localStorage.setItem('userRole', role);
+};
+
+export const getUserRole = () => {
+  return localStorage.getItem('userRole');
+};
+
+export const clearUserRole = () => {
+  localStorage.removeItem('userRole');
+};
+
+// Clear all auth data
+export const clearAllAuthData = () => {
+  clearAccessToken();
+  clearRefreshToken();
+  clearUserId();
+  clearUserRole();
+  clearStudentOrgId();
 };
 
 export const setUserId = (userId: number) => {

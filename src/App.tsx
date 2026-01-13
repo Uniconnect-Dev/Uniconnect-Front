@@ -1,5 +1,8 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { CampaignFormProvider } from './context/CampaignFormContext';
+
+// 랜딩페이지
+import LandingPage from './app/landing';
 
 // 로그인
 import Login from './auth/login/Login';
@@ -39,11 +42,11 @@ import Step4Agreements from './app/student/forms/Step4Agreements';
 
 //학생 마이페이지
 import StuContract from './app/student/mypage/Contract';
-import StuQnA from './app/student/mypage/QnA';
-import StuQnADetail from './app/student/mypage/QnADetail';
-import StuAddQnA from './app/student/mypage/AddQnA';
-import StuAddQnADone from './app/student/mypage/AddQnADone';
-import StuEditInfo from './app/student/mypage/EditInfo';
+import StuQnA from './app/corporate/mypage/QnA';
+import StuQnADetail from './app/corporate/mypage/QnADetail';
+import StuAddQnA from './app/corporate/mypage/AddQnA';
+import StuAddQnADone from './app/corporate/mypage/AddQnADone';
+import StuEditInfo from './app/corporate/mypage/EditInfo';
 import WriteContract from './app/student/mypage/WriteContract';
 import WriteContractDone from './app/student/mypage/WriteContractDone';
 import StuMatchingResult from './app/student/mypage/MatchingResult';
@@ -52,6 +55,7 @@ import StuPaymentHistory from './app/student/mypage/PaymentHistory';
 import StuPaymentHistoryDetail from './app/student/mypage/PaymentHistoryDetail';
 import StuPaymentMethod from './app/student/mypage/PaymentMethod';
 import StuDashBoard from './app/student/mypage/Dashobard';
+
 // 기업 샘플링 요청
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
 import Step2TargetSet from './app/corporate/samplingrequest/Step2TargetSet';
@@ -82,14 +86,17 @@ export default function App() {
   return (
     <CampaignFormProvider>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
+
         {/* 회원가입 */}
         <Route path="/signup" element={<SelectUserType />} />
         <Route path="/signup/complete" element={<SignUpComplete />} />
+
         {/* 학생 회원가입 */}
         <Route path="/signup/student/step1" element={<Step1StaffInfo />} />
         <Route path="/signup/student/step2" element={<Step2UnivInfo />} />
+
         {/* 기업 회원가입 */}
         <Route path="/signup/corporate/step1" element={<Step1CompanyInfo />} />
         <Route

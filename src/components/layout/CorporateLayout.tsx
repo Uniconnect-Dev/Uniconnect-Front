@@ -2,11 +2,11 @@ import React from 'react';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
-interface StudentLayoutProps {
+interface CorporateLayoutProps {
   children: React.ReactNode;
 }
 
-export default function StudentLayout({ children }: StudentLayoutProps) {
+export default function CorporateLayout({ children }: CorporateLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;

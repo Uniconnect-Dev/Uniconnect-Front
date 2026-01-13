@@ -8,6 +8,7 @@ const navItems = [
   { label: '제휴 / 장기 협업', path: '/studentsampling/step1' },
   { label: '쇼핑몰', path: '/studentshopping' },
 ];
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface StudentLayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,9 @@ interface StudentLayoutProps {
 
 export default function StudentLayout({ children }: StudentLayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isActive = (path: string) => location.pathname === path;
   const [profile, setProfile] = useState<StudentOrgProfileResponse | null>(null);
 
   const isActive = (path: string) => {
@@ -106,37 +110,79 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
             {/* 메뉴 */}
             <nav className="flex flex-col gap-4 text-sm text-gray-700">
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/studentmypage/matchingresult')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/studentmypage/matchingresult')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 매칭 확인
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
-                <img src="/File.png" alt="" className="w-4 h-4" />
-                정산 결제
-              </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/studentmypage/contract')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/studentmypage/contract')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 계약서 작성
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/studentmypage/pollmanage')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/studentmypage/pollmanage')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 확인
-              </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
-                <img src="/File.png" alt="" className="w-4 h-4" />
-                단체 정보 수정
+                설문지 관리
               </span>
               <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 데이터 리포트 제출
               </span>
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/studentmypage/paymenthistory')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/studentmypage/paymenthistory')}
+              >
+                <img src="/File.png" alt="" className="w-4 h-4" />
+                정산 / 결제
+              </span>
               <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 세금계산서 발행 요청
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/studentmypage/editinfo')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/studentmypage/editinfo')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                Q&A 문의함
+                정보 수정
+              </span>
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/studentmypage/qna')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/studentmypage/qna')}
+              >
+                <img src="/File.png" alt="" className="w-4 h-4" />
+                Q&A
               </span>
             </nav>
           </div>

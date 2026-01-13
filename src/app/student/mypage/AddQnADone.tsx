@@ -1,5 +1,5 @@
 import React from 'react';
-import CorporateLayout from '../../../components/layout/CorporateLayout';
+import StudentLayout from '../../../components/layout/StudentLayout';
 import RequestStatus from '@/components/common/RequestStatus';
 import { Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { useState } from 'react';
 export default function AddQnADone() {
   const navigate = useNavigate();
   return (
-    <CorporateLayout>
+    <StudentLayout>
       {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
       {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
       <div className="flex flex-col h-full">
@@ -43,6 +43,6 @@ export default function AddQnADone() {
           </button>
         </div>
       </div>
-    </CorporateLayout>
+    </StudentLayout>
   );
 }

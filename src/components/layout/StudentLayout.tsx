@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShoppingBag, UserCircle } from 'lucide-react';
 import { getMyStudentOrgProfile } from '@/services/profile.service';
 import type { StudentOrgProfileResponse } from '@/services/profile.types';
 
@@ -43,8 +44,8 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
   return (
     <div className="h-screen bg-[#F7F8FA] flex flex-col overflow-hidden">
       {/* 상단 네비게이션 바 - 고정 */}
-      <header className="w-full bg-white border-b border-gray-200 flex-shrink-0">
-        <div className="w-full mx-auto flex items-center justify-start h-[72px] px-12">
+      <header className="w-full bg-white border-b border-gray-200 flex-shrink-0 min-h-[72px]">
+        <div className="w-full mx-auto flex items-center justify-start h-[72px] px-12 overflow-visible">
           {/* 로고 */}
           <img
             src="/logo.png"
@@ -73,16 +74,14 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
           </nav>
 
           {/* 아이콘 */}
-          <div className="flex items-center gap-4 ml-auto">
-            <img
-              src="/File.png"
-              alt="장바구니"
-              className="w-6 h-6 cursor-pointer"
+          <div className="flex items-center gap-5 ml-auto pr-2">
+            <ShoppingBag
+              className="w-[22px] h-[22px] cursor-pointer text-gray-600 hover:text-[#008FFF] transition-colors"
+              onClick={() => navigate('/studentshopping/cart')}
             />
-            <img
-              src="/File.png"
-              alt="사용자"
-              className="w-6 h-6 cursor-pointer"
+            <UserCircle
+              className="w-[24px] h-[24px] cursor-pointer text-gray-600 hover:text-[#008FFF] transition-colors"
+              onClick={() => navigate('/studentmypage/dashboard')}
             />
           </div>
         </div>

@@ -126,16 +126,16 @@ export default function Step2TargetSet() {
   return (
     <CorporateLayout>
       <div className="flex flex-col min-h-full">
-        <div className="flex justify-between w-full">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">타겟 설정</h1>
-            <p className="text-sm text-gray-500 mb-6">
-              분류별 해시 태그를 선택하여 정확한 타겟팅을 진행할 수 있습니다.
-            </p>
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center gap-2">
+            <img src="/File_Blue.png" alt="" className="w-5 h-5" />
+            <h1 className="text-[20px] font-semibold text-[#2D3139]">
+              타겟 설정
+            </h1>
           </div>
           <RequestStatus activeStep={2} />
         </div>
-        <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100 mb-6"></div>
+        <div className="border-t border-gray-200 mb-6" />
 
         <div className="flex flex-row gap-[70px]">
           {/* 해시태그 영역 */}

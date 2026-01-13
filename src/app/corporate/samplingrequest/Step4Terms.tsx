@@ -100,18 +100,16 @@ export default function Step4Terms() {
       {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
       {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
       <div className="flex flex-col min-h-full">
-        <div className="flex justify-between w-full">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">
-              샘플링 규정 확인 및 동의
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center gap-2">
+            <img src="/File_Blue.png" alt="" className="w-5 h-5" />
+            <h1 className="text-[20px] font-semibold text-[#2D3139]">
+              규정 확인 및 동의
             </h1>
-            <p className="text-sm text-gray-500 mb-6">
-              안전하고 투명한 협업을 위한 필수 동의 절차입니다.
-            </p>
           </div>
           <RequestStatus activeStep={4} />
         </div>
-        <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100 mb-6"></div>
+        <div className="border-t border-gray-200 mb-6" />
 
         {/*규정 동의 폼*/}
         <div className="flex flex-col gap-7">

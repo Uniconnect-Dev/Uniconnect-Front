@@ -27,7 +27,7 @@ export async function saveSamplingTargets(
 export async function getMatchedStudentOrgs(
   samplingProposalId: number
 ): Promise<MatchedStudentOrg[]> {
-  return api.get<MatchedStudentOrg[]>(`/api/sampling/proposals/${samplingProposalId}/student-orgs`);
+  return api.get<MatchedStudentOrg[]>(`/api/sampling/proposals/${samplingProposalId}/student-orgs`) as Promise<MatchedStudentOrg[]>;
 }
 
 export async function getStudentOrgDetail(
@@ -39,7 +39,7 @@ export async function getStudentOrgDetail(
     {
       params: { baseUnitCost, reportOptionFee, operationFee }
     }
-  );
+  ) as Promise<StudentOrgDetail>;
 }
 
 export async function submitSamplingProposal(

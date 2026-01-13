@@ -22,7 +22,7 @@ function Frame46() {
 function Button2() {
   return (
     <div className="absolute bg-[#007aff] content-stretch flex items-center justify-center left-[calc(50%-539px)] p-[20px] rounded-[20px] top-[338px] translate-x-[-50%] w-[218px]" data-name="Button">
-      <p className="font-['SUIT:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[22px] text-center text-white tracking-[-0.33px] w-[144px]">무료로 시작하기</p>
+      <p className="font-['SUITE:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[22px] text-center text-white tracking-[-0.33px] w-[144px]">무료로 시작하기</p>
     </div>
   );
 }

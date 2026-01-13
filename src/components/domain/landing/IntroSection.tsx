@@ -152,7 +152,7 @@ function Frame41() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 7">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -161,7 +161,7 @@ function Frame41() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 10">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -170,7 +170,7 @@ function Frame41() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 11">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -188,7 +188,7 @@ function Frame41() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 13">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -197,7 +197,7 @@ function Frame41() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 14">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@ function Frame41() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 15">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -224,7 +224,7 @@ function Frame41() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[104px]" data-name="Frame 101 6">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -233,7 +233,7 @@ function Frame41() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[104px]" data-name="Frame 101 8">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -242,7 +242,7 @@ function Frame41() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[104px]" data-name="Frame 101 17">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -267,7 +267,7 @@ function Frame40() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 7">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -276,7 +276,7 @@ function Frame40() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 10">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -285,7 +285,7 @@ function Frame40() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 11">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -303,7 +303,7 @@ function Frame40() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 13">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -312,7 +312,7 @@ function Frame40() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 14">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -321,7 +321,7 @@ function Frame40() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 15">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -339,7 +339,7 @@ function Frame40() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[104px]" data-name="Frame 101 6">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -348,7 +348,7 @@ function Frame40() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[104px]" data-name="Frame 101 8">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -357,7 +357,7 @@ function Frame40() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[104px]" data-name="Frame 101 17">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -408,7 +408,7 @@ function Frame43() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 7">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -417,7 +417,7 @@ function Frame43() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 10">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -426,7 +426,7 @@ function Frame43() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 11">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -444,7 +444,7 @@ function Frame43() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 13">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -453,7 +453,7 @@ function Frame43() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 14">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -462,7 +462,7 @@ function Frame43() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[105px]" data-name="Frame 101 15">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -480,7 +480,7 @@ function Frame43() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[104px]" data-name="Frame 101 6">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -489,7 +489,7 @@ function Frame43() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[104px]" data-name="Frame 101 8">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -498,7 +498,7 @@ function Frame43() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-[0.08] relative w-[104px]" data-name="Frame 101 17">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -523,7 +523,7 @@ function Frame44() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 7">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -532,7 +532,7 @@ function Frame44() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 10">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -541,7 +541,7 @@ function Frame44() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 11">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -559,7 +559,7 @@ function Frame44() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 13">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -568,7 +568,7 @@ function Frame44() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 14">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -577,7 +577,7 @@ function Frame44() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[105px]" data-name="Frame 101 15">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -595,7 +595,7 @@ function Frame44() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[104px]" data-name="Frame 101 6">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-105%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -604,7 +604,7 @@ function Frame44() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[104px]" data-name="Frame 101 8">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-210%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -613,7 +613,7 @@ function Frame44() {
         <div className="flex-none scale-y-[-100%]">
           <div className="h-[123px] opacity-20 relative w-[104px]" data-name="Frame 101 17">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img alt="" className="absolute h-[100.2%] left-0 max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
+              <img alt="" className="absolute h-[100.2%] left-[-320%] max-w-none top-[-0.1%] w-[420%]" src={imgFrame1015} />
             </div>
           </div>
         </div>
@@ -651,7 +651,7 @@ function Group17() {
 function Frame21() {
   return (
     <div className="absolute bg-[#e3f4ff] content-stretch flex items-center justify-center left-1/2 px-[16px] py-[12px] rounded-[16px] top-[90px] translate-x-[-50%]">
-      <p className="font-['SUIT:ExtraBold',sans-serif] leading-[1.4] not-italic relative shrink-0 text-[#007aff] text-[24px] text-nowrap tracking-[-0.36px]">STEP 1</p>
+      <p className="font-['SUITE:ExtraBold',sans-serif] leading-[1.4] not-italic relative shrink-0 text-[#007aff] text-[24px] text-nowrap tracking-[-0.36px]">STEP 1</p>
     </div>
   );
 }
@@ -663,7 +663,7 @@ function Frame22() {
         <p className="mb-0">비효율적인 타겟팅은 그만!</p>
         <p>데이터 기반으로 단체 매칭을 진행해요.</p>
       </div>
-      <div className="font-['SUIT:Bold',sans-serif] leading-[1.4] relative shrink-0 text-[#6c727e] text-[24px] tracking-[-0.36px] w-full">
+      <div className="font-['SUITE:Bold',sans-serif] leading-[1.4] relative shrink-0 text-[#6c727e] text-[24px] tracking-[-0.36px] w-full">
         <p className="mb-0">75,000명의 학생 단체 풀과 00개의 기업을 기반으로</p>
         <p>딱 필요한 협업을 매칭해드려요.</p>
       </div>

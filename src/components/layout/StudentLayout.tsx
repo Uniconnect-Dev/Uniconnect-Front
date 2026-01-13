@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getMyStudentOrgProfile } from '@/services/profile.service';
 import type { StudentOrgProfileResponse } from '@/services/profile.types';
 
-import { useNavigate, useLocation } from 'react-router-dom';
+const navItems = [
+  { label: '기업 찾기', path: '/CorporateSearch' },
+  { label: '제휴 / 장기 협업', path: '/studentsampling/step1' },
+  { label: '쇼핑몰', path: '/studentshopping' },
+];
 
 interface StudentLayoutProps {
   children: React.ReactNode;
@@ -11,8 +16,17 @@ interface StudentLayoutProps {
 export default function StudentLayout({ children }: StudentLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const isActive = (path: string) => location.pathname === path;
   const [profile, setProfile] = useState<StudentOrgProfileResponse | null>(null);
+
+  const isActive = (path: string) => {
+    if (path === '/studentshopping') {
+      return location.pathname.startsWith('/studentshopping');
+    }
+    if (path === '/studentsampling/step1') {
+      return location.pathname.startsWith('/studentsampling');
+    }
+    return location.pathname === path;
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -40,17 +54,22 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
           {/* 메뉴 - 아이콘과 동일한 높이 */}
           <nav className="flex gap-6 px-12 items-center h-full">
-            <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              기업 찾기
-            </span>
-            <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              제휴 / 장기 협업
-            </span>
-            <span className="cursor-pointer text-[#008FFF] text-[15px] font-medium h-full flex items-center relative">
-              쇼핑몰
-              {/* 파란 밑줄 - 상단에서 72px 위치 */}
-              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008FFF]"></span>
-            </span>
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`cursor-pointer text-[15px] font-medium h-full flex items-center relative ${
+                  isActive(item.path)
+                    ? 'text-[#008FFF]'
+                    : 'text-gray-700 hover:text-[#008FFF]'
+                }`}
+              >
+                {item.label}
+                {isActive(item.path) && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008FFF]"></span>
+                )}
+              </Link>
+            ))}
           </nav>
 
           {/* 아이콘 */}

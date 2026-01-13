@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthLayout from '@/components/layout/AuthLayout';
-import { login } from '@/services/auth.service';
-import { setAccessToken, setRefreshToken, setUserId, setUserRole } from '@/lib/auth/token';
+import { login as loginApi } from '@/services/auth.service';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Login() {
   const [id, setId] = useState('');
@@ -11,6 +11,18 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading, user, login } = useAuth();
+
+  // 이미 로그인된 경우 해당 페이지로 리다이렉트
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      if (user.role === 'Company') {
+        navigate('/StudentGroupSearch', { replace: true });
+      } else if (user.role === 'StudentOrg') {
+        navigate('/studentshopping', { replace: true });
+      }
+    }
+  }, [isLoading, isAuthenticated, user, navigate]);
 
   const isFilled = id.trim() !== '' && pw.trim() !== '';
 
@@ -19,26 +31,26 @@ export default function Login() {
 
     try {
       setLoading(true);
-      setErrorMessage(null); // ✅ 이전 에러 초기화
+      setErrorMessage(null);
 
-      const res = await login({
+      const res = await loginApi({
         loginId: id,
         password: pw,
       });
 
-      // 토큰 및 사용자 정보 저장
-      setAccessToken(res.accessToken);
-      setRefreshToken(res.refreshToken);
-      setUserId(res.userId);
-      setUserRole(res.role);
+      // AuthContext를 통해 로그인 상태 저장
+      login({
+        accessToken: res.accessToken,
+        refreshToken: res.refreshToken,
+        userId: res.userId,
+        role: res.role,
+      });
 
       // role에 따라 다른 페이지로 이동
       if (res.role === 'Company') {
-        navigate('/StudentGroupSearch');
+        navigate('/StudentGroupSearch', { replace: true });
       } else if (res.role === 'StudentOrg') {
-        navigate('/studentshopping');
-      } else {
-        navigate('/login');
+        navigate('/studentshopping', { replace: true });
       }
 
     } catch (error: any) {
@@ -50,6 +62,11 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  // 로딩 중일 때는 아무것도 표시하지 않음
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <AuthLayout>

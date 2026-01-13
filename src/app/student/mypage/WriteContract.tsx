@@ -1,4 +1,4 @@
-import CorporateLayout from '../../../components/layout/CorporateLayout';
+import StudentLayout from '../../../components/layout/StudentLayout';
 
 import { useState } from 'react';
 
@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 export default function WriteContract() {
   const navigate = useNavigate();
   return (
-    <CorporateLayout>
+    <StudentLayout>
       {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
       {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
       <div className="flex flex-col">
@@ -80,6 +80,6 @@ export default function WriteContract() {
           </button>
         </div>
       </div>
-    </CorporateLayout>
+    </StudentLayout>
   );
 }

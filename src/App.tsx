@@ -39,14 +39,19 @@ import Step4Agreements from './app/student/forms/Step4Agreements';
 
 //학생 마이페이지
 import StuContract from './app/student/mypage/Contract';
-import StuQnA from './app/corporate/mypage/QnA';
-import StuQnADetail from './app/corporate/mypage/QnADetail';
-import StuAddQnA from './app/corporate/mypage/AddQnA';
-import StuAddQnADone from './app/corporate/mypage/AddQnADone';
-import StuEditInfo from './app/corporate/mypage/EditInfo';
+import StuQnA from './app/student/mypage/QnA';
+import StuQnADetail from './app/student/mypage/QnADetail';
+import StuAddQnA from './app/student/mypage/AddQnA';
+import StuAddQnADone from './app/student/mypage/AddQnADone';
+import StuEditInfo from './app/student/mypage/EditInfo';
 import WriteContract from './app/student/mypage/WriteContract';
 import WriteContractDone from './app/student/mypage/WriteContractDone';
-
+import StuMatchingResult from './app/student/mypage/MatchingResult';
+import StuPollManage from './app/student/mypage/PollManage';
+import StuPaymentHistory from './app/student/mypage/PaymentHistory';
+import StuPaymentHistoryDetail from './app/student/mypage/PaymentHistoryDetail';
+import StuPaymentMethod from './app/student/mypage/PaymentMethod';
+import StuDashBoard from './app/student/mypage/Dashobard';
 // 기업 샘플링 요청
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
 import Step2TargetSet from './app/corporate/samplingrequest/Step2TargetSet';
@@ -140,6 +145,25 @@ export default function App() {
           path="/studentmypage/writecontractdone"
           element={<WriteContractDone />}
         />
+        <Route
+          path="/studentmypage/matchingresult"
+          element={<StuMatchingResult />}
+        />
+        <Route path="/studentmypage/pollmanage" element={<StuPollManage />} />
+        <Route
+          path="/studentmypage/paymenthistory"
+          element={<StuPaymentHistory />}
+        />
+        <Route
+          path="/studentmypage/paymenthistorydetail"
+          element={<StuPaymentHistoryDetail />}
+        />
+        <Route
+          path="/studentmypage/paymentmethod"
+          element={<StuPaymentMethod />}
+        />
+        <Route path="/studentmypage/dashboard" element={<StuDashBoard />} />
+
         {/* 기업 샘플링 요청 */}
         <Route
           path="/corporatesamplingrequest/step1"

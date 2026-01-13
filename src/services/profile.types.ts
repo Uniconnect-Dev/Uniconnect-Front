@@ -46,3 +46,35 @@ export interface StudentOrgInitResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+// GET /api/profile/student-org/me 응답
+export interface StudentOrgProfileResponse {
+  studentOrgId: number;
+  schoolName: string;
+  organizationName: string;
+  managerName: string;
+  phone: string;
+  email: string;
+  logoUrl: string;
+  verificationLevel: number;
+  safetyFlag: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// GET /api/profile/company/me 응답
+export interface CompanyProfileResponse {
+  companyId: number;
+  brandName: string;
+  logoUrl: string;
+  mainContactId: number;
+  industryType: string;
+  industryName: string;
+  businessType: string;
+  businessTypeName: string;
+  samplingPurpose: string;
+  samplingStartDate: string;
+  samplingEndDate: string;
+  productName: string;
+  productCount: number;
+}

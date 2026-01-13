@@ -3,8 +3,10 @@ import { api } from '@/lib/api/client';
 import type {
   CompanyInitRequest,
   CompanyInitResponse,
+  CompanyProfileResponse,
   StudentOrgInitRequest,
   StudentOrgInitResponse,
+  StudentOrgProfileResponse,
 } from './profile.types';
 
 export const initCompanyProfile = async (
@@ -17,4 +19,12 @@ export const initStudentOrgProfile = async (
   payload: StudentOrgInitRequest
 ): Promise<StudentOrgInitResponse> => {
   return api.post('/api/profile/student-org/init', payload);
+};
+
+export const getMyStudentOrgProfile = async (): Promise<StudentOrgProfileResponse> => {
+  return api.get('/api/profile/student-org/me');
+};
+
+export const getMyCompanyProfile = async (): Promise<CompanyProfileResponse> => {
+  return api.get('/api/profile/company/me');
 };

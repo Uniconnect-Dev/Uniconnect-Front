@@ -4,7 +4,7 @@ export interface CompanyInitRequest {
   brandName: string;
   logoUrl: string;
   mainContactId: number;
-  industry: string; // 업종 enum
+  industryType: string; // 업종 enum
   businessType: string; // 업태 enum
 }
 
@@ -13,7 +13,7 @@ export interface CompanyInitResponse {
   brandName: string;
   logoUrl: string;
   mainContactId: number;
-  industry: string;
+  industryType: string;
   businessType: string;
   createdAt: string;
   updatedAt: string;

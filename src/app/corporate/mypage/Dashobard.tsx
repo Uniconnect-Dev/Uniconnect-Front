@@ -7,9 +7,7 @@ import {
   Download,
 } from 'lucide-react';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
-
-import { dashboardApi } from '@/services/dashboard/dashboard.service';
-import * as T from '@/services/dashboard/dashbosrd.types';
+import * as dashboardService from '@/services/dashboard/dashboard.service';
 
 // ============ 공통 컴포넌트 (스타일 유지) ============
 
@@ -340,11 +338,10 @@ export default function DashBoard() {
     c3: true,
   });
 
-  // 제출 로직 (전체 API 호출)
   const handleSubmitAll = async () => {
     try {
       // 1. 학생 수령 정보
-      const p1 = dashboardApi.postReceiveInfo({
+      const p1 = dashboardService.postReceiveInfo({
         collaborationId,
         receiverName: recipientName,
         receiverPhone: recipientPhone,
@@ -352,7 +349,7 @@ export default function DashBoard() {
       });
 
       // 2. 기업 제품 정보
-      const p2 = dashboardApi.postProductInfo({
+      const p2 = dashboardService.postProductInfo({
         collaborationId,
         productName,
         quantity: Number(coProductCount),
@@ -360,18 +357,18 @@ export default function DashBoard() {
       });
 
       // 3. 기업 발송 정보
-      const p3 = dashboardApi.patchShippingInfo({
+      const p3 = dashboardService.patchShippingInfo({
         collaborationId,
         shippingDate: shippingDate.replace(/\./g, '-'),
         isShipped: shippingStatus > 0,
         trackingNo,
       });
 
-      // 4. 파일 업로드들 (선택사항 포함)
+      // 4. 파일 업로드들
       const uploads = [];
       if (promoFile)
         uploads.push(
-          dashboardApi.postContentUpload({
+          dashboardService.postContentUpload({
             collaborationId,
             uploaderType: 'StudentOrg',
             caption: '학생홍보물',
@@ -380,7 +377,7 @@ export default function DashBoard() {
         );
       if (productPhoto)
         uploads.push(
-          dashboardApi.postContentUpload({
+          dashboardService.postContentUpload({
             collaborationId,
             uploaderType: 'Company',
             caption: '제품사진',
@@ -389,7 +386,7 @@ export default function DashBoard() {
         );
       if (companyLogo)
         uploads.push(
-          dashboardApi.postContentUpload({
+          dashboardService.postContentUpload({
             collaborationId,
             uploaderType: 'Company',
             caption: '기업로고',
@@ -397,10 +394,10 @@ export default function DashBoard() {
           })
         );
 
-      // 5. 인수증 (이미지 필수 체크)
+      // 5. 인수증
       if (receiptImage) {
         uploads.push(
-          dashboardApi.postReceiptSubmit({
+          dashboardService.postReceiptSubmit({
             json: {
               receiptTime: receiptTime.replace(/\./g, '-'),
               location: receiptLocation,

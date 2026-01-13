@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CorporateLayout from '@/components/layout/CorporateLayout';
 import { Search, RotateCcw, Calendar, ChevronDown } from 'lucide-react';
 import DateRangeInput from '@/components/common/input/DateRangeInput';
+import { getCompanyList } from '@/services/company.service';
 
 /* =========================
    타입 정의
@@ -194,6 +195,10 @@ function CompanyCard({ data }: { data: Company }) {
    메인 컴포넌트
 ========================= */
 export default function CorporateSearch() {
+  /* 기업 목록 상태 */
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   /* 검색어 */
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -213,6 +218,33 @@ export default function CorporateSearch() {
     { label: '이벤트', value: 'event' },
   ];
 
+  /* API 호출 */
+  const fetchCompanies = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getCompanyList();
+      // API 응답을 UI 타입에 맞게 변환
+      const mapped: Company[] = data.map((item) => ({
+        id: String(item.companyId),
+        name: item.brandName,
+        imageUrl: item.logoUrl || undefined,
+        startDate: '',
+        isAlways: true,
+        tag: '제휴' as const,
+      }));
+      setCompanies(mapped);
+    } catch (err) {
+      console.error('기업 목록 조회 실패:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /* 초기 로딩 */
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
   /* 초기화 */
   const handleReset = () => {
     setSearchQuery('');
@@ -222,51 +254,10 @@ export default function CorporateSearch() {
     setIndustryFilter('');
   };
 
-  /* 더미 데이터 */
-  const dummyData: Company[] = [
-    {
-      id: '1',
-      name: '크라이치즈버거',
-      startDate: '12/02',
-      endDate: '3/31',
-      tag: '샘플링',
-    },
-    {
-      id: '2',
-      name: '크라이치즈버거',
-      isAlways: true,
-      startDate: '',
-      tag: '샘플링',
-    },
-    {
-      id: '3',
-      name: '크라이치즈버거',
-      startDate: '12/02',
-      endDate: '3/31',
-      tag: '샘플링',
-    },
-    {
-      id: '4',
-      name: '크라이치즈버거',
-      startDate: '12/02',
-      endDate: '3/31',
-      tag: '샘플링',
-    },
-    {
-      id: '5',
-      name: '크라이치즈버거',
-      startDate: '12/02',
-      endDate: '3/31',
-      tag: '샘플링',
-    },
-    {
-      id: '6',
-      name: '크라이치즈버거',
-      startDate: '12/02',
-      endDate: '3/31',
-      tag: '샘플링',
-    },
-  ];
+  /* 검색 필터링 */
+  const filteredCompanies = companies.filter((company) =>
+    !searchQuery || company.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <CorporateLayout>
@@ -383,11 +374,21 @@ export default function CorporateSearch() {
 
         {/* ================= 카드 그리드 ================= */}
         <div className="flex-1 overflow-y-auto pb-8">
-          <div className="grid grid-cols-3 gap-5">
-            {dummyData.map((item) => (
-              <CompanyCard key={item.id} data={item} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center h-[300px]">
+              <div className="w-8 h-8 border-4 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : filteredCompanies.length === 0 ? (
+            <div className="flex items-center justify-center h-[300px] text-[#6C727E]">
+              <p className="text-[16px]">조회된 기업이 없습니다.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-5">
+              {filteredCompanies.map((item) => (
+                <CompanyCard key={item.id} data={item} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </CorporateLayout>

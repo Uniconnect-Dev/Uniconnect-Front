@@ -1,5 +1,6 @@
 import React from 'react';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
+import { api } from '@/lib/api/client';
 
 import { useState, useEffect, useRef } from 'react';
 
@@ -63,9 +64,11 @@ const contractData: ContractData[] = [
 ];
 
 function ContractTable({
+  contracts,
   isFilterOpen,
   setIsFilterOpen,
 }: {
+  contracts: ContractData[];
   isFilterOpen: boolean;
   setIsFilterOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -73,7 +76,6 @@ function ContractTable({
     <div className="w-full h-full rounded-3xl outline outline-1 outline-zinc-200 bg-white flex flex-col overflow-hidden relative">
       <div className="flex-1 overflow-auto">
         <table className="w-full border-collapse">
-          {/* Header - 패딩 없음 */}
           <thead className="bg-white border-b border-zinc-200 sticky top-0 z-10">
             <tr className="h-14">
               <Th className="w-24">연번</Th>
@@ -85,30 +87,37 @@ function ContractTable({
             </tr>
           </thead>
 
-          {/* Body - 양옆 패딩 8px */}
           <tbody>
-            {contractData.map((contract) => (
-              <Tr key={contract.id}>
-                <Td className="w-24 first:pl-7">{contract.id}</Td>
-                <Td className="w-32">{contract.date}</Td>
-                <Td>
-                  <div className="line-clamp-1">
-                    {contract.organizationName}
-                  </div>
-                </Td>
-                <Td className="w-40">{contract.collaborationType}</Td>
-                <Td className="w-28 text-center">
-                  <ContractDetail status={contract.status} />
-                </Td>
-                <Td className="w-32 last:pr-7">
-                  <ContractStatusBadge status={contract.status} />
-                </Td>
-              </Tr>
-            ))}
+            {contracts.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-8 text-gray-400">
+                  조회된 계약 데이터가 없습니다.
+                </td>
+              </tr>
+            ) : (
+              contracts.map((contract) => (
+                <Tr key={contract.id}>
+                  <Td className="w-24 first:pl-7">{contract.id}</Td>
+                  <Td className="w-32">{contract.date}</Td>
+                  <Td>
+                    <div className="line-clamp-1">
+                      {contract.organizationName}
+                    </div>
+                  </Td>
+                  <Td className="w-40">{contract.collaborationType}</Td>
+                  <Td className="w-28 text-center">
+                    <ContractDetail status={contract.status} />
+                  </Td>
+                  <Td className="w-32 last:pr-7">
+                    <ContractStatusBadge status={contract.status} />
+                  </Td>
+                </Tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
-      {/* Pagination - (overflow-auto 밖) */}
+      {/* Pagination */}
       <div className="h-14 px-5 border-t border-zinc-200 bg-white flex justify-end items-center gap-[29px] flex-shrink-0">
         <div className="flex items-center gap-7">
           <ChevronsLeft size={20} color="#DADFE7" />
@@ -119,7 +128,6 @@ function ContractTable({
         </div>
       </div>
 
-      {/* Filter Panel - Absolute Position relative to table */}
       {isFilterOpen && (
         <div className="absolute right-0 top-0 bottom-0 z-50">
           <FilterPanel
@@ -599,34 +607,89 @@ function Dateinput({ placeholder }: DateinputProps) {
 
 export default function Contract() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [contracts, setContracts] = useState<ContractData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    loadContracts();
+  }, []);
+
+  const loadContracts = async (filters?: {
+    period?: string;
+    startDate?: string;
+    endDate?: string;
+    collaborationType?: string;
+    contractStatus?: string[];
+  }) => {
+    setIsLoading(true);
+
+    try {
+      const response = await api.post(
+        '/api/contracts/matchings/company/filter',
+        {
+          period: filters?.period || 'string',
+          startDate: filters?.startDate || '2024-01-13',
+          endDate: filters?.endDate || '2024-01-13',
+          collaborationType: filters?.collaborationType || 'string',
+          contractStatus: filters?.contractStatus?.[0] ?? 'SEND',
+        }
+      );
+
+      if (response.data?.success && response.data?.data) {
+        const formattedData = response.data.data.map(
+          (item: any, index: number) => ({
+            id: String(index + 1).padStart(2, '0'),
+            date: item.matchedAt,
+            organizationName: item.studentClub,
+            collaborationType: item.collaborationType,
+            status: mapContractStatus(item.contractStatus),
+          })
+        );
+
+        setContracts(formattedData);
+      } else {
+        setContracts([]);
+      }
+    } catch (err) {
+      console.error('계약 데이터 로드 실패:', err);
+      setContracts([]); // 에러 시 빈 배열
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const mapContractStatus = (status: string): ContractStatus => {
+    if (status === 'PENDING' || status === 'SEND') return 'send';
+    if (status === 'BEFORE_SIGN' || status === 'UNSIGNED') return 'before-sign';
+    if (status === 'COMPLETE' || status === 'SIGNED') return 'complete';
+    return 'send';
+  };
+
   return (
-    <>
-      <CorporateLayout>
-        {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
-        {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
-        <div className="flex flex-col h-full">
-          <div className="flex justify-between w-full flex-1">
-            <div className="flex flex-col gap-4 w-full">
-              <div className="flex flex-row gap-2">
-                <img src="/building.svg" />
-                <p className="text-zinc-700 text-xl font-bold">계약서 작성</p>
-              </div>
-              <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100" />
-              <div className="flex flex-row">
-                <Searchinput placeholder="단체명 검색 .." />
-                <div className="flex flex-1"></div>
-                <FilterButton onClick={() => setIsFilterOpen(true)} />
-              </div>
-              <div className="flex-1 flex flex-col">
-                <ContractTable
-                  isFilterOpen={isFilterOpen}
-                  setIsFilterOpen={setIsFilterOpen}
-                />
-              </div>
+    <CorporateLayout>
+      <div className="flex flex-col h-full">
+        <div className="flex justify-between w-full flex-1">
+          <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-row gap-2">
+              <img src="/building.svg" />
+              <p className="text-zinc-700 text-xl font-bold">계약서 작성</p>
+            </div>
+            <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100" />
+            <div className="flex flex-row">
+              <Searchinput placeholder="단체명 검색 .." />
+              <div className="flex flex-1"></div>
+              <FilterButton onClick={() => setIsFilterOpen(true)} />
+            </div>
+            <div className="flex-1 flex flex-col">
+              <ContractTable
+                contracts={contracts}
+                isFilterOpen={isFilterOpen}
+                setIsFilterOpen={setIsFilterOpen}
+              />
             </div>
           </div>
         </div>
-      </CorporateLayout>
-    </>
+      </div>
+    </CorporateLayout>
   );
 }

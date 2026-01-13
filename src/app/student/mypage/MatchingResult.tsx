@@ -3,11 +3,9 @@ import StudentLayout from '../../../components/layout/StudentLayout';
 
 import { useState, useEffect, useRef } from 'react';
 
-import { useNavigate } from 'react-router-dom';
-
 import {
   Search,
-  Pencil,
+  Plus,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -15,6 +13,7 @@ import {
   X,
   Calendar,
   RotateCw,
+  ArrowUpRight,
 } from 'lucide-react';
 
 import Th from '../../../components/common/tableRelated/Th';
@@ -22,49 +21,62 @@ import SortableTh from '@/components/common/tableRelated/SortableTh';
 import Tr from '@/components/common/tableRelated/Tr';
 import Td from '@/components/common/tableRelated/Td';
 
-type ContractStatus = 'send' | 'before-sign' | 'complete';
+type MatchingStatus = 'waiting' | 'successed' | 'faild';
+type Process =
+  | 'contractConfirmed' // 계약 확정
+  | 'contractWriting' // 계약서 작성
+  | 'manageForm' // 설문지 관리
+  | 'sendProduct' // 제품 발송
+  | 'dataReport' // 데이터 리포트
+  | 'payment'; // 결제
 
-interface ContractData {
+type collaborationType = 'sampling' | 'partnership';
+
+interface MatchingData {
   id: string;
   date: string;
   organizationName: string;
-  collaborationType: string;
-  status: ContractStatus;
+  collaborationType: collaborationType;
+  status: MatchingStatus;
+  process: Process;
 }
 
-const contractData: ContractData[] = [
+const MatchingData: MatchingData[] = [
   {
     id: '01',
     date: '2025.12.29',
     organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
-    status: 'send',
+    collaborationType: 'sampling',
+    status: 'waiting',
+    process: 'contractConfirmed',
   },
   {
     id: '02',
     date: '2025.12.29',
     organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
-    status: 'before-sign',
+    collaborationType: 'partnership',
+    status: 'faild',
+    process: 'payment',
   },
   {
     id: '03',
     date: '2025.12.29',
     organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
-    status: 'complete',
+    collaborationType: 'partnership',
+    status: 'waiting',
+    process: 'dataReport',
   },
   {
     id: '04',
     date: '2025.12.29',
-    organizationName:
-      '이화여대 중앙 실전 IT 창업 학회 UNIS이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
-    status: 'before-sign',
+    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
+    collaborationType: 'partnership',
+    status: 'successed',
+    process: 'contractWriting',
   },
 ];
 
-function ContractTable({
+function MatchingTable({
   isFilterOpen,
   setIsFilterOpen,
 }: {
@@ -79,31 +91,33 @@ function ContractTable({
           <thead className="bg-white border-b border-zinc-200 sticky top-0 z-10">
             <tr className="h-14">
               <Th className="w-24">연번</Th>
-              <SortableTh className="w-32">매칭 성사일</SortableTh>
-              <SortableTh>단체명</SortableTh>
-              <Th className="w-40">협업 형태</Th>
-              <Th className="w-28 text-center">계약서 상세</Th>
-              <SortableTh className="w-32">계약 상태</SortableTh>
+              <SortableTh className="w-32">희망 협업일</SortableTh>
+              <SortableTh>기업명</SortableTh>
+              <Th className="w-28">협업 유형</Th>
+              <SortableTh className="w-28">매칭 상태</SortableTh>
+              <SortableTh className="w-32">프로세스</SortableTh>
             </tr>
           </thead>
 
           {/* Body - 양옆 패딩 8px */}
           <tbody>
-            {contractData.map((contract) => (
-              <Tr key={contract.id}>
-                <Td className="w-24 first:pl-7">{contract.id}</Td>
-                <Td className="w-32">{contract.date}</Td>
+            {MatchingData.map((matching) => (
+              <Tr key={matching.id}>
+                <Td className="w-24 first:pl-7">{matching.id}</Td>
+                <Td className="w-32">{matching.date}</Td>
                 <Td>
                   <div className="line-clamp-1">
-                    {contract.organizationName}
+                    {matching.organizationName}
                   </div>
                 </Td>
-                <Td className="w-40">{contract.collaborationType}</Td>
-                <Td className="w-28 text-center">
-                  <ContractDetail status={contract.status} />
+                <Td className="w-28">
+                  <CollaborationTypeTag type={matching.collaborationType} />
+                </Td>
+                <Td className="w-28">
+                  <MatchingStatus status={matching.status} />
                 </Td>
                 <Td className="w-32 last:pr-7">
-                  <ContractStatusBadge status={contract.status} />
+                  <Process status={matching.process} />
                 </Td>
               </Tr>
             ))}
@@ -134,73 +148,62 @@ function ContractTable({
   );
 }
 
-/* 계약서 상세 버튼 */
-function ContractDetail({ status }: { status: ContractStatus }) {
-  if (status === 'send') {
+/* 매칭 상태 */
+function MatchingStatus({ status }: { status: MatchingStatus }) {
+  if (status === 'waiting') {
     return (
-      <div className="flex justify-center">
-        <span className="text-gray-600">-</span>
+      <div className="px-2 py-0.5 bg-gray-100 rounded-3xl inline-flex justify-center items-center gap-2.5">
+        <div className="text-gray-400 text-xs font-semibold">대기 중</div>
       </div>
     );
   }
 
-  if (status === 'before-sign') {
+  if (status === 'successed') {
     return (
-      <div className="flex justify-center">
-        <div className="h-6 px-3 bg-gray-100 rounded-lg inline-flex items-center whitespace-nowrap">
-          <span className="text-gray-600 text-xs font-semibold">
-            계약서 보기
-          </span>
-        </div>
+      <div className="px-2 py-0.5 bg-emerald-50 rounded-3xl inline-flex justify-center items-center gap-2.5">
+        <div className="text-emerald-600 text-xs font-semibold">매칭 성공</div>
       </div>
     );
   }
 
-  // complete
+  // faild
   return (
-    <div className="flex justify-center">
-      <div className="h-6 px-3 bg-sky-100 rounded-lg inline-flex items-center whitespace-nowrap">
-        <span className="text-blue-600 text-xs font-semibold">서명본 보기</span>
-      </div>
+    <div className="px-2 py-0.5 bg-pink-100 rounded-3xl inline-flex justify-center items-center gap-2.5">
+      <div className="text-red-500 text-xs">매칭 실패</div>
     </div>
   );
 }
 
-/* 계약 상태 배지 */
-function ContractStatusBadge({ status }: { status: ContractStatus }) {
-  const navigate = useNavigate();
-  if (status === 'send') {
-    return (
-      <div
-        className="flex justify-start"
-        onClick={() => navigate('/studentmypage/writecontract')}
-      >
-        <div className="h-6 pl-2 pr-3 bg-sky-100 rounded-lg inline-flex items-center gap-1">
-          <Pencil size={15} color="#007AFF" />
-          <span className="text-blue-600 text-xs font-semibold whitespace-nowrap">
-            계약서 작성
-          </span>
-        </div>
-      </div>
-    );
-  }
+/* 프로세스 */
+function Process({ status }: { status: Process }) {
+  const labelMap: Record<Process, string> = {
+    contractConfirmed: '계약 확정',
+    contractWriting: '계약서 작성',
+    manageForm: '설문지 관리',
+    sendProduct: '제품 발송',
+    dataReport: '데이터 리포트',
+    payment: '정산/결제',
+  };
 
-  if (status === 'before-sign') {
-    return (
-      <div className="flex justify-start">
-        <span className="px-2 py-0.5 bg-slate-100 rounded-3xl text-gray-400 text-xs font-semibold whitespace-nowrap">
-          서명 전
-        </span>
-      </div>
-    );
-  }
-
-  // complete
   return (
-    <div className="flex justify-start">
-      <span className="px-2 py-0.5 bg-emerald-50 rounded-3xl text-emerald-600 text-xs font-semibold whitespace-nowrap">
-        계약 체결됨
-      </span>
+    <div className="h-6 pl-3 pr-2 bg-sky-100 rounded-lg inline-flex items-center gap-0.5 text-blue-600 whitespace-nowrap">
+      <span className="text-xs font-semibold">{labelMap[status]}</span>
+      <ArrowUpRight size={14} />
+    </div>
+  );
+}
+
+function CollaborationTypeTag({ type }: { type: collaborationType }) {
+  const labelMap: Record<collaborationType, string> = {
+    sampling: '샘플링',
+    partnership: '할인형 제휴',
+  };
+
+  return (
+    <div className="px-2 py-0.5 bg-gray-100 rounded-3xl inline-flex justify-center items-center gap-2.5">
+      <div className="text-gray-400 text-xs font-semibold">
+        {labelMap[type]}
+      </div>
     </div>
   );
 }
@@ -209,7 +212,7 @@ function ContractStatusBadge({ status }: { status: ContractStatus }) {
 
 function Searchinput({ placeholder }: { placeholder: string }) {
   return (
-    <div className="relative w-80">
+    <div className="relative w-44">
       <Search
         size={20}
         color="#6C727E"
@@ -268,10 +271,20 @@ function FilterPanel({
   const [selectedPeriod, setSelectedPeriod] = useState('3개월');
   const [selectedType, setSelectedType] = useState('할인형 제휴');
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+  const [selectedProcess, setSelectedProcess] = useState<string[]>([]);
 
   const periods = ['상시', '1개월', '3개월', '6개월'];
   const types = ['샘플링', '장기 협업', '할인형 제휴', '기타'];
-  const statuses = ['계약서 전송 필요', '서명 전', '계약 체결됨'];
+  const statuses = ['대기 중', '매칭 완료', '매칭 실패'];
+  const process = [
+    '계약 확정',
+    '계약서 작성',
+    '설문지 관리',
+    '제품 발송',
+    '데이터 리포트',
+    '정산 / 결제',
+    '협업 종료',
+  ];
 
   const handleStatusToggle = (status: string) => {
     setSelectedStatus((prev) =>
@@ -281,10 +294,19 @@ function FilterPanel({
     );
   };
 
+  const handleProcessToggle = (process: string) => {
+    setSelectedProcess((prev) =>
+      prev.includes(process)
+        ? prev.filter((s) => s !== process)
+        : [...prev, process]
+    );
+  };
+
   const handleReset = () => {
     setSelectedPeriod('3개월');
     setSelectedType('할인형 제휴');
     setSelectedStatus([]);
+    setSelectedProcess([]);
   };
 
   if (!isOpen) return null;
@@ -311,7 +333,7 @@ function FilterPanel({
           <div className="flex items-center gap-2">
             <img src="/File_Blue.png" />
             <div className="text-gray-500 text-base font-semibold leading-6">
-              협업 기간
+              희망 협업일
             </div>
           </div>
 
@@ -385,7 +407,7 @@ function FilterPanel({
           <div className="flex items-center gap-2">
             <img src="/File_Blue.png" />
             <div className="text-gray-500 text-base font-semibold leading-6">
-              계약 상태
+              매칭 상태
             </div>
           </div>
 
@@ -414,6 +436,39 @@ function FilterPanel({
           </div>
         </div>
 
+        {/* 프로세스 */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <img src="/File_Blue.png" />
+            <div className="text-gray-500 text-base font-semibold leading-6">
+              프로세스
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {process.map((proc) => (
+              <button
+                key={proc}
+                onClick={() => handleProcessToggle(proc)}
+                className={`px-3 py-1.5 rounded-lg flex items-center transition-colors ${
+                  selectedProcess.includes(proc)
+                    ? 'bg-sky-100'
+                    : 'outline outline-1 outline-offset-[-1px] outline-zinc-200'
+                }`}
+              >
+                <div
+                  className={`text-center text-base font-medium leading-6 ${
+                    selectedProcess.includes(proc)
+                      ? 'text-blue-600'
+                      : 'text-gray-500'
+                  }`}
+                >
+                  {proc}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
         {/* Action Buttons */}
         <div className="flex gap-2">
           <button
@@ -603,7 +658,134 @@ function Dateinput({ placeholder }: DateinputProps) {
   );
 }
 
-export default function Contract() {
+function TabFilter() {
+  const [selectedTab, setSelectedTab] = useState<string>('all');
+
+  interface TabItem {
+    id: string;
+    label: string;
+    count: number;
+    activeBg: string;
+    activeText: string;
+    activeBadge: string;
+  }
+
+  const tabs: TabItem[] = [
+    {
+      id: 'all',
+      label: '요청한 매칭',
+      count: 99,
+      activeBg: 'bg-sky-100',
+      activeText: 'text-sky-500',
+      activeBadge: 'bg-sky-500',
+    },
+    {
+      id: 'pending',
+      label: '받은 요청',
+      count: 2,
+      activeBg: 'bg-gray-100',
+      activeText: 'text-gray-500',
+      activeBadge: 'bg-gray-500',
+    },
+  ];
+
+  return (
+    <div className="w-80 pl-px rounded-xl outline outline-1 outline-offset-[-1px] outline-zinc-200 inline-flex items-center overflow-hidden">
+      {tabs.map((tab) => {
+        const isActive = selectedTab === tab.id;
+
+        return (
+          <div
+            key={tab.id}
+            className="flex-1 p-1.5 bg-white flex justify-center items-center"
+          >
+            <button
+              onClick={() => setSelectedTab(tab.id)}
+              className={`flex-1 px-3 py-1.5 rounded-lg flex justify-center items-center gap-1.5 transition-colors ${
+                isActive ? tab.activeBg : ''
+              }`}
+            >
+              <div
+                className={`text-base leading-6 whitespace-nowrap ${
+                  isActive
+                    ? `font-semibold ${tab.activeText}`
+                    : 'font-medium text-gray-400'
+                }`}
+              >
+                {tab.label}
+              </div>
+
+              <div
+                className={`px-1 rounded-3xl flex justify-center items-center ${
+                  isActive ? `pl-[5px] pr-1 ${tab.activeBadge}` : 'bg-gray-400'
+                }`}
+              >
+                <div className="text-white text-xs font-semibold leading-4 whitespace-nowrap">
+                  {tab.count > 99 ? '99+' : tab.count}
+                </div>
+              </div>
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function Overview() {
+  return (
+    <div className="w-full h-20 inline-flex gap-2">
+      <div className="flex-1 self-stretch px-5 py-3 rounded-xl outline outline-1 outline-offset-[-1px] outline-gray-100 flex justify-between items-center">
+        <div className="w-12 inline-flex flex-col justify-start items-start">
+          <p className="self-stretch justify-start text-gray-400 text-xs font-semibold">
+            전체 매칭
+          </p>
+          <p className="self-stretch justify-start text-zinc-700 text-xl font-bold">
+            24
+          </p>
+        </div>
+        <img src="/totalmatching.svg" />
+      </div>
+      <div className="flex-1 self-stretch px-5 py-3 bg-white rounded-xl outline outline-1 outline-offset-[-1px] outline-gray-100 flex justify-between items-center">
+        <div className="w-12 inline-flex flex-col justify-start items-start">
+          <div className="self-stretch justify-start text-gray-400 text-xs font-semibold font-['Pretendard'] leading-4">
+            매칭 완료
+          </div>
+          <div className="self-stretch justify-start text-emerald-600 text-xl font-bold font-['Pretendard'] leading-8">
+            18
+          </div>
+        </div>
+        <img src="/matchingcompleated.svg" />
+      </div>
+      <div className="flex-1 self-stretch px-5 py-3 bg-white rounded-xl outline outline-1 outline-offset-[-1px] outline-gray-100 flex justify-between items-center">
+        <div className="w-12 inline-flex flex-col justify-start items-start">
+          <div className="self-stretch justify-start text-gray-400 text-xs font-semibold font-['Pretendard'] leading-4">
+            대기 중
+          </div>
+          <div className="self-stretch justify-start text-gray-600 text-xl font-bold font-['Pretendard'] leading-8">
+            4
+          </div>
+        </div>
+        <img src="/waiting.svg" />
+      </div>
+      <div className="flex-1 self-stretch px-5 py-3 bg-white rounded-xl outline outline-1 outline-offset-[-1px] outline-gray-100 flex justify-between items-center">
+        <div className="w-12 inline-flex flex-col justify-start items-start">
+          <div className="self-stretch justify-start text-gray-400 text-xs font-semibold font-['Pretendard'] leading-4">
+            매칭 실패
+          </div>
+          <div className="self-stretch justify-start text-red-600 text-xl font-bold font-['Pretendard'] leading-8">
+            2
+          </div>
+        </div>
+        <div className="w-10 h-10 relative bg-pink-100 rounded-xl inline-flex justify-center items-center">
+          <img src="/matchingfailed.svg" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function MatchignResult() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   return (
     <>
@@ -617,14 +799,17 @@ export default function Contract() {
                 <img src="/building.svg" />
                 <p className="text-zinc-700 text-xl font-bold">계약서 작성</p>
               </div>
-              <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100" />
-              <div className="flex flex-row">
-                <Searchinput placeholder="단체명 검색 .." />
-                <div className="flex flex-1"></div>
-                <FilterButton onClick={() => setIsFilterOpen(true)} />
+              <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100 mb-1" />
+              <Overview />
+              <div className="flex flex-row justify-between mt-3">
+                <TabFilter />
+                <div className="flex flex-row gap-4">
+                  <Searchinput placeholder="학생 단체명 검색 .." />
+                  <FilterButton onClick={() => setIsFilterOpen(true)} />
+                </div>
               </div>
               <div className="flex-1 flex flex-col">
-                <ContractTable
+                <MatchingTable
                   isFilterOpen={isFilterOpen}
                   setIsFilterOpen={setIsFilterOpen}
                 />

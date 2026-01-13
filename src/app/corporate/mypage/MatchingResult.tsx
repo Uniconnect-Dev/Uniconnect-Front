@@ -2,6 +2,10 @@ import React from 'react';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
 
 import { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import { getAccessToken } from '@/lib/auth/token';
+
+import { useNavigate } from 'react-router-dom';
 
 import {
   Search,
@@ -23,12 +27,12 @@ import Td from '@/components/common/tableRelated/Td';
 
 type MatchingStatus = 'waiting' | 'successed' | 'faild';
 type Process =
-  | 'contractConfirmed' // 계약 확정
-  | 'contractWriting' // 계약서 작성
-  | 'manageForm' // 설문지 관리
-  | 'sendProduct' // 제품 발송
-  | 'dataReport' // 데이터 리포트
-  | 'payment'; // 결제
+  | 'contractConfirmed'
+  | 'contractWriting'
+  | 'manageForm'
+  | 'sendProduct'
+  | 'dataReport'
+  | 'payment';
 
 type collaborationType = 'sampling' | 'partnership';
 
@@ -41,45 +45,19 @@ interface MatchingData {
   process: Process;
 }
 
-const MatchingData: MatchingData[] = [
-  {
-    id: '01',
-    date: '2025.12.29',
-    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: 'sampling',
-    status: 'waiting',
-    process: 'contractConfirmed',
-  },
-  {
-    id: '02',
-    date: '2025.12.29',
-    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: 'partnership',
-    status: 'faild',
-    process: 'payment',
-  },
-  {
-    id: '03',
-    date: '2025.12.29',
-    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: 'partnership',
-    status: 'waiting',
-    process: 'dataReport',
-  },
-  {
-    id: '04',
-    date: '2025.12.29',
-    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: 'partnership',
-    status: 'successed',
-    process: 'contractWriting',
-  },
-];
+interface MatchingAPIResponse {
+  matchingId: number;
+  studentClub: string;
+  collaborationType: string;
+  matchedAt: string;
+}
 
 function MatchingTable({
+  matchings,
   isFilterOpen,
   setIsFilterOpen,
 }: {
+  matchings: MatchingData[];
   isFilterOpen: boolean;
   setIsFilterOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -87,7 +65,6 @@ function MatchingTable({
     <div className="w-full h-full rounded-3xl outline outline-1 outline-zinc-200 bg-white flex flex-col overflow-hidden relative">
       <div className="flex-1 overflow-auto">
         <table className="w-full border-collapse">
-          {/* Header - 패딩 없음 */}
           <thead className="bg-white border-b border-zinc-200 sticky top-0 z-10">
             <tr className="h-14">
               <Th className="w-24">연번</Th>
@@ -99,32 +76,41 @@ function MatchingTable({
             </tr>
           </thead>
 
-          {/* Body - 양옆 패딩 8px */}
           <tbody>
-            {MatchingData.map((matching) => (
-              <Tr key={matching.id}>
-                <Td className="w-24 first:pl-7">{matching.id}</Td>
-                <Td className="w-32">{matching.date}</Td>
-                <Td>
-                  <div className="line-clamp-1">
-                    {matching.organizationName}
-                  </div>
-                </Td>
-                <Td className="w-28">
-                  <CollaborationTypeTag type={matching.collaborationType} />
-                </Td>
-                <Td className="w-28">
-                  <MatchingStatus status={matching.status} />
-                </Td>
-                <Td className="w-32 last:pr-7">
-                  <Process status={matching.process} />
-                </Td>
-              </Tr>
-            ))}
+            {matchings.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-8 text-gray-400">
+                  조회된 매칭 데이터가 없습니다.
+                </td>
+              </tr>
+            ) : (
+              matchings.map((matching) => (
+                <Tr key={matching.id}>
+                  <Td className="w-24 first:pl-7">{matching.id}</Td>
+                  <Td className="w-32">{matching.date}</Td>
+                  <Td>
+                    <div className="line-clamp-1">
+                      {matching.organizationName}
+                    </div>
+                  </Td>
+                  <Td className="w-28">
+                    <CollaborationTypeTag type={matching.collaborationType} />
+                  </Td>
+                  <Td className="w-28">
+                    <MatchingStatus status={matching.status} />
+                  </Td>
+                  <Td className="w-32 last:pr-7">
+                    <Process
+                      status={matching.process}
+                      matchingId={matching.id}
+                    />
+                  </Td>
+                </Tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
-      {/* Pagination - (overflow-auto 밖) */}
       <div className="h-14 px-5 border-t border-zinc-200 bg-white flex justify-end items-center gap-[29px] flex-shrink-0">
         <div className="flex items-center gap-7">
           <ChevronsLeft size={20} color="#DADFE7" />
@@ -135,7 +121,6 @@ function MatchingTable({
         </div>
       </div>
 
-      {/* Filter Panel - Absolute Position relative to table */}
       {isFilterOpen && (
         <div className="absolute right-0 top-0 bottom-0 z-50">
           <FilterPanel
@@ -148,7 +133,6 @@ function MatchingTable({
   );
 }
 
-/* 매칭 상태 */
 function MatchingStatus({ status }: { status: MatchingStatus }) {
   if (status === 'waiting') {
     return (
@@ -166,7 +150,6 @@ function MatchingStatus({ status }: { status: MatchingStatus }) {
     );
   }
 
-  // faild
   return (
     <div className="px-2 py-0.5 bg-pink-100 rounded-3xl inline-flex justify-center items-center gap-2.5">
       <div className="text-red-500 text-xs">매칭 실패</div>
@@ -174,8 +157,16 @@ function MatchingStatus({ status }: { status: MatchingStatus }) {
   );
 }
 
-/* 프로세스 */
-function Process({ status }: { status: Process }) {
+function Process({
+  status,
+  matchingId,
+}: {
+  status: Process;
+  matchingId: string;
+}) {
+  const navigate = useNavigate();
+
+  // 1. 화면에 표시될 텍스트 매핑
   const labelMap: Record<Process, string> = {
     contractConfirmed: '계약 확정',
     contractWriting: '계약서 작성',
@@ -185,11 +176,35 @@ function Process({ status }: { status: Process }) {
     payment: '정산/결제',
   };
 
+  // 2. 각 상태별로 이동할 "임의의 경로" 매핑
+  // matchingId를 경로에 포함시켜서 어떤 데이터의 상세인지 구분할 수 있게 했습니다.
+  const pathMap: Record<Process, string> = {
+    contractConfirmed: `/corporatemypage/contract/confirm/${matchingId}`,
+    contractWriting: `/corporatemypage/contract/`,
+    manageForm: `/corporatemypage/survey/pollmanage`,
+    sendProduct: `/corporatemypage/dashboard`,
+    dataReport: `/corporatemypage/pollmanage`,
+    payment: `/corporatemypage/paymenthistory`, // 아까 만드신 결제 상세 페이지
+  };
+
+  const handleNavigation = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // 해당되는 경로로 이동
+    const targetPath = pathMap[status];
+    if (targetPath) {
+      navigate(targetPath);
+    }
+  };
+
   return (
-    <div className="h-6 pl-3 pr-2 bg-sky-100 rounded-lg inline-flex items-center gap-0.5 text-blue-600 whitespace-nowrap">
+    <button
+      onClick={handleNavigation}
+      className="h-6 pl-3 pr-2 bg-sky-100 rounded-lg inline-flex items-center gap-0.5 text-blue-600 whitespace-nowrap hover:bg-sky-200 transition-colors cursor-pointer"
+    >
       <span className="text-xs font-semibold">{labelMap[status]}</span>
       <ArrowUpRight size={14} />
-    </div>
+    </button>
   );
 }
 
@@ -207,8 +222,6 @@ function CollaborationTypeTag({ type }: { type: collaborationType }) {
     </div>
   );
 }
-
-/* ---------- Search and Filter ---------- */
 
 function Searchinput({ placeholder }: { placeholder: string }) {
   return (
@@ -313,7 +326,6 @@ function FilterPanel({
 
   return (
     <div className="w-96 h-full rounded-[32px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.08)] outline outline-1 outline-offset-[-1px] outline-gray-100 bg-white flex flex-col overflow-hidden">
-      {/* Header */}
       <div className="pl-9 pr-7 pt-6 pb-4 bg-white border-b border-gray-100 flex justify-between items-center">
         <div className="text-gray-900 text-xl font-semibold leading-8">
           필터링
@@ -326,9 +338,7 @@ function FilterPanel({
         </button>
       </div>
 
-      {/* Body */}
       <div className="px-9 pt-5 pb-9 bg-white flex flex-col gap-10 overflow-y-auto">
-        {/* 협업 기간 */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <img src="/File_Blue.png" />
@@ -338,7 +348,6 @@ function FilterPanel({
           </div>
 
           <div className="w-80 flex flex-col gap-4">
-            {/* Period Selector */}
             <div className="rounded-xl outline outline-1 outline-offset-[-1px] outline-zinc-200 flex overflow-hidden">
               {periods.map((period) => (
                 <div
@@ -365,12 +374,10 @@ function FilterPanel({
               ))}
             </div>
 
-            {/* Date Range */}
             <Dateinput placeholder="0000.00.00" />
           </div>
         </div>
 
-        {/* 협업 형태 */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <img src="/File_Blue.png" />
@@ -402,7 +409,6 @@ function FilterPanel({
           </div>
         </div>
 
-        {/* 계약 상태 */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <img src="/File_Blue.png" />
@@ -436,7 +442,6 @@ function FilterPanel({
           </div>
         </div>
 
-        {/* 프로세스 */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <img src="/File_Blue.png" />
@@ -469,7 +474,7 @@ function FilterPanel({
             ))}
           </div>
         </div>
-        {/* Action Buttons */}
+
         <div className="flex gap-2">
           <button
             onClick={handleReset}
@@ -732,7 +737,11 @@ function TabFilter() {
   );
 }
 
-function Overview() {
+function Overview({
+  counts,
+}: {
+  counts: { total: number; success: number; waiting: number; failed: number };
+}) {
   return (
     <div className="w-full h-20 inline-flex gap-2">
       <div className="flex-1 self-stretch px-5 py-3 rounded-xl outline outline-1 outline-offset-[-1px] outline-gray-100 flex justify-between items-center">
@@ -741,7 +750,7 @@ function Overview() {
             전체 매칭
           </p>
           <p className="self-stretch justify-start text-zinc-700 text-xl font-bold">
-            24
+            {counts.total}
           </p>
         </div>
         <img src="/totalmatching.svg" />
@@ -752,7 +761,7 @@ function Overview() {
             매칭 완료
           </div>
           <div className="self-stretch justify-start text-emerald-600 text-xl font-bold font-['Pretendard'] leading-8">
-            18
+            {counts.success}
           </div>
         </div>
         <img src="/matchingcompleated.svg" />
@@ -763,7 +772,7 @@ function Overview() {
             대기 중
           </div>
           <div className="self-stretch justify-start text-gray-600 text-xl font-bold font-['Pretendard'] leading-8">
-            4
+            {counts.waiting}
           </div>
         </div>
         <img src="/waiting.svg" />
@@ -774,7 +783,7 @@ function Overview() {
             매칭 실패
           </div>
           <div className="self-stretch justify-start text-red-600 text-xl font-bold font-['Pretendard'] leading-8">
-            2
+            {counts.failed}
           </div>
         </div>
         <div className="w-10 h-10 relative bg-pink-100 rounded-xl inline-flex justify-center items-center">
@@ -785,39 +794,130 @@ function Overview() {
   );
 }
 
-export default function MatchignResult() {
+export default function MatchingResult() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [matchings, setMatchings] = useState<MatchingData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [counts, setCounts] = useState({
+    total: 0,
+    success: 0,
+    waiting: 0,
+    failed: 0,
+  });
+
+  useEffect(() => {
+    loadMatchings();
+  }, []);
+
+  const loadMatchings = async () => {
+    setIsLoading(true);
+
+    const token = getAccessToken();
+
+    console.log('================ DEBUG MATCHING API ================');
+    console.log(
+      'API URL:',
+      `${import.meta.env.VITE_API_BASE_URL}/api/contracts/matchings/company`
+    );
+    console.log('Access Token:', token);
+    console.log('Token exists:', !!token);
+    console.log('====================================================');
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/api/contracts/matchings/company`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ❗ 조건부 제거
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          // 🔴 디버깅용: 쿠키 제거
+          // withCredentials: true,
+        }
+      );
+
+      console.log('✅ RESPONSE STATUS:', response.status);
+      console.log('✅ RESPONSE DATA:', response.data);
+
+      if (response.data?.success && response.data?.data) {
+        const formattedData: MatchingData[] = response.data.data.map(
+          (item: MatchingAPIResponse, index: number) => ({
+            id: String(index + 1).padStart(2, '0'),
+            date: new Date(item.matchedAt)
+              .toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+              })
+              .replace(/\. /g, '.')
+              .replace(/\.$/, ''),
+            organizationName: item.studentClub,
+            collaborationType:
+              item.collaborationType === '샘플링' ? 'sampling' : 'partnership',
+            status: 'waiting',
+            process: 'contractConfirmed',
+          })
+        );
+
+        setMatchings(formattedData);
+
+        setCounts({
+          total: formattedData.length,
+          success: 0,
+          waiting: formattedData.length,
+          failed: 0,
+        });
+      } else {
+        console.warn('⚠️ success=false or data 없음', response.data);
+        setMatchings([]);
+      }
+    } catch (err: any) {
+      console.error('❌ MATCHING API ERROR');
+
+      if (axios.isAxiosError(err)) {
+        console.error('STATUS:', err.response?.status);
+        console.error('RESPONSE DATA:', err.response?.data);
+        console.error('HEADERS:', err.response?.headers);
+      } else {
+        console.error(err);
+      }
+
+      setMatchings([]);
+      setCounts({ total: 0, success: 0, waiting: 0, failed: 0 });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <>
-      <CorporateLayout>
-        {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
-        {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
-        <div className="flex flex-col h-full">
-          <div className="flex justify-between w-full flex-1">
-            <div className="flex flex-col gap-4 w-full">
-              <div className="flex flex-row gap-2">
-                <img src="/building.svg" />
-                <p className="text-zinc-700 text-xl font-bold">계약서 작성</p>
+    <CorporateLayout>
+      <div className="flex flex-col h-full">
+        <div className="flex justify-between w-full flex-1">
+          <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-row gap-2">
+              <img src="/building.svg" />
+              <p className="text-zinc-700 text-xl font-bold">매칭 결과</p>
+            </div>
+            <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100 mb-1" />
+            <Overview counts={counts} />
+            <div className="flex flex-row justify-between mt-3">
+              <TabFilter />
+              <div className="flex flex-row gap-4">
+                <Searchinput placeholder="학생 단체명 검색 .." />
+                <FilterButton onClick={() => setIsFilterOpen(true)} />
               </div>
-              <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100 mb-1" />
-              <Overview />
-              <div className="flex flex-row justify-between mt-3">
-                <TabFilter />
-                <div className="flex flex-row gap-4">
-                  <Searchinput placeholder="학생 단체명 검색 .." />
-                  <FilterButton onClick={() => setIsFilterOpen(true)} />
-                </div>
-              </div>
-              <div className="flex-1 flex flex-col">
-                <MatchingTable
-                  isFilterOpen={isFilterOpen}
-                  setIsFilterOpen={setIsFilterOpen}
-                />
-              </div>
+            </div>
+            <div className="flex-1 flex flex-col">
+              <MatchingTable
+                matchings={matchings}
+                isFilterOpen={isFilterOpen}
+                setIsFilterOpen={setIsFilterOpen}
+              />
             </div>
           </div>
         </div>
-      </CorporateLayout>
-    </>
+      </div>
+    </CorporateLayout>
   );
 }

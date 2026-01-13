@@ -391,15 +391,16 @@ export default function Step1BasicInfo() {
   return (
     <CorporateLayout>
       <div className="flex flex-col min-h-full">
-        <div className="flex justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">샘플링 요청</h1>
-            <p className="text-sm text-gray-500">제품 샘플링 및 협업 제안서</p>
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center gap-2">
+            <img src="/File_Blue.png" alt="" className="w-5 h-5" />
+            <h1 className="text-[20px] font-semibold text-[#2D3139]">
+              샘플링 요청
+            </h1>
           </div>
           <RequestStatus activeStep={1} />
         </div>
-
-        <div className="my-6 h-px bg-gray-100" />
+        <div className="border-t border-gray-200 mb-6" />
 
         <div className="flex flex-col gap-7">
           <Textinput

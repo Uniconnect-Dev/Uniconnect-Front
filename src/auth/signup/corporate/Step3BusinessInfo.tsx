@@ -6,28 +6,12 @@ import { initCompanyProfile } from '@/services/profile.service';
 import { uploadFile } from '@/services/s3.service';
 import { getUserId } from '@/lib/auth/token';
 import { AppError } from '@/lib/error/AppError';
-
-// 업태 enum 목록
-const BUSINESS_TYPES = [
-  '법인사업자', '개인사업자', '스타트업', '중소기업', '중견기업', '대기업', '계열사',
-  'B2B', 'B2C', 'B2B2C', 'SaaS', '플랫폼 기반', '구독형 서비스', '프로젝트 기반',
-  '자체 개발', '외주 개발', '운영 대행', '위탁 운영', '솔루션 제공', 'API 제공',
-  '온라인 서비스', '오프라인 운영', '온·오프라인 병행', '직접 판매', '간접 판매',
-  '파트너십 기반', '기술 기반 기업', '데이터 기반 기업', '플랫폼 기업', '콘텐츠 기업', '연구 중심 기업'
-];
-
-// 업종 enum 목록
-const INDUSTRY_TYPES = [
-  '소프트웨어 개발업', 'IT 서비스업', '정보통신업', '데이터 처리업', '인공지능 서비스업',
-  '클라우드 서비스업', '플랫폼 운영업', '시스템 통합(SI)', '솔루션 개발업', '컨설팅업',
-  '경영컨설팅업', '전략컨설팅업', '마케팅 컨설팅업', '법률 서비스업', '회계·세무 서비스업',
-  '인사·노무 서비스업', '리서치·조사업', '광고대행업', '마케팅대행업', '디지털마케팅업',
-  '콘텐츠 제작업', '미디어 콘텐츠업', '영상 제작업', '디자인 서비스업', '브랜드 컨설팅업',
-  '서비스업', '운영대행업', '아웃소싱업', 'CRM 서비스업', '제조업', '연구·개발(R&D)업',
-  '기술 개발업', '도소매업', '유통업', '무역업', '전자상거래업', '교육 서비스업',
-  '기업교육', '온라인 교육업', 'HR 서비스업', '채용 플랫폼 운영업', '금융 서비스업',
-  '핀테크 서비스업', '결제 서비스업', '데이터 금융업'
-];
+import {
+  INDUSTRY_TYPE_LABELS,
+  BUSINESS_TYPE_LABELS,
+  getIndustryTypeValue,
+  getBusinessTypeValue,
+} from '@/constants/companyEnums';
 
 export default function Step3BusinessInfo() {
   const navigate = useNavigate();
@@ -100,8 +84,8 @@ export default function Step3BusinessInfo() {
   };
 
   // 필터링 로직
-  const filteredTypes = BUSINESS_TYPES.filter(t => t.includes(formData.businessTypeEnum)).slice(0, 5);
-  const filteredIndustries = INDUSTRY_TYPES.filter(i => i.includes(formData.industry)).slice(0, 5);
+  const filteredTypes = BUSINESS_TYPE_LABELS.filter(t => t.includes(formData.businessTypeEnum)).slice(0, 5);
+  const filteredIndustries = INDUSTRY_TYPE_LABELS.filter(i => i.includes(formData.industry)).slice(0, 5);
 
   // 외부 클릭 닫기
   useEffect(() => {
@@ -135,12 +119,21 @@ export default function Step3BusinessInfo() {
     setErrorMessage('');
 
     try {
+      const industryTypeValue = getIndustryTypeValue(formData.industry);
+      const businessTypeValue = getBusinessTypeValue(formData.businessTypeEnum);
+
+      if (!industryTypeValue || !businessTypeValue) {
+        setErrorMessage('업태 또는 업종을 올바르게 선택해주세요.');
+        setIsLoading(false);
+        return;
+      }
+
       await initCompanyProfile({
         brandName: formData.legalName,
         logoUrl: logoUrl,
         mainContactId: userId,
-        industry: formData.industry,
-        businessTypeEnum: formData.businessTypeEnum,
+        industryType: industryTypeValue,
+        businessType: businessTypeValue,
       });
 
       navigate('/signup/complete');

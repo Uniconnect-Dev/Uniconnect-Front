@@ -67,7 +67,14 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
             {/* 메뉴 */}
             <nav className="flex flex-col gap-4 text-sm text-gray-700">
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/corporatemypage/matchingresult')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/corporatemypage/matchingresult')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 매칭 확인
               </span>
@@ -82,7 +89,14 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 계약서 작성
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/corporatemypage/pollmanage')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/corporatemypage/pollmanage')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 설문지 관리
               </span>
@@ -90,7 +104,14 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 데이터 리포트
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/corporatemypage/paymenthistory')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/corporatemypage/paymenthistory')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 정산 / 결제
               </span>

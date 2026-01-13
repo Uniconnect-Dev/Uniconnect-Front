@@ -199,7 +199,10 @@ export default function App() {
         {/* 기업 마이페이지*/}
         <Route path="/corporatemypage/contract" element={<CorpContract />} />
         <Route path="/corporatemypage/qna" element={<CorpQnA />} />
-        <Route path="/corporatemypage/qnadetail" element={<CorpQnADetail />} />
+        <Route
+          path="/corporatemypage/qna/:questionId"
+          element={<CorpQnADetail />}
+        />
         <Route path="/corporatemypage/addqna" element={<CorpAddQnA />} />
         <Route
           path="/corporatemypage/addqnadone"

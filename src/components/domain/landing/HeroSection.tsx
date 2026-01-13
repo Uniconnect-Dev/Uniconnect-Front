@@ -3024,7 +3024,7 @@ function Frame16() {
 function Button() {
   return (
     <div className="bg-[#007aff] content-stretch flex items-center justify-center p-[20px] relative rounded-[20px] shrink-0 w-[218px]" data-name="Button">
-      <p className="font-['SUIT:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[22px] text-center text-white tracking-[-0.33px] w-[144px]">무료로 시작하기</p>
+      <p className="font-['SUITE:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[22px] text-center text-white tracking-[-0.33px] w-[144px]">무료로 시작하기</p>
     </div>
   );
 }
@@ -3055,7 +3055,7 @@ function MakiArrow() {
 function Button1() {
   return (
     <div className="content-stretch flex gap-[6px] items-center justify-center p-[20px] relative rounded-[12px] shrink-0" data-name="Button">
-      <p className="font-['SUIT:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[#3a404a] text-[22px] text-center text-nowrap tracking-[-0.33px]">서비스 소개서 받기</p>
+      <p className="font-['SUITE:ExtraBold',sans-serif] leading-[32px] not-italic relative shrink-0 text-[#3a404a] text-[22px] text-center text-nowrap tracking-[-0.33px]">서비스 소개서 받기</p>
       <MakiArrow />
     </div>
   );

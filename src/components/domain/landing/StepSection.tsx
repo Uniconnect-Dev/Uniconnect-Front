@@ -58,7 +58,7 @@ function Group6() {
 function Frame23() {
   return (
     <div className="bg-[#e3f4ff] content-stretch flex items-center justify-center px-[16px] py-[12px] relative rounded-[16px] shrink-0">
-      <p className="font-['SUIT:ExtraBold',sans-serif] leading-[1.4] not-italic relative shrink-0 text-[#007aff] text-[24px] text-nowrap tracking-[-0.36px]">STEP 2</p>
+      <p className="font-['SUITE:ExtraBold',sans-serif] leading-[1.4] not-italic relative shrink-0 text-[#007aff] text-[24px] text-nowrap tracking-[-0.36px]">STEP 2</p>
     </div>
   );
 }
@@ -70,7 +70,7 @@ function Frame24() {
         협업에 필요한 과정은
         <br aria-hidden="true" />한 페이지에서 손쉽게 관리해요.
       </p>
-      <div className="font-['SUIT:Bold',sans-serif] leading-[1.4] relative shrink-0 text-[#6c727e] text-[24px] tracking-[-0.36px]">
+      <div className="font-['SUITE:Bold',sans-serif] leading-[1.4] relative shrink-0 text-[#6c727e] text-[24px] tracking-[-0.36px]">
         <p className="mb-0">계약서 작성부터 홍보물 관리, 정산 뿐만 아니라</p>
         <p>성과 및 데이터 추출까지 진행할 수 있어요.</p>
       </div>
@@ -105,8 +105,8 @@ function Group18() {
 function Frame28() {
   return (
     <div className="absolute bg-[#ebeef3] content-stretch flex flex-col gap-[8px] items-start left-[984px] not-italic p-[24px] rounded-[16px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.06)] text-nowrap top-[346px]">
-      <p className="font-['SUIT:Bold',sans-serif] leading-[1.4] relative shrink-0 text-[#3a404a] text-[18px] tracking-[-0.27px]">손쉬운 프로세스 확인</p>
-      <div className="font-['SUIT:SemiBold',sans-serif] leading-[1.4] relative shrink-0 text-[#6c727e] text-[15px] tracking-[-0.225px]">
+      <p className="font-['SUITE:Bold',sans-serif] leading-[1.4] relative shrink-0 text-[#3a404a] text-[18px] tracking-[-0.27px]">손쉬운 프로세스 확인</p>
+      <div className="font-['SUITE:SemiBold',sans-serif] leading-[1.4] relative shrink-0 text-[#6c727e] text-[15px] tracking-[-0.225px]">
         <p className="mb-0">다음 단계에 뭘 해야 할지 고민할 필요 없어요!</p>
         <p>각 단계에 맞는 협업 필요 페이지를 바로 안내해드립니다.</p>
       </div>

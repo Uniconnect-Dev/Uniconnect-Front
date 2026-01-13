@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getMyCompanyProfile } from '@/services/profile.service';
 import type { CompanyProfileResponse } from '@/services/profile.types';
 
@@ -8,17 +8,14 @@ const navItems = [
   { label: '샘플링 요청', path: '/corporatesamplingrequest/step1' },
   { label: '협업 제안', path: '/CollaborationProposal' },
 ];
-import { useNavigate, useLocation } from 'react-router-dom';
 
 interface CorporateLayoutProps {
   children: React.ReactNode;
 }
 
 export default function CorporateLayout({ children }: CorporateLayoutProps) {
-  const location = useLocation();
   const navigate = useNavigate();
   const location = useLocation();
-  const isActive = (path: string) => location.pathname === path;
   const [profile, setProfile] = useState<CompanyProfileResponse | null>(null);
 
   const isActive = (path: string) => {
@@ -70,17 +67,6 @@ export default function CorporateLayout({ children }: CorporateLayoutProps) {
                 )}
               </Link>
             ))}
-            <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              학생 단체 행사
-            </span>
-            <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              샘플링 요청
-            </span>
-            <span className="cursor-pointer text-[#008FFF] text-[15px] font-medium h-full flex items-center relative">
-              협업 제안
-              {/* 파란 밑줄 - 상단에서 72px 위치 */}
-              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008FFF]"></span>
-            </span>
           </nav>
 
           {/* 아이콘 */}

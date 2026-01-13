@@ -171,12 +171,13 @@ export default function LongTermForm() {
           <div className="flex flex-col gap-2 flex-1 min-w-0">
             <FieldLabel>행사 진행 시기</FieldLabel>
             <DateInput
-              placeholder="YYYY.MM.DD"
+              placeholder="YYYY-MM-DD"
               label=""
               startDate={formData.startDate}
               endDate={formData.endDate}
               onStartDateChange={(date) => updateFormData({ startDate: date })}
               onEndDateChange={(date) => updateFormData({ endDate: date })}
+              outputFormat="api"
             />
           </div>
 

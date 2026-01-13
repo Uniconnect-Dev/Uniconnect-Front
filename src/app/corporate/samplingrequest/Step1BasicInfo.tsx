@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
 import RequestStatus from '@/components/common/RequestStatus';
 import { ChevronDown, Calendar } from 'lucide-react';
+import { formatDateForDisplay, formatDateForApi } from '@/lib/utils/date';
 
 import { createSamplingProposal } from '@/services/sampling/sampling.service';
 
@@ -33,42 +34,62 @@ function Textinput({ label, placeholder, value, onChange }: InputProps) {
   );
 }
 
+type DropdownOption = {
+  label: string;
+  value: string;
+};
+
 type DropdownProps = {
   label: string;
   placeholder?: string;
-  value?: string;
+  options: DropdownOption[];
   onChange?: (value: string) => void;
 };
 
 /* =========================
+   산업군 옵션
+========================= */
+const INDUSTRY_OPTIONS: DropdownOption[] = [
+  { label: 'F&B', value: 'FNB' },
+  { label: '뷰티', value: 'BEAUTY' },
+  { label: '교육', value: 'EDUCATION' },
+  { label: '여행', value: 'TRAVEL' },
+  { label: '온라인 서비스', value: 'ONLINE_SERVICE' },
+  { label: '문구/사무용품', value: 'STATIONERY' },
+  { label: 'IT/통신사', value: 'IT_TELECOM' },
+  { label: '기타', value: 'ETC' },
+];
+
+/* =========================
+   샘플링 목적 옵션
+========================= */
+const PURPOSE_OPTIONS: DropdownOption[] = [
+  { label: '신제품 홍보', value: 'NEW_PRODUCT' },
+  { label: '브랜드 인지도 향상', value: 'BRAND_AWARENESS' },
+  { label: '타겟 고객 확보', value: 'TARGET_CUSTOMER' },
+  { label: '시장 조사', value: 'MARKET_RESEARCH' },
+  { label: '기타', value: 'ETC' },
+];
+
+/* =========================
    Dropdown Input
 ========================= */
-function Dropdowninput({ label, placeholder, onChange }: DropdownProps) {
+function Dropdowninput({ label, placeholder, options, onChange }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [value, setValue] = useState('');
-
-  const options = [
-    '옵션 1',
-    '옵션 2',
-    '옵션 3',
-    '옵션 4',
-    '옵션 5',
-    '옵션 6',
-    '옵션 7',
-  ];
+  const [displayValue, setDisplayValue] = useState('');
 
   const sortedOptions = [...options].sort((a, b) => {
-    const aMatches = a.toLowerCase().includes(value.toLowerCase());
-    const bMatches = b.toLowerCase().includes(value.toLowerCase());
+    const aMatches = a.label.toLowerCase().includes(displayValue.toLowerCase());
+    const bMatches = b.label.toLowerCase().includes(displayValue.toLowerCase());
 
     if (aMatches && !bMatches) return -1;
     if (!aMatches && bMatches) return 1;
     return 0;
   });
 
-  const handleSelect = (option: string) => {
-    setValue(option);
-    onChange?.(option);
+  const handleSelect = (option: DropdownOption) => {
+    setDisplayValue(option.label);
+    onChange?.(option.value); // API 값 전달
     setIsOpen(false);
   };
 
@@ -78,7 +99,7 @@ function Dropdowninput({ label, placeholder, onChange }: DropdownProps) {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
+    setDisplayValue(e.target.value);
     if (!isOpen) setIsOpen(true);
   };
 
@@ -96,7 +117,7 @@ function Dropdowninput({ label, placeholder, onChange }: DropdownProps) {
       <div className="relative">
         <input
           type="text"
-          value={value}
+          value={displayValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
@@ -114,19 +135,19 @@ function Dropdowninput({ label, placeholder, onChange }: DropdownProps) {
       {isOpen && (
         <div className="absolute top-full mt-2 w-full bg-white rounded-xl z-10 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.06)] overflow-hidden">
           <ul className="flex flex-col max-h-60 overflow-y-auto">
-            {sortedOptions.map((option, index) => {
+            {sortedOptions.map((option) => {
               const isMatch =
-                value && option.toLowerCase().includes(value.toLowerCase());
+                displayValue && option.label.toLowerCase().includes(displayValue.toLowerCase());
 
               return (
                 <li
-                  key={index}
+                  key={option.value}
                   onClick={() => handleSelect(option)}
                   className={`p-2 text-gray-600 font-medium cursor-pointer hover:bg-gray-100 ${
                     isMatch ? 'bg-gray-100' : ''
                   }`}
                 >
-                  {option}
+                  {option.label}
                 </li>
               );
             })}
@@ -186,26 +207,24 @@ function Dateinput({ label, onChange }: DateInputProps) {
     return days;
   };
 
-  const formatDate = (date: Date) => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}.${m}.${d}`;
-  };
-
   const handleDateSelect = (date: Date) => {
-    const formatted = formatDate(date);
+    const displayFormatted = formatDateForDisplay(date);
+    const apiFormatted = formatDateForApi(date);
 
     if (activeInput === 'start') {
-      setStartDate(formatted);
+      setStartDate(displayFormatted);
       setIsStartOpen(false);
-      onChange(formatted, endDate);
+      // API 전송용은 ISO 형식으로
+      const endApiFormatted = endDate ? endDate.replace(/\./g, '-') : '';
+      onChange(apiFormatted, endApiFormatted);
     }
 
     if (activeInput === 'end') {
-      setEndDate(formatted);
+      setEndDate(displayFormatted);
       setIsEndOpen(false);
-      onChange(startDate, formatted);
+      // API 전송용은 ISO 형식으로
+      const startApiFormatted = startDate ? startDate.replace(/\./g, '-') : '';
+      onChange(startApiFormatted, apiFormatted);
     }
   };
 
@@ -220,30 +239,48 @@ function Dateinput({ label, onChange }: DateInputProps) {
 
       <div className="flex gap-2 items-center">
         <div className="relative flex-1">
-          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Calendar
+            className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${
+              startDate ? 'text-[#007AFF]' : 'text-gray-400'
+            }`}
+          />
           <input
             value={startDate}
+            readOnly
             onFocus={() => {
               setActiveInput('start');
               setIsStartOpen(true);
               setIsEndOpen(false);
             }}
-            className="w-full p-4 pl-12 rounded-xl outline outline-1 outline-zinc-200"
+            className={`w-full p-4 pl-12 rounded-xl outline outline-1 cursor-pointer ${
+              startDate
+                ? 'outline-[#007AFF] text-[#007AFF]'
+                : 'outline-zinc-200 text-gray-600'
+            }`}
           />
         </div>
 
-        <span>~</span>
+        <span className="text-gray-400">~</span>
 
         <div className="relative flex-1">
-          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Calendar
+            className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${
+              endDate ? 'text-[#007AFF]' : 'text-gray-400'
+            }`}
+          />
           <input
             value={endDate}
+            readOnly
             onFocus={() => {
               setActiveInput('end');
               setIsEndOpen(true);
               setIsStartOpen(false);
             }}
-            className="w-full p-4 pl-12 rounded-xl outline outline-1 outline-zinc-200"
+            className={`w-full p-4 pl-12 rounded-xl outline outline-1 cursor-pointer ${
+              endDate
+                ? 'outline-[#007AFF] text-[#007AFF]'
+                : 'outline-zinc-200 text-gray-600'
+            }`}
           />
         </div>
       </div>
@@ -321,9 +358,18 @@ export default function Step1BasicInfo() {
 
   const navigate = useNavigate();
 
+  // 필수 필드가 모두 채워졌는지 확인
+  const isFormValid =
+    productName.trim() !== '' &&
+    industry !== '' &&
+    samplingPurpose !== '' &&
+    productCount.trim() !== '' &&
+    samplingStartDate !== '' &&
+    samplingEndDate !== '';
+
   const handleNext = async () => {
     try {
-      const res = await createSamplingProposal({
+      const proposalId = await createSamplingProposal({
         productName,
         industry,
         samplingPurpose,
@@ -333,8 +379,10 @@ export default function Step1BasicInfo() {
         detailRequest: description,
       });
 
-      // 성공 → step2로 이동
-      navigate('/corporatesamplingrequest/step2');
+      // 성공 → step2로 이동 (proposalId 전달)
+      navigate('/corporatesamplingrequest/step2', {
+        state: { samplingProposalId: proposalId }
+      });
     } catch (error: any) {
       alert(error.message || '샘플링 요청 생성 실패');
     }
@@ -365,11 +413,13 @@ export default function Step1BasicInfo() {
             <Dropdowninput
               label="산업군"
               placeholder="산업군 선택"
+              options={INDUSTRY_OPTIONS}
               onChange={setIndustry}
             />
             <Dropdowninput
               label="샘플링 목적"
               placeholder="목적 선택"
+              options={PURPOSE_OPTIONS}
               onChange={setSamplingPurpose}
             />
           </div>
@@ -410,7 +460,12 @@ export default function Step1BasicInfo() {
         <div className="mt-auto flex justify-end">
           <button
             onClick={handleNext}
-            className="h-14 w-[200px] bg-gray-200 rounded-xl hover:bg-gray-300"
+            disabled={!isFormValid}
+            className={`h-14 w-[200px] rounded-xl transition-colors ${
+              isFormValid
+                ? 'bg-[#007AFF] text-white hover:bg-[#0062CC]'
+                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+            }`}
           >
             다음
           </button>

@@ -37,6 +37,13 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
+    // 토큰이 "undefined" 문자열이거나 유효하지 않은 경우 체크
+    if (token === 'undefined' || token === 'null' || token.length < 10) {
+      console.error('[Auth] 유효하지 않은 토큰 감지, 토큰 제거:', token);
+      clearAllAuthData();
+      window.location.href = '/login';
+      return Promise.reject(new Error('유효하지 않은 토큰'));
+    }
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
@@ -89,13 +96,26 @@ api.interceptors.response.use(
         // 토큰 갱신 요청 (순환 참조 방지를 위해 직접 axios 사용)
         const response = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
-          { refreshToken }
+          { refreshToken },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
         );
 
-        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
+        // API 응답이 { success, message, data } 형태로 래핑되어 있음
+        const responseData = response.data.data ?? response.data;
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = responseData;
+
+        // 토큰 유효성 검사
+        if (!newAccessToken || typeof newAccessToken !== 'string') {
+          console.error('[Auth] 토큰 갱신 실패: 유효하지 않은 accessToken', responseData);
+          throw new Error('유효하지 않은 토큰 응답');
+        }
 
         setAccessToken(newAccessToken);
-        if (newRefreshToken) {
+        if (newRefreshToken && typeof newRefreshToken === 'string') {
           setRefreshToken(newRefreshToken);
         }
 
@@ -104,6 +124,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
+        console.error('[Auth] 토큰 갱신 에러:', refreshError);
         processQueue(refreshError as Error, null);
         clearAllAuthData();
         window.location.href = '/login';
@@ -114,6 +135,15 @@ api.interceptors.response.use(
     }
 
     if (error.response) {
+      // 500 에러 디버깅
+      if (error.response.status >= 500) {
+        console.error('[API] 서버 에러:', {
+          url: originalRequest?.url,
+          method: originalRequest?.method,
+          status: error.response.status,
+          data: error.response.data,
+        });
+      }
       throw mapToAppError(error.response.data, error.response.status);
     }
 

@@ -811,7 +811,6 @@ export default function MatchingResult() {
 
   const loadMatchings = async () => {
     setIsLoading(true);
-
     const token = getAccessToken();
 
     console.log('================ DEBUG MATCHING API ================');
@@ -830,12 +829,10 @@ export default function MatchingResult() {
         }/api/contracts/matchings/student-org`,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // ❗ 조건부 제거
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
             Accept: 'application/json',
           },
-          // 🔴 디버깅용: 쿠키 제거
-          // withCredentials: true,
         }
       );
 
@@ -844,22 +841,40 @@ export default function MatchingResult() {
 
       if (response.data?.success && response.data?.data) {
         const formattedData: MatchingData[] = response.data.data.map(
-          (item: MatchingAPIResponse, index: number) => ({
-            id: String(index + 1).padStart(2, '0'),
-            date: new Date(item.matchedAt)
-              .toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-              })
-              .replace(/\. /g, '.')
-              .replace(/\.$/, ''),
-            organizationName: item.studentClub,
-            collaborationType:
-              item.collaborationType === '샘플링' ? 'sampling' : 'partnership',
-            status: 'waiting',
-            process: 'contractConfirmed',
-          })
+          (item: MatchingAPIResponse, index: number) => {
+            // 날짜 안전하게 처리
+            let formattedDate = '-';
+            if (item.matchedAt) {
+              try {
+                const date = new Date(item.matchedAt);
+                // 유효한 날짜인지 확인
+                if (!isNaN(date.getTime())) {
+                  formattedDate = date
+                    .toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                    })
+                    .replace(/\. /g, '.')
+                    .replace(/\.$/, '');
+                }
+              } catch (e) {
+                console.error('날짜 변환 에러:', e);
+              }
+            }
+
+            return {
+              id: String(index + 1).padStart(2, '0'),
+              date: formattedDate,
+              organizationName: item.studentClub || '정보 없음',
+              collaborationType:
+                item.collaborationType === '샘플링'
+                  ? 'sampling'
+                  : 'partnership',
+              status: 'waiting',
+              process: 'contractConfirmed',
+            };
+          }
         );
 
         setMatchings(formattedData);

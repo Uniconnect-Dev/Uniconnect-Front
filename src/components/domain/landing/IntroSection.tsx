@@ -664,7 +664,7 @@ function Frame22() {
         <p>데이터 기반으로 단체 매칭을 진행해요.</p>
       </div>
       <div className="font-['SUITE:Bold',sans-serif] leading-[1.4] relative shrink-0 text-[#6c727e] text-[24px] tracking-[-0.36px] w-full">
-        <p className="mb-0">75,000명의 학생 단체 풀과 00개의 기업을 기반으로</p>
+        <p className="mb-0">75,000명의 학생 단체 풀과 15개의 기업을 기반으로</p>
         <p>딱 필요한 협업을 매칭해드려요.</p>
       </div>
     </div>

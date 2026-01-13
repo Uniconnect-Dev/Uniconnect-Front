@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Calendar } from 'lucide-react';
 
 type Active = 'start' | 'end' | null;
+type OutputFormat = 'display' | 'api';
 
 interface Props {
   label?: string;
@@ -22,6 +23,8 @@ interface Props {
   endDate?: string;
   onStartDateChange?: (v: string) => void;
   onEndDateChange?: (v: string) => void;
+  /* output format: 'display' = 점 구분(2026.01.14), 'api' = ISO 형식(2026-01-14) */
+  outputFormat?: OutputFormat;
 }
 
 function isSameDay(a: Date, b: Date) {
@@ -32,11 +35,18 @@ function isSameDay(a: Date, b: Date) {
   );
 }
 
-function formatDate(date: Date) {
+function formatDateDisplay(date: Date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}.${m}.${d}`;
+}
+
+function formatDateApi(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 function buildCalendarDays(currentMonth: Date) {
@@ -87,7 +97,9 @@ export default function DateRangeInput({
   endDate,
   onStartDateChange,
   onEndDateChange,
+  outputFormat = 'display',
 }: Props) {
+  const formatDate = outputFormat === 'api' ? formatDateApi : formatDateDisplay;
   // Support alias props (startDate/endDate as aliases for startValue/endValue)
   const effectiveStartValue = startValue ?? startDate;
   const effectiveEndValue = endValue ?? endDate;
@@ -145,17 +157,21 @@ export default function DateRangeInput({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [tempDate, activeInput]);
 
+  const parseDate = (dateStr: string) => {
+    const separator = outputFormat === 'api' ? '-' : '.';
+    const [y, m, d] = dateStr.split(separator).map(Number);
+    return new Date(y, m - 1, d);
+  };
+
   const selectedStart = useMemo(() => {
     if (!startDateValue) return null;
-    const [y, m, d] = startDateValue.split('.').map(Number);
-    return new Date(y, m - 1, d);
-  }, [startDateValue]);
+    return parseDate(startDateValue);
+  }, [startDateValue, outputFormat]);
 
   const selectedEnd = useMemo(() => {
     if (!endDateValue) return null;
-    const [y, m, d] = endDateValue.split('.').map(Number);
-    return new Date(y, m - 1, d);
-  }, [endDateValue]);
+    return parseDate(endDateValue);
+  }, [endDateValue, outputFormat]);
 
   const selectedForActive =
     tempDate ??

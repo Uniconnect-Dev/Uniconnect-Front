@@ -2,6 +2,10 @@
 
 // Access Token
 export const setAccessToken = (token: string) => {
+  if (!token || typeof token !== 'string') {
+    console.error('[Token] 유효하지 않은 accessToken:', token);
+    return;
+  }
   localStorage.setItem('accessToken', token);
 };
 
@@ -15,6 +19,10 @@ export const clearAccessToken = () => {
 
 // Refresh Token
 export const setRefreshToken = (token: string) => {
+  if (!token || typeof token !== 'string') {
+    console.error('[Token] 유효하지 않은 refreshToken:', token);
+    return;
+  }
   localStorage.setItem('refreshToken', token);
 };
 

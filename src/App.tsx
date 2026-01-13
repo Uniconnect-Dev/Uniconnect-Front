@@ -22,6 +22,7 @@ import Step2UnivInfo from './auth/signup/student/Step2UnivInfo';
 
 // 기업 - 학생 단체 서치
 import StudentGroupSearch from './app/corporate/StudentGroupSearch';
+import StudentGroupDetail from './app/corporate/StudentGroupDetail';
 
 // 학생 단체 - 기업 서치
 import CorporateSearch from './app/student/CorporateSearch';
@@ -101,6 +102,7 @@ export default function App() {
 
       {/* 기업 - 학생 단체 서치 */}
       <Route path="/StudentGroupSearch" element={<StudentGroupSearch />} />
+      <Route path="/StudentGroupSearch/:id" element={<StudentGroupDetail />} />
 
       {/* 학생 단체 - 기업 서치 */}
       <Route path="/CorporateSearch" element={<CorporateSearch />} />

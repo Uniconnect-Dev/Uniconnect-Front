@@ -1,13 +1,28 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { getMyCompanyProfile } from '@/services/profile.service';
 import type { CompanyProfileResponse } from '@/services/profile.types';
+
+const navItems = [
+  { label: '학생 단체 찾기', path: '/StudentGroupSearch' },
+  { label: '샘플링 요청', path: '/corporatesamplingrequest/step1' },
+  { label: '협업 제안', path: '/CollaborationProposal' },
+];
 
 interface CorporateLayoutProps {
   children: React.ReactNode;
 }
 
 export default function CorporateLayout({ children }: CorporateLayoutProps) {
+  const location = useLocation();
   const [profile, setProfile] = useState<CompanyProfileResponse | null>(null);
+
+  const isActive = (path: string) => {
+    if (path === '/corporatesamplingrequest/step1') {
+      return location.pathname.startsWith('/corporatesamplingrequest');
+    }
+    return location.pathname === path;
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -35,17 +50,22 @@ export default function CorporateLayout({ children }: CorporateLayoutProps) {
 
           {/* 메뉴 - 아이콘과 동일한 높이 */}
           <nav className="flex gap-6 px-12 items-center h-full">
-            <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              학생 단체 찾기
-            </span>
-            <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              샘플링 요청
-            </span>
-            <span className="cursor-pointer text-[#008FFF] text-[15px] font-medium h-full flex items-center relative">
-              협업 제안
-              {/* 파란 밑줄 - 상단에서 72px 위치 */}
-              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008FFF]"></span>
-            </span>
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`cursor-pointer text-[15px] font-medium h-full flex items-center relative ${
+                  isActive(item.path)
+                    ? 'text-[#008FFF]'
+                    : 'text-gray-700 hover:text-[#008FFF]'
+                }`}
+              >
+                {item.label}
+                {isActive(item.path) && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008FFF]"></span>
+                )}
+              </Link>
+            ))}
           </nav>
 
           {/* 아이콘 */}

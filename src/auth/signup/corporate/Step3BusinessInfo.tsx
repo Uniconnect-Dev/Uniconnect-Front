@@ -7,17 +7,27 @@ import { uploadFile } from '@/services/s3.service';
 import { getUserId } from '@/lib/auth/token';
 import { AppError } from '@/lib/error/AppError';
 
-// 임의 데이터 (실제 데이터셋으로 교체 가능)
-// TODO: 실제 API에서 업종 목록을 가져와야 함
-const BUSINESS_TYPES: { id: number; name: string }[] = [
-  { id: 1, name: '제조업' },
-  { id: 2, name: '도매 및 소매업' },
-  { id: 3, name: '정보통신업' },
-  { id: 4, name: '전문, 과학 및 기술 서비스업' },
-  { id: 5, name: '사업시설 관리, 사업 지원 및 임대 서비스업' },
-  { id: 6, name: '교육 서비스업' },
+// 업태 enum 목록
+const BUSINESS_TYPES = [
+  '법인사업자', '개인사업자', '스타트업', '중소기업', '중견기업', '대기업', '계열사',
+  'B2B', 'B2C', 'B2B2C', 'SaaS', '플랫폼 기반', '구독형 서비스', '프로젝트 기반',
+  '자체 개발', '외주 개발', '운영 대행', '위탁 운영', '솔루션 제공', 'API 제공',
+  '온라인 서비스', '오프라인 운영', '온·오프라인 병행', '직접 판매', '간접 판매',
+  '파트너십 기반', '기술 기반 기업', '데이터 기반 기업', '플랫폼 기업', '콘텐츠 기업', '연구 중심 기업'
 ];
-const BUSINESS_ITEMS = ['소프트웨어 개발 및 공급', '데이터베이스 및 온라인 정보제공업', '광고 대행업', '경영 컨설팅업', '전자상거래 소매업', '컴퓨터 시스템 통합 자문 및 구축 서비스업'];
+
+// 업종 enum 목록
+const INDUSTRY_TYPES = [
+  '소프트웨어 개발업', 'IT 서비스업', '정보통신업', '데이터 처리업', '인공지능 서비스업',
+  '클라우드 서비스업', '플랫폼 운영업', '시스템 통합(SI)', '솔루션 개발업', '컨설팅업',
+  '경영컨설팅업', '전략컨설팅업', '마케팅 컨설팅업', '법률 서비스업', '회계·세무 서비스업',
+  '인사·노무 서비스업', '리서치·조사업', '광고대행업', '마케팅대행업', '디지털마케팅업',
+  '콘텐츠 제작업', '미디어 콘텐츠업', '영상 제작업', '디자인 서비스업', '브랜드 컨설팅업',
+  '서비스업', '운영대행업', '아웃소싱업', 'CRM 서비스업', '제조업', '연구·개발(R&D)업',
+  '기술 개발업', '도소매업', '유통업', '무역업', '전자상거래업', '교육 서비스업',
+  '기업교육', '온라인 교육업', 'HR 서비스업', '채용 플랫폼 운영업', '금융 서비스업',
+  '핀테크 서비스업', '결제 서비스업', '데이터 금융업'
+];
 
 export default function Step3BusinessInfo() {
   const navigate = useNavigate();
@@ -28,8 +38,7 @@ export default function Step3BusinessInfo() {
     openingDate: '',
     address: { street: '', detail: '' },
     businessType: '', // 업태
-    businessItem: '', // 종목
-    industryId: 0, // 업종 ID
+    industry: '', // 업종
   });
 
   // 드롭다운 관련 상태
@@ -91,8 +100,8 @@ export default function Step3BusinessInfo() {
   };
 
   // 필터링 로직
-  const filteredTypes = BUSINESS_TYPES.filter(t => t.name.includes(formData.businessType)).slice(0, 5);
-  const filteredItems = BUSINESS_ITEMS.filter(i => i.includes(formData.businessItem)).slice(0, 5);
+  const filteredTypes = BUSINESS_TYPES.filter(t => t.includes(formData.businessType)).slice(0, 5);
+  const filteredIndustries = INDUSTRY_TYPES.filter(i => i.includes(formData.industry)).slice(0, 5);
 
   // 외부 클릭 닫기
   useEffect(() => {
@@ -110,8 +119,7 @@ export default function Step3BusinessInfo() {
     formData.representative &&
     formData.openingDate &&
     formData.businessType &&
-    formData.businessItem &&
-    formData.industryId > 0 &&
+    formData.industry &&
     logoUrl; // 로고 필수
 
   const handleSubmit = async () => {
@@ -131,7 +139,8 @@ export default function Step3BusinessInfo() {
         brandName: formData.legalName,
         logoUrl: logoUrl,
         mainContactId: userId,
-        industryId: formData.industryId,
+        industry: formData.industry,
+        businessType: formData.businessType,
       });
 
       navigate('/signup/complete');
@@ -240,29 +249,29 @@ export default function Step3BusinessInfo() {
                   className="flex-1 w-full h-[44px] px-4 border text-[13px] border-gray-300 rounded-xl focus:outline-none focus:border-[#008FFF]"
                 />
                 {showTypeDropdown && formData.businessType && filteredTypes.length > 0 && (
-                  <div className="absolute z-10 w-[calc(100%-52px)] right-0 top-[52px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                    {filteredTypes.map((t) => (
-                      <button key={t.id} type="button" onClick={() => { setFormData({...formData, businessType: t.name, industryId: t.id}); setShowTypeDropdown(false); }} className="w-full px-4 py-3 text-left text-[13px] hover:bg-gray-50 border-b border-gray-50 last:border-0">{t.name}</button>
+                  <div className="absolute z-10 w-[calc(100%-52px)] right-0 top-[52px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-[200px] overflow-y-auto">
+                    {filteredTypes.map((t, i) => (
+                      <button key={i} type="button" onClick={() => { setFormData({...formData, businessType: t}); setShowTypeDropdown(false); }} className="w-full px-4 py-3 text-left text-[13px] hover:bg-gray-50 border-b border-gray-50 last:border-0">{t}</button>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* 종목 검색 드롭다운 */}
+              {/* 업종 검색 드롭다운 */}
               <div className="flex items-center gap-3 relative" ref={itemRef}>
-                <span className="w-6 text-[13px] font-medium text-[#949BA7] flex-shrink-0">종목</span>
+                <span className="w-6 text-[13px] font-medium text-[#949BA7] flex-shrink-0">업종</span>
                 <input
                   type="text"
-                  placeholder="종목 검색"
-                  value={formData.businessItem}
+                  placeholder="업종을 입력해주세요."
+                  value={formData.industry}
                   onFocus={() => setShowItemDropdown(true)}
-                  onChange={(e) => setFormData({ ...formData, businessItem: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                   className="flex-1 w-full h-[44px] px-4 border text-[13px] border-gray-300 rounded-xl focus:outline-none focus:border-[#008FFF]"
                 />
-                {showItemDropdown && formData.businessItem && filteredItems.length > 0 && (
-                  <div className="absolute z-10 w-[calc(100%-52px)] right-0 top-[52px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                    {filteredItems.map((item, i) => (
-                      <button key={i} type="button" onClick={() => { setFormData({...formData, businessItem: item}); setShowItemDropdown(false); }} className="w-full px-4 py-3 text-left text-[13px] hover:bg-gray-50 border-b border-gray-50 last:border-0">{item}</button>
+                {showItemDropdown && formData.industry && filteredIndustries.length > 0 && (
+                  <div className="absolute z-10 w-[calc(100%-52px)] right-0 top-[52px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-[200px] overflow-y-auto">
+                    {filteredIndustries.map((item, i) => (
+                      <button key={i} type="button" onClick={() => { setFormData({...formData, industry: item}); setShowItemDropdown(false); }} className="w-full px-4 py-3 text-left text-[13px] hover:bg-gray-50 border-b border-gray-50 last:border-0">{item}</button>
                     ))}
                   </div>
                 )}

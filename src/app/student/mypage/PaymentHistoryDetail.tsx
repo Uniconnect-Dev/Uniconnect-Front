@@ -1,5 +1,5 @@
 import React from 'react';
-import CorporateLayout from '../../../components/layout/CorporateLayout';
+import StudentLayout from '../../../components/layout/StudentLayout';
 
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -23,22 +23,22 @@ function Tabs() {
     {
       id: 'history',
       label: '결제 내역 조회',
-      path: '/corporatemypage/paymenthistory',
+      path: '/studentmypage/paymenthistory',
     },
     {
       id: 'payment',
       label: '결제 수단 관리',
-      path: '/corporatemypage/paymentmethod',
+      path: '/studentmypage/paymentmethod',
     }, // 예시 경로
     {
       id: 'invoice',
       label: '세금계산서/영수증 발행',
-      path: '/corporatemypage/paymentmethod',
+      path: '/studentmypage/paymentmethod',
     },
     {
       id: 'refund',
       label: '환불 처리',
-      path: '/corporatemypage/paymentmethod',
+      path: '/studentmypage/paymentmethod',
     },
   ];
 
@@ -74,7 +74,7 @@ function Tabs() {
 export default function PaymentHistoryDetail() {
   const navigate = useNavigate();
   return (
-    <CorporateLayout>
+    <StudentLayout>
       <Tabs />
       <div className="w-full inline-flex flex-col justify-start items-start gap-5 mt-10">
         {/* Header Section */}
@@ -329,6 +329,6 @@ export default function PaymentHistoryDetail() {
           </section>
         </div>
       </div>
-    </CorporateLayout>
+    </StudentLayout>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import CorporateLayout from '../../../components/layout/CorporateLayout';
+import StudentLayout from '../../../components/layout/StudentLayout';
 
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -64,7 +64,7 @@ function PaymentTable() {
 
   const handleRowClick = (id: string) => {
     // 상세 페이지로 이동 (필요 시 쿼리 스트링이나 state로 id 전달 가능)
-    navigate('/corporatemypage/paymenthistorydetail');
+    navigate('/studentmypage/paymenthistorydetail');
   };
 
   return (
@@ -159,7 +159,7 @@ function TabFilter() {
     {
       id: 'all',
       label: '전체',
-      count: 99,
+      count: 3,
       activeBg: 'bg-sky-100',
       activeText: 'text-sky-500',
       activeBadge: 'bg-sky-500',
@@ -167,7 +167,7 @@ function TabFilter() {
     {
       id: 'waiting',
       label: '결제 대기',
-      count: 2,
+      count: 1,
       activeBg: 'bg-gray-100',
       activeText: 'text-gray-500',
       activeBadge: 'bg-gray-500',
@@ -175,7 +175,7 @@ function TabFilter() {
     {
       id: 'completed',
       label: '결제 완료',
-      count: 2,
+      count: 3,
       activeBg: 'bg-emerald-50',
       activeText: 'text-emerald-600',
       activeBadge: 'bg-emerald-600',
@@ -260,22 +260,22 @@ function Tabs() {
     {
       id: 'history',
       label: '결제 내역 조회',
-      path: '/corporatemypage/paymenthistory',
+      path: '/studentmypage/paymenthistory',
     },
     {
       id: 'payment',
       label: '결제 수단 관리',
-      path: '/corporatemypage/paymentmethod',
+      path: '/studentmypage/paymentmethod',
     }, // 예시 경로
     {
       id: 'invoice',
       label: '세금계산서/영수증 발행',
-      path: '/corporatemypage/contract',
+      path: '/studentmypage/contract',
     },
     {
       id: 'refund',
       label: '환불 처리',
-      path: '/corporatemypage/contract',
+      path: '/studentmypage/contract',
     },
   ];
 
@@ -310,7 +310,7 @@ function Tabs() {
 }
 export default function PaymentHistory() {
   return (
-    <CorporateLayout>
+    <StudentLayout>
       <Tabs />
 
       <div className="flex flex-col h-full mt-10 gap-5">
@@ -331,6 +331,6 @@ export default function PaymentHistory() {
           <PaymentTable />
         </div>
       </div>
-    </CorporateLayout>
+    </StudentLayout>
   );
 }

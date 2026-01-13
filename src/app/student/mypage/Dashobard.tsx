@@ -6,7 +6,7 @@ import {
   Calendar,
   Download,
 } from 'lucide-react';
-import CorporateLayout from '../../../components/layout/CorporateLayout';
+import StudentLayout from '../../../components/layout/StudentLayout';
 import * as dashboardService from '@/services/dashboard/dashboard.service';
 
 // ============ 공통 컴포넌트 (스타일 유지) ============
@@ -431,7 +431,7 @@ export default function DashBoard() {
   const isC3Comp = shippingDate !== '' && trackingNo !== '';
 
   return (
-    <CorporateLayout>
+    <StudentLayout>
       <div className="flex flex-col gap-5 max-w-[1200px] mx-auto pb-24 relative">
         {/* 헤더 */}
         <div className="flex flex-col gap-5">
@@ -670,6 +670,6 @@ export default function DashBoard() {
           </button>
         </div>
       </div>
-    </CorporateLayout>
+    </StudentLayout>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import CorporateLayout from '../../../components/layout/CorporateLayout';
+import StudentLayout from '../../../components/layout/StudentLayout';
 
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
@@ -908,7 +908,7 @@ export default function MatchingResult() {
   };
 
   return (
-    <CorporateLayout>
+    <StudentLayout>
       <div className="flex flex-col h-full">
         <div className="flex justify-between w-full flex-1">
           <div className="flex flex-col gap-4 w-full">
@@ -935,6 +935,6 @@ export default function MatchingResult() {
           </div>
         </div>
       </div>
-    </CorporateLayout>
+    </StudentLayout>
   );
 }

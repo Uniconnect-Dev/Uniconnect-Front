@@ -83,6 +83,7 @@ export interface CreateCampaignRequest {
 
 // 캠페인 생성 응답
 export interface CreateCampaignResponse {
+  campaignId: undefined;
   success: boolean;
   message: string;
   data: number; // campaignId

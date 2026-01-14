@@ -39,7 +39,22 @@ export default function Step3ChooseCorporate() {
             },
           }
         );
-        setCompanies(response.data || []);
+
+        // API 응답 구조 디버깅
+        console.log('기업 목록 API 응답:', response.data);
+
+        // 응답 구조에 따라 처리
+        const data = response.data;
+        if (Array.isArray(data)) {
+          setCompanies(data);
+        } else if (data?.content && Array.isArray(data.content)) {
+          setCompanies(data.content);
+        } else if (data?.data && Array.isArray(data.data)) {
+          setCompanies(data.data);
+        } else {
+          console.error('예상치 못한 응답 구조:', data);
+          setCompanies([]);
+        }
       } catch (error) {
         console.error('기업 목록 조회 실패:', error);
       } finally {

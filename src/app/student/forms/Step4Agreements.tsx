@@ -32,6 +32,33 @@ export default function Step4Agreement() {
   const handleSubmit = async () => {
     if (!allChecked) return;
 
+    // 디버깅: 전송할 데이터 확인
+    console.log('=== 전송할 캠페인 데이터 ===');
+    console.log('name:', formData.name);
+    console.log('startDate:', formData.startDate);
+    console.log('endDate:', formData.endDate);
+    console.log('locationName:', formData.locationName);
+    console.log('purpose:', formData.purpose);
+    console.log('collaborationType:', formData.collaborationType);
+    console.log('expectedParticipants:', formData.expectedParticipants);
+    console.log('expectedExposures:', formData.expectedExposures);
+    console.log('targetAgeDesc:', formData.targetAgeDesc);
+    console.log('targetMajorDesc:', formData.targetMajorDesc);
+    console.log('preferredIndustry1:', formData.preferredIndustry1);
+    console.log('preferredIndustry2:', formData.preferredIndustry2);
+    console.log('recommendedSamplingQty:', formData.recommendedSamplingQty);
+    console.log('boothFee:', formData.boothFee);
+    console.log('studentTypeTagIds:', formData.studentTypeTagIds);
+    console.log('regionTagIds:', formData.regionTagIds);
+    console.log('hobbyTagIds:', formData.hobbyTagIds);
+    console.log('lifestyleTagIds:', formData.lifestyleTagIds);
+    console.log('eventPrograms:', formData.eventPrograms);
+    console.log('marketingMethods:', formData.marketingMethods);
+    console.log('promotionPlans:', formData.promotionPlans);
+    console.log('extraRequest:', formData.extraRequest);
+    console.log('selectedCompanyIds:', formData.selectedCompanyIds);
+    console.log('==============================');
+
     setIsSubmitting(true);
     try {
       // 1. 캠페인 생성
@@ -61,7 +88,24 @@ export default function Step4Agreement() {
       };
 
       const createResponse = await createCampaign(campaignRequest);
-      const campaignId = createResponse.data;
+
+      // 디버깅: API 응답 확인
+      console.log('=== createCampaign 응답 ===', createResponse);
+
+      // 응답 구조에 따라 campaignId 추출
+      let campaignId: number;
+      if (typeof createResponse === 'number') {
+        campaignId = createResponse;
+      } else if (createResponse?.data !== undefined) {
+        campaignId = createResponse.data;
+      } else if (createResponse?.campaignId !== undefined) {
+        campaignId = createResponse.campaignId;
+      } else {
+        console.error('campaignId를 찾을 수 없음:', createResponse);
+        throw new Error('캠페인 생성 응답에서 ID를 찾을 수 없습니다.');
+      }
+
+      console.log('추출된 campaignId:', campaignId);
       setCampaignId(campaignId);
 
       // 2. 제안서 파일 업로드 (파일이 있는 경우)

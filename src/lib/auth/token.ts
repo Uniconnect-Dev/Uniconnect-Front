@@ -18,9 +18,12 @@ export const clearAccessToken = () => {
 };
 
 // Refresh Token
-export const setRefreshToken = (token: string) => {
+export const setRefreshToken = (token: string | null | undefined) => {
   if (!token || typeof token !== 'string') {
-    console.error('[Token] 유효하지 않은 refreshToken:', token);
+    // null/undefined는 정상적인 경우일 수 있으므로 warn으로 변경
+    if (token !== null && token !== undefined) {
+      console.warn('[Token] 유효하지 않은 refreshToken 타입:', typeof token);
+    }
     return;
   }
   localStorage.setItem('refreshToken', token);

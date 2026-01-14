@@ -11,6 +11,7 @@ import {
   setUserRole,
   clearAllAuthData,
 } from '@/lib/auth/token';
+import { startTokenRefreshTimer, stopTokenRefreshTimer, checkAndRefreshToken } from '@/lib/api/client';
 import type { UserRole } from '@/services/auth.types';
 
 interface User {
@@ -49,6 +50,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (accessToken && refreshToken && userId && role) {
         setIsAuthenticated(true);
         setUser({ userId, role });
+        // 로그인 상태면 토큰 자동 갱신 시작
+        checkAndRefreshToken();
+        startTokenRefreshTimer();
       } else {
         setIsAuthenticated(false);
         setUser(null);
@@ -57,6 +61,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     initializeAuth();
+
+    return () => {
+      stopTokenRefreshTimer();
+    };
   }, []);
 
   const login = useCallback(
@@ -73,11 +81,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setIsAuthenticated(true);
       setUser({ userId: data.userId, role: data.role });
+
+      // 로그인 후 토큰 자동 갱신 타이머 시작
+      startTokenRefreshTimer();
     },
     []
   );
 
   const logout = useCallback(() => {
+    // 토큰 자동 갱신 타이머 중지
+    stopTokenRefreshTimer();
     clearAllAuthData();
     setIsAuthenticated(false);
     setUser(null);

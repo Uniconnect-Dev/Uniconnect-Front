@@ -15,6 +15,113 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+// ==================== 토큰 자동 갱신 로직 ====================
+
+// JWT 토큰에서 만료 시간 추출
+const getTokenExpiry = (token: string): number | null => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp ? payload.exp * 1000 : null; // ms로 변환
+  } catch {
+    return null;
+  }
+};
+
+// 토큰이 곧 만료되는지 확인 (5분 전)
+const isTokenExpiringSoon = (token: string, thresholdMs: number = 5 * 60 * 1000): boolean => {
+  const expiry = getTokenExpiry(token);
+  if (!expiry) return true; // 만료 시간 모르면 갱신 시도
+  return Date.now() > expiry - thresholdMs;
+};
+
+// 토큰 갱신 함수
+const refreshAccessToken = async (): Promise<string | null> => {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) return null;
+
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
+      { refreshToken },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    const responseData = response.data.data ?? response.data;
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = responseData;
+
+    if (newAccessToken && typeof newAccessToken === 'string') {
+      setAccessToken(newAccessToken);
+      if (newRefreshToken && typeof newRefreshToken === 'string') {
+        setRefreshToken(newRefreshToken);
+      }
+      console.log('[Auth] 토큰 자동 갱신 성공');
+      return newAccessToken;
+    }
+  } catch (error) {
+    console.error('[Auth] 토큰 자동 갱신 실패:', error);
+  }
+  return null;
+};
+
+// 주기적으로 토큰 상태 확인 및 갱신 (3분마다)
+let refreshInterval: ReturnType<typeof setInterval> | null = null;
+
+export const startTokenRefreshTimer = () => {
+  if (refreshInterval) return; // 이미 실행 중이면 무시
+
+  // refreshToken이 없으면 타이머 시작 안함
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) {
+    console.log('[Auth] refreshToken 없음, 타이머 시작 안함');
+    return;
+  }
+
+  refreshInterval = setInterval(async () => {
+    const token = getAccessToken();
+    const currentRefreshToken = getRefreshToken();
+
+    // refreshToken이 없으면 갱신 중단
+    if (!currentRefreshToken) {
+      stopTokenRefreshTimer();
+      return;
+    }
+
+    if (token && isTokenExpiringSoon(token)) {
+      console.log('[Auth] 토큰 만료 임박, 갱신 시도...');
+      await refreshAccessToken();
+    }
+  }, 3 * 60 * 1000); // 3분마다 체크
+
+  console.log('[Auth] 토큰 자동 갱신 타이머 시작');
+};
+
+export const stopTokenRefreshTimer = () => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+    console.log('[Auth] 토큰 자동 갱신 타이머 중지');
+  }
+};
+
+// 앱 시작 시 즉시 토큰 체크
+export const checkAndRefreshToken = async () => {
+  const token = getAccessToken();
+  const refreshToken = getRefreshToken();
+
+  // refreshToken이 없으면 갱신 불가
+  if (!refreshToken) {
+    console.log('[Auth] refreshToken 없음, 토큰 갱신 건너뜀');
+    return;
+  }
+
+  if (token && isTokenExpiringSoon(token, 10 * 60 * 1000)) { // 10분 이내 만료 예정이면
+    console.log('[Auth] 앱 시작 시 토큰 갱신 필요');
+    await refreshAccessToken();
+  }
+};
+
+// ==================== 토큰 자동 갱신 로직 끝 ====================
+
 // 토큰 갱신 중인지 추적
 let isRefreshing = false;
 let failedQueue: Array<{

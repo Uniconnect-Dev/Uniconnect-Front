@@ -66,7 +66,7 @@ export default function Step5Complete() {
             </button>
 
             <button
-              onClick={() => navigate('/student/matching')}
+              onClick={() => navigate('/studentmypage/matchingresult')}
               className="h-14 px-10 rounded-xl bg-[#007AFF]
                 text-white font-medium text-[16px]
                 hover:bg-[#0062CC] transition"

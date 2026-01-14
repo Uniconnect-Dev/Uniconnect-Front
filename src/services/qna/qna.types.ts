@@ -1,10 +1,9 @@
 export interface QnAItem {
   questionId: number;
   title: string;
-  content: string;
-  answerContent: string | null;
-  status: string;
-  answerCreatedAt: string | null;
+  status: 'WAITING' | 'ANSWERED';
+  createdAt: string; // 추가
+  answerCreatedAt?: string; // 기존
 }
 
 export interface GetQnAListResponse {

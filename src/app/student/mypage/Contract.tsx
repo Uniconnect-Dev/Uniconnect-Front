@@ -671,16 +671,7 @@ export default function Contract() {
     loadContracts();
   }, []);
 
-  const loadContracts = async (
-    filters?: {
-      period?: string;
-      startDate?: string;
-      endDate?: string;
-      collaborationType?: string;
-      contractStatus?: string[];
-    },
-    search?: string
-  ) => {
+  const loadContracts = async (search?: string) => {
     setIsLoading(true);
     const token = getAccessToken();
 
@@ -738,6 +729,7 @@ export default function Contract() {
           }
         );
 
+        // 클라이언트 사이드 검색 (필요시)
         if (search) {
           formattedData = formattedData.filter((contract: ContractData) =>
             contract.organizationName
@@ -759,17 +751,11 @@ export default function Contract() {
   };
 
   const handleSearch = () => {
-    loadContracts(undefined, searchTerm);
+    loadContracts(searchTerm);
   };
 
-  const handleApplyFilter = (filters: {
-    period: string;
-    startDate: string;
-    endDate: string;
-    collaborationType: string;
-    contractStatus: string[];
-  }) => {
-    loadContracts(filters, searchTerm);
+  const handleApplyFilter = () => {
+    loadContracts(searchTerm);
   };
 
   const mapContractStatus = (status: string): ContractStatus => {

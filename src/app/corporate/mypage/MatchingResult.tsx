@@ -816,7 +816,7 @@ export default function MatchingResult() {
     console.log('================ DEBUG MATCHING API ================');
     console.log(
       'API URL:',
-      `${import.meta.env.VITE_API_BASE_URL}/api/contracts/matchings/student-org`
+      `${import.meta.env.VITE_API_BASE_URL}/api/contracts/matchings/company`
     );
     console.log('Access Token:', token);
     console.log('Token exists:', !!token);

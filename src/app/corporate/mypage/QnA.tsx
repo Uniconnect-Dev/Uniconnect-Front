@@ -224,8 +224,8 @@ export default function QnA() {
           (item: QnAItem, index: number) => ({
             id: String(index + 1).padStart(2, '0'),
             questionId: item.questionId,
-            date: item.answerCreatedAt
-              ? new Date(item.answerCreatedAt)
+            date: item.createdAt
+              ? new Date(item.createdAt)
                   .toLocaleDateString('ko-KR', {
                     year: 'numeric',
                     month: '2-digit',

@@ -16,6 +16,14 @@ interface CompanyItem {
   used: boolean;
 }
 
+// S3 URL 변환 함수
+const getFullLogoUrl = (logoUrl: string | null | undefined): string | undefined => {
+  if (!logoUrl) return undefined;
+  if (logoUrl.startsWith('http')) return logoUrl;
+  const s3BaseUrl = 'https://uniconnect-250909.s3.ap-northeast-2.amazonaws.com';
+  return `${s3BaseUrl}/${logoUrl.replace(/^\//, '')}`;
+};
+
 export default function Step3ChooseCorporate() {
   const navigate = useNavigate();
   const { formData, updateFormData } = useCampaignForm();
@@ -142,7 +150,7 @@ export default function Step3ChooseCorporate() {
                       <div className="h-[120px] rounded-xl bg-[#F3F5F9] flex items-center justify-center overflow-hidden">
                         {company.logoUrl ? (
                           <img
-                            src={company.logoUrl}
+                            src={getFullLogoUrl(company.logoUrl)}
                             alt={company.brandName}
                             className="w-full h-full object-contain"
                           />

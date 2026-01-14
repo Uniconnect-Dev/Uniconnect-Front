@@ -38,6 +38,13 @@ export default function Login() {
         password: pw,
       });
 
+      // 디버깅: 로그인 응답 확인
+      console.log('=== 로그인 API 응답 ===', res);
+      console.log('accessToken:', res.accessToken);
+      console.log('refreshToken:', res.refreshToken);
+      console.log('userId:', res.userId);
+      console.log('role:', res.role);
+
       // AuthContext를 통해 로그인 상태 저장
       login({
         accessToken: res.accessToken,

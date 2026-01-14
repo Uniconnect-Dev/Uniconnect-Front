@@ -185,21 +185,33 @@ export default function CorporateLayout({ children }: CorporateLayoutProps) {
             </div>
 
             <div className="flex flex-col gap-3 text-sm text-gray-600">
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/corporatemypage/matchingresult')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 매칭 완료
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/corporatemypage/qna')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 제출
+                Q&A 답변
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/corporatemypage/paymenthistory')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 제출
+                결제 완료
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/corporatemypage/editinfo')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 제출
+                기업 정보 수정
               </span>
             </div>
           </div>

@@ -196,21 +196,33 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             </div>
 
             <div className="flex flex-col gap-3 text-sm text-gray-600">
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/studentmypage/matchingresult')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 매칭 완료
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/studentmypage/qna')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 제출
+                Q&A 답변
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/studentmypage/paymenthistory')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 제출
+                결제 완료
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/studentmypage/editinfo')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 제출
+                단체 정보 수정
               </span>
             </div>
           </div>

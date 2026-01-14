@@ -1,9 +1,12 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import { CampaignFormProvider } from './context/CampaignFormContext';
+
+// 랜딩페이지
+import LandingPage from './app/landing';
 
 // 로그인
 import Login from './auth/login/Login';
 
-SignUpComplete;
 // 회원가입 공통
 import SelectUserType from './auth/signup/SelectUserType';
 import SignUpComplete from './auth/signup/SignUpComplete';
@@ -17,15 +20,13 @@ import Step3BusinessInfo from './auth/signup/corporate/Step3BusinessInfo';
 import Step1StaffInfo from './auth/signup/student/Step1StaffInfo';
 import Step2UnivInfo from './auth/signup/student/Step2UnivInfo';
 
-
 // 기업 - 학생 단체 서치
 import StudentGroupSearch from './app/corporate/StudentGroupSearch';
+import StudentGroupDetail from './app/corporate/StudentGroupDetail';
 
 // 학생 단체 - 기업 서치
 import CorporateSearch from './app/student/CorporateSearch';
-
-
-=======
+import CorporateDetail from './app/student/CorporateDetail';
 
 // 학생 쇼핑몰
 import Studentshopping from './app/student/Studentshopping';
@@ -40,17 +41,22 @@ import Step1StudentInfo from './app/student/forms/Step1StudentInfo';
 import Step2StudentEventInfo from './app/student/forms/Step2StudentEventInfo';
 import Step3ChooseCorporate from './app/student/forms/Step3ChooseCorporate';
 import Step4Agreements from './app/student/forms/Step4Agreements';
-import Step5Agreements from './app/student/forms/Step5Complete';
 
 //학생 마이페이지
 import StuContract from './app/student/mypage/Contract';
-import StuQnA from './app/corporate/mypage/QnA';
-import StuQnADetail from './app/corporate/mypage/QnADetail';
-import StuAddQnA from './app/corporate/mypage/AddQnA';
-import StuAddQnADone from './app/corporate/mypage/AddQnADone';
-import StuEditInfo from './app/corporate/mypage/EditInfo';
+import StuQnA from './app/student/mypage/QnA';
+import StuQnADetail from './app/student/mypage/QnADetail';
+import StuAddQnA from './app/student/mypage/AddQnA';
+import StuAddQnADone from './app/student/mypage/AddQnADone';
+import StuEditInfo from './app/student/mypage/EditInfo';
 import WriteContract from './app/student/mypage/WriteContract';
 import WriteContractDone from './app/student/mypage/WriteContractDone';
+import StuMatchingResult from './app/student/mypage/MatchingResult';
+import StuPollManage from './app/student/mypage/PollManage';
+import StuPaymentHistory from './app/student/mypage/PaymentHistory';
+import StuPaymentHistoryDetail from './app/student/mypage/PaymentHistoryDetail';
+import StuPaymentMethod from './app/student/mypage/PaymentMethod';
+import StuDashBoard from './app/student/mypage/Dashobard';
 
 // 기업 샘플링 요청
 import Step1BasicInfo from './app/corporate/samplingrequest/Step1BasicInfo';
@@ -71,6 +77,7 @@ import CorpPollManage from './app/corporate/mypage/PollManage';
 import CorpPaymentHistory from './app/corporate/mypage/PaymentHistory';
 import CorpPaymentHistoryDetail from './app/corporate/mypage/PaymentHistoryDetail';
 import CorpPaymentMethod from './app/corporate/mypage/PaymentMethod';
+import CorpDashBoard from './app/corporate/mypage/Dashobard';
 
 import Step5Complete from './app/student/forms/Step5Complete';
 
@@ -79,15 +86,19 @@ import CollaborationProposal from './app/corporate/Collaboration/CollaborationPr
 
 export default function App() {
   return (
+    <CampaignFormProvider>
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
+
       {/* 회원가입 */}
       <Route path="/signup" element={<SelectUserType />} />
       <Route path="/signup/complete" element={<SignUpComplete />} />
+
       {/* 학생 회원가입 */}
       <Route path="/signup/student/step1" element={<Step1StaffInfo />} />
       <Route path="/signup/student/step2" element={<Step2UnivInfo />} />
+
       {/* 기업 회원가입 */}
       <Route path="/signup/corporate/step1" element={<Step1CompanyInfo />} />
       <Route
@@ -98,11 +109,11 @@ export default function App() {
 
       {/* 기업 - 학생 단체 서치 */}
       <Route path="/StudentGroupSearch" element={<StudentGroupSearch />} />
+      <Route path="/StudentGroupSearch/:id" element={<StudentGroupDetail />} />
 
       {/* 학생 단체 - 기업 서치 */}
       <Route path="/CorporateSearch" element={<CorporateSearch />} />
-
-      CorporateSearch
+      <Route path="/CorporateSearch/:companyId" element={<CorporateDetail />} />
 
       {/* 학생 쇼핑몰 */}
       <Route path="/studentshopping" element={<Studentshopping />} />
@@ -130,15 +141,18 @@ export default function App() {
       {/* 학생 단체 마이페이지*/}
       <Route path="/studentmypage/contract" element={<StuContract />} />
       <Route path="/studentmypage/qna" element={<StuQnA />} />
-      <Route path="/studentmypage/qnadetail" element={<StuQnADetail />} />
+      <Route path="/studentmypage/qna/:questionId" element={<StuQnADetail />} />
       <Route path="/studentmypage/addqna" element={<StuAddQnA />} />
       <Route path="/studentmypage/addqnadone" element={<StuAddQnADone />} />
       <Route path="/studentmypage/editinfo" element={<StuEditInfo />} />
       <Route path="/studentmypage/writecontract" element={<WriteContract />} />
-      <Route
-        path="/studentmypage/writecontractdone"
-        element={<WriteContractDone />}
-      />
+      <Route path="/studentmypage/writecontractdone" element={<WriteContractDone />} />
+      <Route path="/studentmypage/matchingresult" element={<StuMatchingResult />} />
+      <Route path="/studentmypage/pollmanage" element={<StuPollManage />} />
+      <Route path="/studentmypage/paymenthistory" element={<StuPaymentHistory />} />
+      <Route path="/studentmypage/paymenthistorydetail" element={<StuPaymentHistoryDetail />} />
+      <Route path="/studentmypage/paymentmethod" element={<StuPaymentMethod />} />
+      <Route path="/studentmypage/dashboard" element={<StuDashBoard />} />
       {/* 기업 샘플링 요청 */}
       <Route path="/corporatesamplingrequest/step1" element={<Step1BasicInfo />} />
       <Route path="/CollaborationProposal" element={<CollaborationProposal />} />
@@ -155,7 +169,7 @@ export default function App() {
       {/* 기업 마이페이지*/}
       <Route path="/corporatemypage/contract" element={<CorpContract />} />
       <Route path="/corporatemypage/qna" element={<CorpQnA />} />
-      <Route path="/corporatemypage/qnadetail" element={<CorpQnADetail />} />
+      <Route path="/corporatemypage/qna/:questionId" element={<CorpQnADetail />} />
       <Route path="/corporatemypage/addqna" element={<CorpAddQnA />} />
       <Route path="/corporatemypage/addqnadone" element={<CorpAddQnADone />} />
       <Route path="/corporatemypage/editinfo" element={<CorpEditInfo />} />
@@ -176,6 +190,8 @@ export default function App() {
         path="/corporatemypage/paymentmethod"
         element={<CorpPaymentMethod />}
       />
+      <Route path="/corporatemypage/dashboard" element={<CorpDashBoard />} />
     </Routes>
+    </CampaignFormProvider>
   );
 }

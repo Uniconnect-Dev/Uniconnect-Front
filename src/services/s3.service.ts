@@ -39,8 +39,8 @@ export const uploadFile = async (
     }
   );
 
-  // API 응답의 success 필드 체크
-  if (!response.data.success) {
+  // API 응답의 code 필드 체크
+  if (response.data.code !== 'OK') {
     throw new Error(response.data.message || '파일 업로드에 실패했습니다.');
   }
 

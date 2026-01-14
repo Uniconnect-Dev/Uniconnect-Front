@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Calendar } from 'lucide-react';
 
 type Active = 'start' | 'end' | null;
+type OutputFormat = 'display' | 'api';
 
 interface Props {
   label?: string;
@@ -17,6 +18,13 @@ interface Props {
   endValue?: string;
   onStartChange?: (v: string) => void;
   onEndChange?: (v: string) => void;
+  /* alias props for backward compatibility */
+  startDate?: string;
+  endDate?: string;
+  onStartDateChange?: (v: string) => void;
+  onEndDateChange?: (v: string) => void;
+  /* output format: 'display' = 점 구분(2026.01.14), 'api' = ISO 형식(2026-01-14) */
+  outputFormat?: OutputFormat;
 }
 
 function isSameDay(a: Date, b: Date) {
@@ -27,11 +35,18 @@ function isSameDay(a: Date, b: Date) {
   );
 }
 
-function formatDate(date: Date) {
+function formatDateDisplay(date: Date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}.${m}.${d}`;
+}
+
+function formatDateApi(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 function buildCalendarDays(currentMonth: Date) {
@@ -77,27 +92,40 @@ export default function DateRangeInput({
   endValue,
   onStartChange,
   onEndChange,
+  // alias props
+  startDate,
+  endDate,
+  onStartDateChange,
+  onEndDateChange,
+  outputFormat = 'display',
 }: Props) {
-  const isControlled = startValue !== undefined;
+  const formatDate = outputFormat === 'api' ? formatDateApi : formatDateDisplay;
+  // Support alias props (startDate/endDate as aliases for startValue/endValue)
+  const effectiveStartValue = startValue ?? startDate;
+  const effectiveEndValue = endValue ?? endDate;
+  const effectiveOnStartChange = onStartChange ?? onStartDateChange;
+  const effectiveOnEndChange = onEndChange ?? onEndDateChange;
+
+  const isControlled = effectiveStartValue !== undefined;
 
   const [internalStart, setInternalStart] = useState('');
   const [internalEnd, setInternalEnd] = useState('');
   const [tempDate, setTempDate] = useState<Date | null>(null);
 
-  const startDate = isControlled ? startValue : internalStart;
-  const endDate = isControlled ? (endValue ?? '') : internalEnd;
+  const startDateValue = isControlled ? effectiveStartValue : internalStart;
+  const endDateValue = isControlled ? (effectiveEndValue ?? '') : internalEnd;
 
-  const setStartDate = (v: string) => {
-    if (isControlled && onStartChange) {
-      onStartChange(v);
+  const setStartDateValue = (v: string) => {
+    if (isControlled && effectiveOnStartChange) {
+      effectiveOnStartChange(v);
     } else {
       setInternalStart(v);
     }
   };
 
-  const setEndDate = (v: string) => {
-    if (isControlled && onEndChange) {
-      onEndChange(v);
+  const setEndDateValue = (v: string) => {
+    if (isControlled && effectiveOnEndChange) {
+      effectiveOnEndChange(v);
     } else {
       setInternalEnd(v);
     }
@@ -116,8 +144,8 @@ export default function DateRangeInput({
         if (tempDate && activeInput) {
           const formatted = formatDate(tempDate);
           activeInput === 'start'
-            ? setStartDate(formatted)
-            : setEndDate(formatted);
+            ? setStartDateValue(formatted)
+            : setEndDateValue(formatted);
         }
         setTempDate(null);
         setIsOpen(false);
@@ -129,17 +157,21 @@ export default function DateRangeInput({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [tempDate, activeInput]);
 
-  const selectedStart = useMemo(() => {
-    if (!startDate) return null;
-    const [y, m, d] = startDate.split('.').map(Number);
+  const parseDate = (dateStr: string) => {
+    const separator = outputFormat === 'api' ? '-' : '.';
+    const [y, m, d] = dateStr.split(separator).map(Number);
     return new Date(y, m - 1, d);
-  }, [startDate]);
+  };
+
+  const selectedStart = useMemo(() => {
+    if (!startDateValue) return null;
+    return parseDate(startDateValue);
+  }, [startDateValue, outputFormat]);
 
   const selectedEnd = useMemo(() => {
-    if (!endDate) return null;
-    const [y, m, d] = endDate.split('.').map(Number);
-    return new Date(y, m - 1, d);
-  }, [endDate]);
+    if (!endDateValue) return null;
+    return parseDate(endDateValue);
+  }, [endDateValue, outputFormat]);
 
   const selectedForActive =
     tempDate ??
@@ -176,12 +208,12 @@ export default function DateRangeInput({
           <div className="relative">
             <Calendar
               className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
-                activeInput === 'start' || startDate ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
+                activeInput === 'start' || startDateValue ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
               }`}
             />
             <input
               readOnly
-              value={startDate}
+              value={startDateValue}
               placeholder={startPlaceholder ?? placeholder}
               onFocus={() => {
                 setActiveInput('start');
@@ -189,7 +221,7 @@ export default function DateRangeInput({
               }}
               style={{ height, width: inputWidth }}
               className={`${inputBase} ${inputWidthClass} ${
-                activeInput === 'start' || startDate
+                activeInput === 'start' || startDateValue
                   ? 'border-[#007AFF] text-[#007AFF]'
                   : 'border-[#E6E8EC] text-[#2D3139]'
               }`}
@@ -209,12 +241,12 @@ export default function DateRangeInput({
           <div className="relative">
             <Calendar
               className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
-                activeInput === 'end' || endDate ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
+                activeInput === 'end' || endDateValue ? 'text-[#007AFF]' : 'text-[#9AA1AD]'
               }`}
             />
             <input
               readOnly
-              value={endDate}
+              value={endDateValue}
               placeholder={endPlaceholder ?? placeholder}
               onFocus={() => {
                 setActiveInput('end');
@@ -222,7 +254,7 @@ export default function DateRangeInput({
               }}
               style={{ height, width: inputWidth }}
               className={`${inputBase} ${inputWidthClass} ${
-                activeInput === 'end' || endDate
+                activeInput === 'end' || endDateValue
                   ? 'border-[#007AFF] text-[#007AFF]'
                   : 'border-[#E6E8EC] text-[#2D3139]'
               }`}

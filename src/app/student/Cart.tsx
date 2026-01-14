@@ -1,27 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StudentLayout from '../../components/layout/StudentLayout';
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  selected: boolean;
-}
+import { getStudentOrgId } from '@/lib/auth/token';
+import {
+  getCart,
+  updateCartItemQuantity,
+  removeCartItem,
+  clearCart,
+} from '@/services/cart.service';
+import type { CartItemWithSelection } from '@/services/cart.types';
 
 export default function Cart() {
   const navigate = useNavigate();
+  const studentOrgId = getStudentOrgId();
 
-  const [items, setItems] = useState<CartItem[]>(
-    Array.from({ length: 10 }).map((_, i) => ({
-      id: i + 1,
-      name: '더블 치즈버거 세트',
-      price: 4500,
-      quantity: i % 3 === 0 ? 1 : 3,
-      selected: i < 6,
-    }))
-  );
+  const [items, setItems] = useState<CartItemWithSelection[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 장바구니 조회
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!studentOrgId) return;
+      setIsLoading(true);
+      try {
+        const response = await getCart(studentOrgId);
+        setItems(response.items.map(item => ({ ...item, selected: true })));
+      } catch (error) {
+        console.error('장바구니 조회 실패:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCart();
+  }, [studentOrgId]);
 
   /* ===============================
      선택
@@ -35,10 +46,10 @@ export default function Cart() {
     );
   };
 
-  const toggleItem = (id: number) => {
+  const toggleItem = (cartItemId: number) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, selected: !item.selected } : item
+        item.cartItemId === cartItemId ? { ...item, selected: !item.selected } : item
       )
     );
   };
@@ -46,33 +57,85 @@ export default function Cart() {
   /* ===============================
      삭제
   =============================== */
-  const deleteSelected = () => {
-    if (!selectedCount) return;
+  const deleteSelected = async () => {
+    if (!selectedCount || !studentOrgId) return;
     if (!window.confirm('선택한 상품을 삭제하시겠습니까?')) return;
-    setItems((prev) => prev.filter((item) => !item.selected));
+
+    const selectedItems = items.filter((item) => item.selected);
+
+    try {
+      // 선택된 아이템들을 순차적으로 삭제
+      for (const item of selectedItems) {
+        await removeCartItem(studentOrgId, item.cartItemId);
+      }
+      // 로컬 상태 업데이트
+      setItems((prev) => prev.filter((item) => !item.selected));
+    } catch (error) {
+      console.error('장바구니 삭제 실패:', error);
+      alert('삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
-  const deleteAll = () => {
-    if (!items.length) return;
+  const deleteAll = async () => {
+    if (!items.length || !studentOrgId) return;
     if (!window.confirm('모두 삭제하시겠습니까?')) return;
-    setItems([]);
+
+    try {
+      await clearCart(studentOrgId);
+      setItems([]);
+    } catch (error) {
+      console.error('장바구니 전체 삭제 실패:', error);
+      alert('삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
-  const deleteOne = (id: number) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  const deleteOne = async (cartItemId: number) => {
+    if (!studentOrgId) return;
+
+    try {
+      await removeCartItem(studentOrgId, cartItemId);
+      setItems((prev) => prev.filter((item) => item.cartItemId !== cartItemId));
+    } catch (error) {
+      console.error('장바구니 삭제 실패:', error);
+      alert('삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   /* ===============================
      수량
   =============================== */
-  const changeQuantity = (id: number, diff: number) => {
+  const changeQuantity = async (cartItemId: number, diff: number) => {
+    if (!studentOrgId) return;
+
+    const item = items.find((i) => i.cartItemId === cartItemId);
+    if (!item) return;
+
+    const newQuantity = Math.max(1, item.quantity + diff);
+    if (newQuantity === item.quantity) return;
+
+    // 낙관적 업데이트
     setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + diff) }
-          : item
+      prev.map((i) =>
+        i.cartItemId === cartItemId
+          ? { ...i, quantity: newQuantity, subtotal: i.unitPrice * newQuantity }
+          : i
       )
     );
+
+    try {
+      await updateCartItemQuantity(studentOrgId, cartItemId, { quantity: newQuantity });
+    } catch (error) {
+      console.error('수량 변경 실패:', error);
+      // 실패 시 롤백
+      setItems((prev) =>
+        prev.map((i) =>
+          i.cartItemId === cartItemId
+            ? { ...i, quantity: item.quantity, subtotal: item.subtotal }
+            : i
+        )
+      );
+      alert('수량 변경에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   /* ===============================
@@ -80,7 +143,7 @@ export default function Cart() {
   =============================== */
   const totalPrice = items
     .filter((item) => item.selected)
-    .reduce((sum, item) => sum + item.price * item.quantity, 0);
+    .reduce((sum, item) => sum + item.subtotal, 0);
 
   const totalCount = items
     .filter((item) => item.selected)
@@ -96,7 +159,7 @@ export default function Cart() {
     }
 
     const selectedItems = items.filter((item) => item.selected);
-    
+
     navigate('/studentshopping/order', {
       state: {
         items: selectedItems,
@@ -182,79 +245,89 @@ export default function Cart() {
           className="overflow-y-auto flex-shrink-0"
           style={{ height: '585px' }}
         >
-          <div className="flex flex-col gap-4">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="border rounded-xl p-3.5 flex gap-4"
-              >
-                {/* 선택 (상단 정렬) */}
-                <button
-                  onClick={() => toggleItem(item.id)}
-                  className={`w-6 h-6 rounded-lg border flex items-center justify-center flex-shrink-0 self-start 
-                    ${
-                      item.selected
-                        ? 'bg-[#007AFF] border-[#007AFF] text-white'
-                        : 'border-gray-300'
-                    }`}
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-gray-400">장바구니를 불러오는 중...</p>
+            </div>
+          ) : items.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-gray-400">장바구니가 비어있습니다.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {items.map((item) => (
+                <div
+                  key={item.cartItemId}
+                  className="border rounded-xl p-3.5 flex gap-4"
                 >
-                  {item.selected && '✓'}
-                </button>
+                  {/* 선택 (상단 정렬) */}
+                  <button
+                    onClick={() => toggleItem(item.cartItemId)}
+                    className={`w-6 h-6 rounded-lg border flex items-center justify-center flex-shrink-0 self-start
+                      ${
+                        item.selected
+                          ? 'bg-[#007AFF] border-[#007AFF] text-white'
+                          : 'border-gray-300'
+                      }`}
+                  >
+                    {item.selected && '✓'}
+                  </button>
 
-                {/* 이미지 */}
-                <div className="w-[134px] h-[134px] bg-gray-200 rounded-lg flex-shrink-0" />
+                  {/* 이미지 */}
+                  <div className="w-[134px] h-[134px] bg-gray-200 rounded-lg flex-shrink-0" />
 
-                {/* 정보 */}
-                <div className="flex-1">
-                  <p className="text-[16px] text-gray-500 font-medium pt-2.5">{item.name}</p>
-                  <p className="text-[20px] font-medium">
-                    {(item.price * item.quantity).toLocaleString()} 원
-                  </p>
+                  {/* 정보 */}
+                  <div className="flex-1">
+                    <p className="text-[16px] text-gray-500 font-medium pt-2.5">{item.productName}</p>
+                    <p className="text-[20px] font-medium">
+                      {item.subtotal.toLocaleString()} 원
+                    </p>
 
-                  {/* 수량 */}
-                  <div className="mt-5">
-                    <div className="inline-flex h-[40px] overflow-hidden rounded-lg border border-gray-300">
-                      <button
-                        onClick={() => changeQuantity(item.id, -1)}
-                        disabled={item.quantity === 1}
-                        className={`w-[40px] flex items-center justify-center transition
-                          ${
-                            item.quantity === 1
-                              ? 'text-gray-200 cursor-not-allowed'
-                              : 'text-gray-400 hover:bg-gray-100'
-                          }`}
-                      >
-                        −
-                      </button>
+                    {/* 수량 */}
+                    <div className="mt-5">
+                      <div className="inline-flex h-[40px] overflow-hidden rounded-lg border border-gray-300">
+                        <button
+                          onClick={() => changeQuantity(item.cartItemId, -1)}
+                          disabled={item.quantity === 1}
+                          className={`w-[40px] flex items-center justify-center transition
+                            ${
+                              item.quantity === 1
+                                ? 'text-gray-200 cursor-not-allowed'
+                                : 'text-gray-400 hover:bg-gray-100'
+                            }`}
+                        >
+                          −
+                        </button>
 
-                      <div className="w-px bg-gray-300" />
+                        <div className="w-px bg-gray-300" />
 
-                      <div className="w-[40px] flex items-center justify-center text-[18px] font-medium text-gray-800">
-                        {item.quantity}
+                        <div className="w-[40px] flex items-center justify-center text-[18px] font-medium text-gray-800">
+                          {item.quantity}
+                        </div>
+
+                        <div className="w-px bg-gray-300" />
+
+                        <button
+                          onClick={() => changeQuantity(item.cartItemId, 1)}
+                          className="w-[40px] flex items-center justify-center text-gray-600 hover:bg-gray-100 transition"
+                        >
+                          +
+                        </button>
                       </div>
-
-                      <div className="w-px bg-gray-300" />
-
-                      <button
-                        onClick={() => changeQuantity(item.id, 1)}
-                        className="w-[40px] flex items-center justify-center text-gray-600 hover:bg-gray-100 transition"
-                      >
-                        +
-                      </button>
                     </div>
                   </div>
-                </div>
 
-                {/* 삭제 */}
-                <button
-                  onClick={() => deleteOne(item.id)}
-                  className="text-gray-400 hover:text-gray-600 flex-shrink-0 self-start mt-1.5 mr-1"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
+                  {/* 삭제 */}
+                  <button
+                    onClick={() => deleteOne(item.cartItemId)}
+                    className="text-gray-400 hover:text-gray-600 flex-shrink-0 self-start mt-1.5 mr-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ================= 하단 총액 ================= */}
@@ -270,7 +343,7 @@ export default function Cart() {
           </div>
 
           {/* 구매 버튼 */}
-          <button 
+          <button
             onClick={handlePurchase}
             className="h-[56px] px-12 bg-[#007AFF] text-white rounded-xl text-[18px] font-medium hover:bg-[#0066CC] transition"
           >

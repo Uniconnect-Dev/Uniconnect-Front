@@ -1,18 +1,21 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
 import RequestStatus from '@/components/common/RequestStatus';
 import { Check } from 'lucide-react';
+import { submitSamplingProposal } from '@/services/sampling/sampling.service';
 
-import { useState } from 'react';
-
-function Checkbox() {
-  const [checked, setChecked] = useState(false);
-
+function Checkbox({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
   return (
     <button
       type="button"
-      onClick={() => setChecked((prev) => !prev)}
+      onClick={() => onChange(!checked)}
       className={`
         w-5 h-5 rounded-md flex items-center justify-center
         transition-colors
@@ -26,10 +29,16 @@ function Checkbox() {
   );
 }
 
-function Agreement() {
+function Agreement({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
   return (
     <div className="flex flex-row gap-2">
-      <Checkbox />
+      <Checkbox checked={checked} onChange={onChange} />
       <p className="text-gray-600 font-medium ">
         해당 내용에 대해 충분히 인지했으며, 동의합니다.
       </p>
@@ -39,29 +48,68 @@ function Agreement() {
 
 export default function Step4Terms() {
   const navigate = useNavigate();
-  const handleNext = () => {
-    navigate('/corporatesamplingrequest/stepDone');
+  const location = useLocation();
+  const { samplingProposalId, campaignIds } = (location.state as {
+    samplingProposalId?: number;
+    campaignIds?: number[];
+  }) || {};
+
+  const [agreement1, setAgreement1] = useState(false);
+  const [agreement2, setAgreement2] = useState(false);
+  const [agreement3, setAgreement3] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const allAgreed = agreement1 && agreement2 && agreement3;
+
+  const handleNext = async () => {
+    if (!samplingProposalId || !campaignIds || campaignIds.length === 0) {
+      alert('샘플링 요청 정보가 없습니다. 이전 단계로 돌아가주세요.');
+      navigate('/corporatesamplingrequest/step3');
+      return;
+    }
+
+    if (!allAgreed) {
+      alert('모든 약관에 동의해주세요.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const result = await submitSamplingProposal({
+        samplingProposalId,
+        campaignIds,
+      });
+      navigate('/corporatesamplingrequest/stepDone', {
+        state: { requestedCount: result.requestedCount, message: result.message }
+      });
+    } catch (error: any) {
+      alert(error.message || '제출에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
   const handlePrev = () => {
-    navigate('/corporatesamplingrequest/step3');
+    navigate('/corporatesamplingrequest/step3', {
+      state: { samplingProposalId }
+    });
   };
+
   return (
     <CorporateLayout>
       {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
       {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
       <div className="flex flex-col min-h-full">
-        <div className="flex justify-between w-full">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">
-              샘플링 규정 확인 및 동의
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center gap-2">
+            <img src="/File_Blue.png" alt="" className="w-5 h-5" />
+            <h1 className="text-[20px] font-semibold text-[#2D3139]">
+              규정 확인 및 동의
             </h1>
-            <p className="text-sm text-gray-500 mb-6">
-              안전하고 투명한 협업을 위한 필수 동의 절차입니다.
-            </p>
           </div>
           <RequestStatus activeStep={4} />
         </div>
-        <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100 mb-6"></div>
+        <div className="border-t border-gray-200 mb-6" />
 
         {/*규정 동의 폼*/}
         <div className="flex flex-col gap-7">
@@ -91,7 +139,7 @@ export default function Step4Terms() {
                     샘플링이 어렵습니다.
                   </p>
                 </div>
-                <Agreement />
+                <Agreement checked={agreement1} onChange={setAgreement1} />
               </div>
             </>
             {/*플랫폼 이탈 협업 적발 시 불이익 안내*/}
@@ -109,7 +157,7 @@ export default function Step4Terms() {
                     있습니다.
                   </p>
                 </div>
-                <Agreement />
+                <Agreement checked={agreement2} onChange={setAgreement2} />
               </div>
             </>
             {/*이용 약관 안내*/}
@@ -139,7 +187,7 @@ export default function Step4Terms() {
                     </p>
                   </p>
                 </div>
-                <Agreement />
+                <Agreement checked={agreement3} onChange={setAgreement3} />
               </div>
             </>
           </div>
@@ -148,15 +196,25 @@ export default function Step4Terms() {
         <div className="mt-auto flex justify-end items-end gap-4">
           <button
             onClick={handlePrev}
+            disabled={isSubmitting}
             className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500"
           >
             <span className="text-sky-500 font-medium text-lg">이전</span>
           </button>
           <button
             onClick={handleNext}
-            className="h-14 w-[200px] bg-blue-600 rounded-xl"
+            disabled={!allAgreed || isSubmitting}
+            className={`h-14 w-[200px] rounded-xl transition-colors ${
+              allAgreed && !isSubmitting
+                ? 'bg-blue-600 hover:bg-blue-700'
+                : 'bg-gray-200 cursor-not-allowed'
+            }`}
           >
-            <span className="text-white font-medium text-lg">다음</span>
+            <span className={`font-medium text-lg ${
+              allAgreed && !isSubmitting ? 'text-white' : 'text-gray-500'
+            }`}>
+              {isSubmitting ? '제출 중...' : '제출'}
+            </span>
           </button>
         </div>
       </div>

@@ -1,7 +1,5 @@
 // src/services/partnership.service.ts
-import axios from 'axios';
 import { api } from '@/lib/api/client';
-import { getAccessToken } from '@/lib/auth/token';
 import type {
   CreateProposalRequest,
   CreateProposalResponse,
@@ -15,11 +13,7 @@ import type {
 export const createProposal = async (
   payload: CreateProposalRequest
 ): Promise<CreateProposalResponse> => {
-  const response = await api.post<CreateProposalResponse>(
-    '/api/partnership/proposals',
-    payload
-  );
-  return response as unknown as CreateProposalResponse;
+  return api.post('/api/partnership/proposals', payload);
 };
 
 /**
@@ -32,24 +26,15 @@ export const uploadProposalAttachment = async (
   const formData = new FormData();
   formData.append('file', file);
 
-  const token = getAccessToken();
-
-  const response = await axios.post<UploadAttachmentResponse>(
-    `${import.meta.env.VITE_API_BASE_URL}/api/partnership/proposals/${proposalId}/attachment`,
+  return api.post(
+    `/api/partnership/proposals/${proposalId}/attachment`,
     formData,
     {
       headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
+        'Content-Type': 'multipart/form-data',
       },
-      withCredentials: true,
     }
   );
-
-  if (!response.data.success) {
-    throw new Error(response.data.message || '첨부파일 업로드에 실패했습니다.');
-  }
-
-  return response.data;
 };
 
 /**
@@ -58,8 +43,5 @@ export const uploadProposalAttachment = async (
 export const submitProposal = async (
   proposalId: number
 ): Promise<SubmitProposalResponse> => {
-  const response = await api.post<SubmitProposalResponse>(
-    `/api/partnership/proposals/${proposalId}/submit`
-  );
-  return response as unknown as SubmitProposalResponse;
+  return api.post(`/api/partnership/proposals/${proposalId}/submit`);
 };

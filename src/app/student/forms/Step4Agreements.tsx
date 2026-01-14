@@ -2,9 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StudentLayout from '../../../components/layout/StudentLayout';
 import RequestStatus from '@/components/common/RequestStatus';
+import { useCampaignForm } from '@/context/CampaignFormContext';
+import {
+  createCampaign,
+  uploadCampaignProposal,
+  submitCampaign,
+} from '@/services/campaign.service';
+import type { CreateCampaignRequest } from '@/services/campaign.types';
 
 export default function Step4Agreement() {
   const navigate = useNavigate();
+  const { formData, updateFormData, setCampaignId, resetFormData } = useCampaignForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [checks, setChecks] = useState({
     process: false,
@@ -18,6 +27,60 @@ export default function Step4Agreement() {
 
   const toggle = (key: keyof typeof checks) => {
     setChecks((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleSubmit = async () => {
+    if (!allChecked) return;
+
+    setIsSubmitting(true);
+    try {
+      // 1. 캠페인 생성
+      const campaignRequest: CreateCampaignRequest = {
+        name: formData.name,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        locationName: formData.locationName,
+        purpose: formData.purpose,
+        collaborationType: formData.collaborationType,
+        expectedParticipants: formData.expectedParticipants,
+        expectedExposures: formData.expectedExposures,
+        targetAgeDesc: formData.targetAgeDesc,
+        targetMajorDesc: formData.targetMajorDesc,
+        preferredIndustry1: formData.preferredIndustry1,
+        preferredIndustry2: formData.preferredIndustry2,
+        recommendedSamplingQty: formData.recommendedSamplingQty,
+        boothFee: formData.boothFee,
+        studentTypeTagIds: formData.studentTypeTagIds,
+        regionTagIds: formData.regionTagIds,
+        hobbyTagIds: formData.hobbyTagIds,
+        lifestyleTagIds: formData.lifestyleTagIds,
+        eventPrograms: formData.eventPrograms,
+        marketingMethods: formData.marketingMethods,
+        promotionPlans: formData.promotionPlans || '',
+        extraRequest: formData.extraRequest,
+      };
+
+      const createResponse = await createCampaign(campaignRequest);
+      const campaignId = createResponse.data;
+      setCampaignId(campaignId);
+
+      // 2. 제안서 파일 업로드 (파일이 있는 경우)
+      if (formData.proposalFile) {
+        await uploadCampaignProposal(campaignId, formData.proposalFile);
+      }
+
+      // 3. 최종 제출
+      await submitCampaign(campaignId);
+
+      // 4. 폼 데이터 초기화 및 완료 페이지로 이동
+      updateFormData({ agreedToTerms: true });
+      navigate('/studentsampling/step5');
+    } catch (error) {
+      console.error('캠페인 제출 실패:', error);
+      alert('제출에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -88,23 +151,24 @@ export default function Step4Agreement() {
         <div className="mt-16 flex justify-between">
           <button
             onClick={() => navigate('/studentsampling/step3')}
+            disabled={isSubmitting}
             className="h-14 w-[160px] border border-gray-300 rounded-xl
-              text-[#949BA7] hover:bg-gray-50"
+              text-[#949BA7] hover:bg-gray-50 disabled:opacity-50"
           >
             이전
           </button>
 
           <button
-            disabled={!allChecked}
-            onClick={() => navigate('/studentsampling/step5')}
+            disabled={!allChecked || isSubmitting}
+            onClick={handleSubmit}
             className={`h-14 w-[200px] rounded-xl font-bold
               ${
-                allChecked
+                allChecked && !isSubmitting
                   ? 'bg-[#007AFF] text-white hover:bg-[#0062CC]'
                   : 'bg-gray-300 text-white cursor-not-allowed'
               }`}
           >
-            다음
+            {isSubmitting ? '제출 중...' : '제출하기'}
           </button>
         </div>
       </div>

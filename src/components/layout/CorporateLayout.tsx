@@ -1,15 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { UserCircle } from 'lucide-react';
+import { getMyCompanyProfile } from '@/services/profile.service';
+import type { CompanyProfileResponse } from '@/services/profile.types';
 
-interface StudentLayoutProps {
+const navItems = [
+  { label: '학생 단체 찾기', path: '/StudentGroupSearch' },
+  { label: '샘플링 요청', path: '/corporatesamplingrequest/step1' },
+  { label: '협업 제안', path: '/CollaborationProposal' },
+];
+
+interface CorporateLayoutProps {
   children: React.ReactNode;
 }
 
-export default function StudentLayout({ children }: StudentLayoutProps) {
+export default function CorporateLayout({ children }: CorporateLayoutProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [profile, setProfile] = useState<CompanyProfileResponse | null>(null);
+
+  const isActive = (path: string) => {
+    if (path === '/corporatesamplingrequest/step1') {
+      return location.pathname.startsWith('/corporatesamplingrequest');
+    }
+    return location.pathname === path;
+  };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getMyCompanyProfile();
+        setProfile(data);
+      } catch (error) {
+        console.error('프로필 조회 실패:', error);
+      }
+    };
+    fetchProfile();
+  }, []);
+
   return (
     <div className="h-screen bg-[#F7F8FA] flex flex-col overflow-hidden">
       {/* 상단 네비게이션 바 - 고정 */}
-      <header className="w-full bg-white border-b border-gray-200 flex-shrink-0">
-        <div className="w-full mx-auto flex items-center justify-start h-[72px] px-12">
+      <header className="w-full bg-white border-b border-gray-200 flex-shrink-0 min-h-[72px]">
+        <div className="w-full mx-auto flex items-center justify-start h-[72px] px-12 overflow-visible">
           {/* 로고 */}
           <img
             src="/logo.png"
@@ -19,30 +52,29 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
           {/* 메뉴 - 아이콘과 동일한 높이 */}
           <nav className="flex gap-6 px-12 items-center h-full">
-            <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              학생 단체 찾기
-            </span>
-            <span className="cursor-pointer hover:text-[#008FFF] text-[15px] text-gray-700 font-medium h-full flex items-center">
-              샘플링 요청
-            </span>
-            <span className="cursor-pointer text-[#008FFF] text-[15px] font-medium h-full flex items-center relative">
-              협업 제안
-              {/* 파란 밑줄 - 상단에서 72px 위치 */}
-              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008FFF]"></span>
-            </span>
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`cursor-pointer text-[15px] font-medium h-full flex items-center relative ${
+                  isActive(item.path)
+                    ? 'text-[#008FFF]'
+                    : 'text-gray-700 hover:text-[#008FFF]'
+                }`}
+              >
+                {item.label}
+                {isActive(item.path) && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008FFF]"></span>
+                )}
+              </Link>
+            ))}
           </nav>
 
           {/* 아이콘 */}
-          <div className="flex items-center gap-4 ml-auto">
-            <img
-              src="/File.png"
-              alt="장바구니"
-              className="w-6 h-6 cursor-pointer"
-            />
-            <img
-              src="/File.png"
-              alt="사용자"
-              className="w-6 h-6 cursor-pointer"
+          <div className="flex items-center gap-5 ml-auto pr-2">
+            <UserCircle
+              className="w-[24px] h-[24px] cursor-pointer text-gray-600 hover:text-[#008FFF] transition-colors"
+              onClick={() => navigate('/corporatemypage/dashboard')}
             />
           </div>
         </div>
@@ -58,44 +90,84 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             style={{ height: 'calc(64.5% - 12px)' }}
           >
             {/* 사용자 정보 */}
-            <div className="mb-6 pb-6 border-b border-gray-200">
-              <p className="text-base font-semibold text-gray-900 mb-1">
-                홍길동 님
+            <div className="mb-6 pb-6 border-b border-gray-200 min-h-[60px]">
+              <p className="text-base font-semibold text-gray-900 mb-1 h-6">
+                {profile?.brandName || '\u00A0'}
               </p>
-              <p className="text-sm text-gray-500">OO대학교</p>
+              <p className="text-sm text-gray-500 h-5">
+                {profile?.industryName || '\u00A0'}
+              </p>
             </div>
 
             {/* 메뉴 */}
             <nav className="flex flex-col gap-4 text-sm text-gray-700">
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/corporatemypage/matchingresult')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/corporatemypage/matchingresult')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 매칭 확인
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
-                <img src="/File.png" alt="" className="w-4 h-4" />
-                정산 결제
-              </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/corporatemypage/contract')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/corporatemypage/contract')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 계약서 작성
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/corporatemypage/pollmanage')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/corporatemypage/pollmanage')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 확인
+                설문지 관리
               </span>
               <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                단체 정보 수정
+                데이터 리포트
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/corporatemypage/paymenthistory')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/corporatemypage/paymenthistory')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                데이터 리포트 제출
+                정산 / 결제
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/corporatemypage/editinfo')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/corporatemypage/editinfo')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                세금계산서 발행 요청
+                정보 수정
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className={`cursor-pointer hover:text-[#008FFF] flex items-center gap-2 ${
+                  isActive('/corporatemypage/qna')
+                    ? 'text-[#008FFF] font-semibold'
+                    : ''
+                }`}
+                onClick={() => navigate('/corporatemypage/qna')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 Q&A 문의함
               </span>
@@ -115,21 +187,33 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             </div>
 
             <div className="flex flex-col gap-3 text-sm text-gray-600">
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/corporatemypage/matchingresult')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
                 매칭 완료
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/corporatemypage/qna')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 제출
+                Q&A 답변
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/corporatemypage/paymenthistory')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 제출
+                결제 완료
               </span>
-              <span className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2">
+              <span
+                className="cursor-pointer hover:text-[#008FFF] flex items-center gap-2"
+                onClick={() => navigate('/corporatemypage/editinfo')}
+              >
                 <img src="/File.png" alt="" className="w-4 h-4" />
-                설문지 제출
+                기업 정보 수정
               </span>
             </div>
           </div>

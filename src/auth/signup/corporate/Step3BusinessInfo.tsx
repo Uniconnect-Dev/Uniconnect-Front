@@ -6,18 +6,12 @@ import { initCompanyProfile } from '@/services/profile.service';
 import { uploadFile } from '@/services/s3.service';
 import { getUserId } from '@/lib/auth/token';
 import { AppError } from '@/lib/error/AppError';
-
-// 임의 데이터 (실제 데이터셋으로 교체 가능)
-// TODO: 실제 API에서 업종 목록을 가져와야 함
-const BUSINESS_TYPES: { id: number; name: string }[] = [
-  { id: 1, name: '제조업' },
-  { id: 2, name: '도매 및 소매업' },
-  { id: 3, name: '정보통신업' },
-  { id: 4, name: '전문, 과학 및 기술 서비스업' },
-  { id: 5, name: '사업시설 관리, 사업 지원 및 임대 서비스업' },
-  { id: 6, name: '교육 서비스업' },
-];
-const BUSINESS_ITEMS = ['소프트웨어 개발 및 공급', '데이터베이스 및 온라인 정보제공업', '광고 대행업', '경영 컨설팅업', '전자상거래 소매업', '컴퓨터 시스템 통합 자문 및 구축 서비스업'];
+import {
+  INDUSTRY_TYPE_LABELS,
+  BUSINESS_TYPE_LABELS,
+  getIndustryTypeValue,
+  getBusinessTypeValue,
+} from '@/constants/companyEnums';
 
 export default function Step3BusinessInfo() {
   const navigate = useNavigate();
@@ -27,9 +21,8 @@ export default function Step3BusinessInfo() {
     representative: '',
     openingDate: '',
     address: { street: '', detail: '' },
-    businessType: '', // 업태
-    businessItem: '', // 종목
-    industryId: 0, // 업종 ID
+    businessTypeEnum: '', // 업태
+    industry: '', // 업종
   });
 
   // 드롭다운 관련 상태
@@ -91,8 +84,8 @@ export default function Step3BusinessInfo() {
   };
 
   // 필터링 로직
-  const filteredTypes = BUSINESS_TYPES.filter(t => t.name.includes(formData.businessType)).slice(0, 5);
-  const filteredItems = BUSINESS_ITEMS.filter(i => i.includes(formData.businessItem)).slice(0, 5);
+  const filteredTypes = BUSINESS_TYPE_LABELS.filter(t => t.includes(formData.businessTypeEnum)).slice(0, 5);
+  const filteredIndustries = INDUSTRY_TYPE_LABELS.filter(i => i.includes(formData.industry)).slice(0, 5);
 
   // 외부 클릭 닫기
   useEffect(() => {
@@ -109,9 +102,8 @@ export default function Step3BusinessInfo() {
     formData.legalName &&
     formData.representative &&
     formData.openingDate &&
-    formData.businessType &&
-    formData.businessItem &&
-    formData.industryId > 0 &&
+    formData.businessTypeEnum &&
+    formData.industry &&
     logoUrl; // 로고 필수
 
   const handleSubmit = async () => {
@@ -127,11 +119,21 @@ export default function Step3BusinessInfo() {
     setErrorMessage('');
 
     try {
+      const industryTypeValue = getIndustryTypeValue(formData.industry);
+      const businessTypeValue = getBusinessTypeValue(formData.businessTypeEnum);
+
+      if (!industryTypeValue || !businessTypeValue) {
+        setErrorMessage('업태 또는 업종을 올바르게 선택해주세요.');
+        setIsLoading(false);
+        return;
+      }
+
       await initCompanyProfile({
         brandName: formData.legalName,
         logoUrl: logoUrl,
         mainContactId: userId,
-        industryId: formData.industryId,
+        industryType: industryTypeValue,
+        businessType: businessTypeValue,
       });
 
       navigate('/signup/complete');
@@ -234,35 +236,35 @@ export default function Step3BusinessInfo() {
                 <input
                   type="text"
                   placeholder="업태를 입력해주세요."
-                  value={formData.businessType}
+                  value={formData.businessTypeEnum}
                   onFocus={() => setShowTypeDropdown(true)}
-                  onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, businessTypeEnum: e.target.value })}
                   className="flex-1 w-full h-[44px] px-4 border text-[13px] border-gray-300 rounded-xl focus:outline-none focus:border-[#008FFF]"
                 />
-                {showTypeDropdown && formData.businessType && filteredTypes.length > 0 && (
-                  <div className="absolute z-10 w-[calc(100%-52px)] right-0 top-[52px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                    {filteredTypes.map((t) => (
-                      <button key={t.id} type="button" onClick={() => { setFormData({...formData, businessType: t.name, industryId: t.id}); setShowTypeDropdown(false); }} className="w-full px-4 py-3 text-left text-[13px] hover:bg-gray-50 border-b border-gray-50 last:border-0">{t.name}</button>
+                {showTypeDropdown && formData.businessTypeEnum && filteredTypes.length > 0 && (
+                  <div className="absolute z-10 w-[calc(100%-52px)] right-0 top-[52px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-[200px] overflow-y-auto">
+                    {filteredTypes.map((t, i) => (
+                      <button key={i} type="button" onClick={() => { setFormData({...formData, businessTypeEnum: t}); setShowTypeDropdown(false); }} className="w-full px-4 py-3 text-left text-[13px] hover:bg-gray-50 border-b border-gray-50 last:border-0">{t}</button>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* 종목 검색 드롭다운 */}
+              {/* 업종 검색 드롭다운 */}
               <div className="flex items-center gap-3 relative" ref={itemRef}>
-                <span className="w-6 text-[13px] font-medium text-[#949BA7] flex-shrink-0">종목</span>
+                <span className="w-6 text-[13px] font-medium text-[#949BA7] flex-shrink-0">업종</span>
                 <input
                   type="text"
-                  placeholder="종목 검색"
-                  value={formData.businessItem}
+                  placeholder="업종을 입력해주세요."
+                  value={formData.industry}
                   onFocus={() => setShowItemDropdown(true)}
-                  onChange={(e) => setFormData({ ...formData, businessItem: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                   className="flex-1 w-full h-[44px] px-4 border text-[13px] border-gray-300 rounded-xl focus:outline-none focus:border-[#008FFF]"
                 />
-                {showItemDropdown && formData.businessItem && filteredItems.length > 0 && (
-                  <div className="absolute z-10 w-[calc(100%-52px)] right-0 top-[52px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                    {filteredItems.map((item, i) => (
-                      <button key={i} type="button" onClick={() => { setFormData({...formData, businessItem: item}); setShowItemDropdown(false); }} className="w-full px-4 py-3 text-left text-[13px] hover:bg-gray-50 border-b border-gray-50 last:border-0">{item}</button>
+                {showItemDropdown && formData.industry && filteredIndustries.length > 0 && (
+                  <div className="absolute z-10 w-[calc(100%-52px)] right-0 top-[52px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-[200px] overflow-y-auto">
+                    {filteredIndustries.map((item, i) => (
+                      <button key={i} type="button" onClick={() => { setFormData({...formData, industry: item}); setShowItemDropdown(false); }} className="w-full px-4 py-3 text-left text-[13px] hover:bg-gray-50 border-b border-gray-50 last:border-0">{item}</button>
                     ))}
                   </div>
                 )}

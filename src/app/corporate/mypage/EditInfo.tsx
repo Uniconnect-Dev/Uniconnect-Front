@@ -1,84 +1,244 @@
 import CorporateLayout from '@/components/layout/CorporateLayout';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { getAccessToken } from '@/lib/auth/token';
 
 type InputProps = {
   label: string;
+  value: string;
+  onChange: (value: string) => void;
+  isModified?: boolean;
 };
 
-function Textinput({ label }: InputProps) {
+function Textinput({ label, value, onChange, isModified = false }: InputProps) {
   return (
     <div className="flex flex-1 flex-col gap-2">
       <label className="text-gray-400 font-semibold">{label}</label>
-      <input className="w-full p-4 rounded-xl outline outline-1 outline-zinc-200" />
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full p-4 rounded-xl outline outline-1 outline-zinc-200 ${
+          isModified ? 'text-black' : 'text-gray-400'
+        }`}
+      />
     </div>
   );
 }
 
+interface CompanyProfile {
+  companyId: number;
+  brandName: string;
+  logoUrl: string;
+  mainContactId: number;
+  industryType: string;
+  industryName: string;
+  businessType: string;
+  businessTypeName: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface OriginalData {
+  brandName: string;
+  logoUrl: string;
+  industryName: string;
+}
+
 export default function EditInfo() {
-  //const navigate = useNavigate();
-  return (
-    <>
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [logoUrl, setLogoUrl] = useState('https://placehold.co/96x96');
+  const [brandName, setBrandName] = useState('');
+  const [industryName, setIndustryName] = useState('');
+
+  // 원본 데이터 저장
+  const [originalData, setOriginalData] = useState<OriginalData>({
+    brandName: '',
+    logoUrl: '',
+    industryName: '',
+  });
+
+  useEffect(() => {
+    loadProfile(true);
+  }, []);
+
+  const loadProfile = async (isInitial = false) => {
+    if (isInitial) setIsPageLoading(true);
+    try {
+      const token = getAccessToken();
+
+      const response = await axios.get<{
+        success: boolean;
+        message: string;
+        data: CompanyProfile;
+      }>(`${import.meta.env.VITE_API_BASE_URL}/api/profile/company/me`, {
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        withCredentials: true,
+      });
+
+      if (response.data.success && response.data.data) {
+        const data = response.data.data;
+
+        const brand = data.brandName || '';
+        const industry = data.industryName || '';
+
+        setBrandName(brand);
+        setIndustryName(industry);
+
+        // logoUrl을 전체 URL로 변환
+        let fullLogoUrl = 'https://placehold.co/96x96';
+        if (data.logoUrl) {
+          const s3BaseUrl = 'https://uniconnect-250909.s3.ap-northeast-2.amazonaws.com';
+          fullLogoUrl = data.logoUrl.startsWith('http')
+            ? data.logoUrl
+            : `${s3BaseUrl}/${data.logoUrl.replace(/^\//, '')}`;
+        }
+        setLogoUrl(fullLogoUrl);
+
+        // 원본 데이터 저장
+        setOriginalData({
+          brandName: brand,
+          logoUrl: fullLogoUrl,
+          industryName: industry,
+        });
+      }
+    } catch (err) {
+      console.error('프로필 로드 실패:', err);
+      alert('프로필 정보를 불러오는데 실패했습니다.');
+    } finally {
+      setIsPageLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const token = getAccessToken();
+
+      // logoUrl에서 S3 base URL 제거하여 상대 경로로 변환
+      const s3BaseUrl = 'https://uniconnect-250909.s3.ap-northeast-2.amazonaws.com';
+      const relativeLogoUrl = logoUrl.startsWith(s3BaseUrl)
+        ? logoUrl.replace(`${s3BaseUrl}/`, '')
+        : logoUrl === 'https://placehold.co/96x96'
+        ? ''
+        : logoUrl;
+
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_BASE_URL}/api/profile/company/me`,
+        {
+          brandName,
+          logoUrl: relativeLogoUrl,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.success) {
+        alert('저장되었습니다.');
+        loadProfile();
+      }
+    } catch (err) {
+      console.error('저장 실패:', err);
+      alert('저장에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    loadProfile();
+  };
+
+  if (isPageLoading) {
+    return (
       <CorporateLayout>
-        {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
-        {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
-        <div className="flex flex-col h-full">
-          <div className="flex flex-col w-full flex-1">
-            {/* 정보 수정 + 구분선*/}
-            <div className="flex flex-col gap-4 w-full mb-5">
-              <div className="flex flex-row gap-2">
-                <img src="/building.svg" />
-                <p className="text-zinc-700 text-xl font-bold">정보 수정</p>
-              </div>
-              <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100" />
-            </div>
-            {/* 정보 영역 */}
-            <div className="flex flex-col gap-7">
-              <div className="flex inline-flex justify-between items-start">
-                <div className="inline-flex flex-col justify-start items-start gap-2">
-                  <p className="self-stretch justify-start text-gray-400 font-semibold">
-                    단체 로고
-                  </p>
-                  <img
-                    className="w-24 h-24 rounded-lg border border-zinc-200"
-                    src="https://placehold.co/96x96"
-                  />
-                </div>
-                <div className="pt-8 flex justify-start items-center gap-2">
-                  <p className="text-center justify-start text-gray-400 text-sm font-semibold">
-                    삭제하기
-                  </p>
-                  <div className="w-0 h-2.5 outline outline-1 outline-offset-[-0.50px] outline-zinc-200" />
-                  <p className="text-center justify-start text-blue-600 text-sm font-semibold">
-                    업데이트
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-row gap-12">
-                <Textinput label="단체명" />
-                <Textinput label="이메일" />
-              </div>
-              <div className="flex flex-row gap-12">
-                <Textinput label="담당자명" />
-                <Textinput label="연락처" />
-              </div>
-            </div>
-          </div>
-          {/*다음 버튼 하단 정렬 영역*/}
-          <div className="mt-auto flex justify-end items-end gap-4">
-            <button
-              //onClick={handlePrev}
-              className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500"
-            >
-              <span className="text-sky-500 font-medium text-lg">취소하기</span>
-            </button>
-            <button
-              //onClick={handleNext}
-              className="h-14 w-[200px] bg-blue-600 rounded-xl"
-            >
-              <span className="text-white font-medium text-lg">저장하기</span>
-            </button>
-          </div>
+        <div className="flex justify-center items-center h-full">
+          <div className="text-gray-400">로딩 중...</div>
         </div>
       </CorporateLayout>
-    </>
+    );
+  }
+
+  return (
+    <CorporateLayout>
+      <div className="flex flex-col h-full">
+        <div className="flex flex-col w-full flex-1">
+          <div className="flex flex-col gap-4 w-full mb-5">
+            <div className="flex flex-row gap-2">
+              <img src="/building.svg" />
+              <p className="text-zinc-700 text-xl font-bold">정보 수정</p>
+            </div>
+            <div className="w-full h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-100" />
+          </div>
+
+          <div className="flex flex-col gap-7">
+            <div className="flex inline-flex justify-between items-start">
+              <div className="inline-flex flex-col justify-start items-start gap-2">
+                <p className="self-stretch justify-start text-gray-400 font-semibold">
+                  기업 로고
+                </p>
+                <img
+                  className="w-24 h-24 rounded-lg border border-zinc-200"
+                  src={logoUrl}
+                  alt="로고"
+                />
+              </div>
+              <div className="pt-8 flex justify-start items-center gap-2">
+                <button
+                  onClick={() => setLogoUrl('https://placehold.co/96x96')}
+                  className="text-center justify-start text-gray-400 text-sm font-semibold hover:text-gray-600"
+                >
+                  삭제하기
+                </button>
+                <div className="w-0 h-2.5 outline outline-1 outline-offset-[-0.50px] outline-zinc-200" />
+                <button className="text-center justify-start text-blue-600 text-sm font-semibold hover:text-blue-700">
+                  업데이트
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-row gap-12">
+              <Textinput
+                label="브랜드명"
+                value={brandName}
+                onChange={setBrandName}
+                isModified={brandName !== originalData.brandName}
+              />
+              <Textinput
+                label="업종"
+                value={industryName}
+                onChange={setIndustryName}
+                isModified={industryName !== originalData.industryName}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-auto flex justify-end items-end gap-4">
+          <button
+            onClick={handleCancel}
+            disabled={isSaving}
+            className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500 hover:bg-sky-50 transition disabled:opacity-50"
+          >
+            <span className="text-sky-500 font-medium text-lg">취소하기</span>
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="h-14 w-[200px] bg-blue-600 rounded-xl hover:bg-blue-700 transition disabled:opacity-50"
+          >
+            <span className="text-white font-medium text-lg">
+              {isSaving ? '저장 중...' : '저장하기'}
+            </span>
+          </button>
+        </div>
+      </div>
+    </CorporateLayout>
   );
 }

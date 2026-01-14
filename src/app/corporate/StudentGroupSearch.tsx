@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CorporateLayout from '@/components/layout/CorporateLayout';
 import { Search, RotateCcw, Calendar } from 'lucide-react';
 import DateRangeInput from '@/components/common/input/DateRangeInput';
+import { searchStudentCampaigns } from '@/services/campaign.service';
+import type { CollaborationType } from '@/services/campaign.types';
 
 /* =========================
    타입 정의
@@ -87,7 +90,7 @@ function PeriodSegment({
 /* =========================
    학생 단체 카드 컴포넌트
 ========================= */
-function StudentGroupCard({ data }: { data: StudentGroup }) {
+function StudentGroupCard({ data, onClick }: { data: StudentGroup; onClick: () => void }) {
   const formatDate = () => {
     if (data.endDate) {
       return `${data.startDate} ~ ${data.endDate}`;
@@ -96,11 +99,13 @@ function StudentGroupCard({ data }: { data: StudentGroup }) {
   };
 
   return (
-    <div className="
-      p-5 rounded-2xl border border-[#E6E8EC] bg-white
-      hover:shadow-md hover:border-[#007AFF]
-      transition-all cursor-pointer
-    ">
+    <div
+      onClick={onClick}
+      className="
+        p-5 rounded-2xl border border-[#E6E8EC] bg-white
+        hover:shadow-md hover:border-[#007AFF]
+        transition-all cursor-pointer
+      ">
       <div className="flex justify-between items-start">
         <div className="flex flex-col gap-2">
           {/* 태그 */}
@@ -113,7 +118,7 @@ function StudentGroupCard({ data }: { data: StudentGroup }) {
 
           {/* 수량 */}
           <p className="text-[28px] font-semibold text-[#2D3139]">
-            {data.quantity.toLocaleString()}개
+            {(data.quantity ?? 0).toLocaleString()}개
           </p>
         </div>
 
@@ -148,6 +153,13 @@ function StudentGroupCard({ data }: { data: StudentGroup }) {
    메인 컴포넌트
 ========================= */
 export default function StudentGroupSearch() {
+  const navigate = useNavigate();
+
+  /* 학생단체 목록 상태 */
+  const [studentGroups, setStudentGroups] = useState<StudentGroup[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+
   /* 검색어 */
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -167,6 +179,73 @@ export default function StudentGroupSearch() {
     );
   };
 
+  /* 날짜 포맷 변환 (YYYY.MM.DD -> YYYY-MM-DD) */
+  const formatDateForApi = (dateStr: string): string => {
+    if (!dateStr) return '';
+    return dateStr.replace(/\./g, '-');
+  };
+
+  /* 날짜 포맷 변환 (YYYY-MM-DD -> MM/DD) */
+  const formatDateForUI = (dateStr: string): string => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[1]}/${parts[2]}`;
+    }
+    return dateStr;
+  };
+
+  /* API 호출 */
+  const fetchStudentGroups = async () => {
+    setIsLoading(true);
+    try {
+      // collaborationType 변환
+      let collaborationType: CollaborationType | undefined;
+      if (typeFilters.length === 1) {
+        collaborationType = typeFilters[0] === '샘플링' ? 'Sampling' : 'Partnership';
+      }
+
+      const response = await searchStudentCampaigns({
+        keyword: searchQuery || undefined,
+        collaborationType,
+        startDate: formatDateForApi(startDate) || undefined,
+        endDate: formatDateForApi(endDate) || undefined,
+        page: currentPage,
+        size: 9,
+      });
+
+      // API 응답을 UI 타입에 맞게 변환
+      const mapped: StudentGroup[] = response.content.map((item) => ({
+        id: String(item.campaignId),
+        type: '샘플링' as const, // API에 type이 없어서 기본값
+        quantity: item.productQuantity ?? 0,
+        university: item.schoolName || '',
+        department: item.organizationName || '',
+        eventName: item.campaignName || '',
+        startDate: formatDateForUI(item.startDate || ''),
+        endDate: item.endDate ? formatDateForUI(item.endDate) : undefined,
+        imageUrl: item.logoUrl || undefined,
+      }));
+
+      setStudentGroups(mapped);
+    } catch (err) {
+      console.error('학생단체 캠페인 조회 실패:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /* 초기 로딩 */
+  useEffect(() => {
+    fetchStudentGroups();
+  }, [currentPage]);
+
+  /* 조회 버튼 클릭 */
+  const handleSearch = () => {
+    setCurrentPage(0);
+    fetchStudentGroups();
+  };
+
   /* 초기화 */
   const handleReset = () => {
     setSearchQuery('');
@@ -174,93 +253,8 @@ export default function StudentGroupSearch() {
     setStartDate('');
     setEndDate('');
     setTypeFilters([]);
+    setCurrentPage(0);
   };
-
-  /* 더미 데이터 */
-  const dummyData: StudentGroup[] = [
-    {
-      id: '1',
-      type: '제휴',
-      quantity: 500,
-      university: '고려대학교',
-      department: '문과대학',
-      eventName: '문과대학 축제, 녹두제',
-      startDate: '09/26',
-      endDate: '09/28',
-    },
-    {
-      id: '2',
-      type: '샘플링',
-      quantity: 500,
-      university: '고려대학교',
-      department: '문과대학',
-      eventName: '문과대학 축제, 녹두제',
-      startDate: '09/26',
-    },
-    {
-      id: '3',
-      type: '샘플링',
-      quantity: 500,
-      university: '고려대학교',
-      department: '문과대학',
-      eventName: '문과대학 축제, 녹두제',
-      startDate: '09/26',
-    },
-    {
-      id: '4',
-      type: '샘플링',
-      quantity: 500,
-      university: '고려대학교',
-      department: '문과대학',
-      eventName: '문과대학 축제, 녹두제',
-      startDate: '09/26',
-    },
-    {
-      id: '5',
-      type: '샘플링',
-      quantity: 500,
-      university: '고려대학교',
-      department: '문과대학',
-      eventName: '문과대학 축제, 녹두제',
-      startDate: '09/26',
-    },
-    {
-      id: '6',
-      type: '샘플링',
-      quantity: 500,
-      university: '고려대학교',
-      department: '문과대학',
-      eventName: '문과대학 축제, 녹두제',
-      startDate: '09/26',
-    },
-    {
-      id: '7',
-      type: '샘플링',
-      quantity: 500,
-      university: '고려대학교',
-      department: '문과대학',
-      eventName: '문과대학 축제, 녹두제',
-      startDate: '09/26',
-    },
-    {
-      id: '8',
-      type: '샘플링',
-      quantity: 500,
-      university: '고려대학교',
-      department: '문과대학',
-      eventName: '문과대학 축제, 녹두제',
-      startDate: '09/26',
-    },
-    {
-      id: '9',
-      type: '샘플링',
-      quantity: 500,
-      university: '고려대학교',
-      department: '문과대학',
-      eventName: '문과대학 축제, 녹두제',
-      startDate: '09/26',
-    },
-  ];
 
   return (
     <CorporateLayout>
@@ -366,11 +360,14 @@ export default function StudentGroupSearch() {
               </button>
               <button
                 type="button"
+                onClick={handleSearch}
+                disabled={isLoading}
                 className="
                   flex items-center gap-2 px-5 py-2.5
                   rounded-xl bg-[#007AFF]
                   text-white text-[14px] font-medium
                   hover:bg-[#0066DD] transition-colors
+                  disabled:opacity-50
                 "
               >
                 <Search className="w-4 h-4" />
@@ -382,11 +379,25 @@ export default function StudentGroupSearch() {
 
         {/* ================= 카드 그리드 ================= */}
         <div className="flex-1 overflow-y-auto pb-8">
-          <div className="grid grid-cols-3 gap-5">
-            {dummyData.map((item) => (
-              <StudentGroupCard key={item.id} data={item} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center h-[300px]">
+              <div className="w-8 h-8 border-4 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : studentGroups.length === 0 ? (
+            <div className="flex items-center justify-center h-[300px] text-[#6C727E]">
+              <p className="text-[16px]">조회된 학생단체 캠페인이 없습니다.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-5">
+              {studentGroups.map((item) => (
+                <StudentGroupCard
+                  key={item.id}
+                  data={item}
+                  onClick={() => navigate(`/StudentGroupSearch/${item.id}`)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </CorporateLayout>

@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import CorporateLayout from '../../../components/layout/CorporateLayout';
 import RequestStatus from '@/components/common/RequestStatus';
 import { ChevronRight, Check } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { getMatchedStudentOrgs, getStudentOrgDetail, getOrgEstimate } from '@/services/sampling/sampling.service';
+import type { MatchedStudentOrg, StudentOrgDetail, OrgEstimateResponse } from '@/services/sampling/sampling.type';
 
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-
-function Checkbox() {
-  const [checked, setChecked] = useState(false);
-
+function Checkbox({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
   return (
     <button
       type="button"
-      onClick={() => setChecked((prev) => !prev)}
+      onClick={() => onChange(!checked)}
       className={`
         w-5 h-5 rounded-md flex items-center justify-center
         transition-colors
@@ -44,18 +48,64 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function SidePannal({
-  eventName,
+  org,
+  samplingProposalId,
   isOpen,
   onClose,
 }: {
-  eventName: string | null;
+  org: MatchedStudentOrg | null;
+  samplingProposalId: number | undefined;
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const [detail, setDetail] = useState<StudentOrgDetail | null>(null);
+  const [estimate, setEstimate] = useState<OrgEstimateResponse | null>(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || !org || !samplingProposalId) {
+      setDetail(null);
+      setEstimate(null);
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        setIsDetailLoading(true);
+        const [detailData, estimateData] = await Promise.all([
+          getStudentOrgDetail({
+            samplingProposalId,
+            orgId: org.studentOrgId,
+            baseUnitCost: 0,
+            reportOptionFee: 0,
+            operationFee: 0,
+          }),
+          getOrgEstimate({
+            samplingProposalId,
+            orgId: org.studentOrgId,
+            baseUnitCost: 0,
+            reportOptionFee: 0,
+            operationFee: 0,
+          }),
+        ]);
+        setDetail(detailData);
+        setEstimate(estimateData);
+      } catch (err) {
+        console.error('상세 조회 실패:', err);
+      } finally {
+        setIsDetailLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [isOpen, org, samplingProposalId]);
+
+  if (!org) return null;
+
   return (
     <div
       className={`w-96 h-full bg-white rounded-3xl shadow-[0px_4px_24px_rgba(0,0,0,0.08)] overflow-y-auto
-        transform transition-all duration-300 ease-out 
+        transform transition-all duration-300 ease-out
         ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}
     >
       <div className="w-80 mx-auto mt-8 flex flex-col gap-9">
@@ -72,10 +122,10 @@ function SidePannal({
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-0.5">
                 <h1 className="text-xl font-bold text-zinc-700 leading-8">
-                  {eventName}
+                  {org.campaignName}
                 </h1>
                 <p className="text-base font-semibold text-gray-500 leading-6">
-                  이화여대 중앙 실전 IT 창업 학회 UNIS
+                  {detail?.organizationName || org.organizationName}
                 </p>
               </div>
 
@@ -89,74 +139,81 @@ function SidePannal({
           </div>
         </div>
 
-        {/* 행사 개요 */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-            <h2 className="text-lg font-semibold text-gray-600">행사 개요</h2>
+        {isDetailLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <p className="text-gray-400">로딩 중...</p>
           </div>
+        ) : (
+          <>
+            {/* 행사 정보 */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
+                <h2 className="text-lg font-semibold text-gray-600">행사 정보</h2>
+              </div>
 
-          <div className="flex flex-col gap-2">
-            <Row label="장소" value="고려대학교 민주광장" />
-            <Row label="일시" value="2025.09.22" />
-            <Row label="노출 인원" value="4,500명" />
-            <Row label="샘플링 필요량" value="200개" />
-          </div>
-        </div>
+              <div className="flex flex-col gap-2">
+                <Row label="학교" value={detail?.schoolName || org.schoolName} />
+                <Row label="예상 참여자" value={`${org.expectedParticipants.toLocaleString()}명`} />
+                <Row label="예상 비용" value={estimate?.estimatedCostRange || org.estimatedCostRange} />
+              </div>
+            </div>
 
-        {/* 참여자 특성 */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-            <h2 className="text-lg font-semibold text-gray-600">참여자 특성</h2>
-          </div>
+            {/* 담당자 정보 */}
+            {detail && (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
+                  <h2 className="text-lg font-semibold text-gray-600">담당자 정보</h2>
+                </div>
 
-          <div className="flex flex-col gap-2">
-            <Row label="연령대" value="19–25세 대학생" />
-            <Row label="전공" value="인문사회계열" />
-            <Row label="관심사" value="문화, 트렌드" />
-          </div>
-        </div>
+                <div className="flex flex-col gap-2">
+                  <Row label="담당자" value={detail.managerName || '-'} />
+                  <Row label="연락처" value={detail.phone || '-'} />
+                  <Row label="이메일" value={detail.email || '-'} />
+                </div>
+              </div>
+            )}
 
-        {/* 참여 규모 */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-            <h2 className="text-lg font-semibold text-gray-600">참여 규모</h2>
-          </div>
+            {/* 매칭 태그 */}
+            <div className="flex flex-col gap-4 mb-[148px]">
+              <div className="flex items-center gap-2">
+                <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
+                <h2 className="text-lg font-semibold text-gray-600">매칭 태그</h2>
+              </div>
 
-          <div className="flex flex-col gap-2">
-            <Row label="총 예상 참여자" value="8,000" />
-            <Row label="문과대학 학우" value="3,000" />
-            <Row label="타 단과대 유동인구" value="5,000" />
-          </div>
-        </div>
-
-        {/* 홍보 프로세스 */}
-        <div className="flex flex-col gap-4 mb-[148px]">
-          <div className="flex items-center gap-2">
-            <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-            <h2 className="text-lg font-semibold text-gray-600">
-              홍보 프로세스
-            </h2>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Row label="문과대학 인스타그램 홍보" value="SNS 홍보" />
-            <Row label="공지방 배포" value="카카오톡 공지" />
-            <Row label="현장 광고 송출" value="LED 스크린" />
-          </div>
-        </div>
+              <div className="flex flex-wrap gap-2">
+                {org.matchedTags.map((tag, idx) => (
+                  <Tag key={idx} label={tag} />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
 function MatchingTable({
+  data,
+  selectedIds,
+  onSelectionChange,
   onSelectEvent,
 }: {
-  onSelectEvent: (eventName: string) => void;
+  data: MatchedStudentOrg[];
+  selectedIds: number[];
+  onSelectionChange: (ids: number[]) => void;
+  onSelectEvent: (org: MatchedStudentOrg) => void;
 }) {
+  const handleCheckboxChange = (orgId: number, checked: boolean) => {
+    if (checked) {
+      onSelectionChange([...selectedIds, orgId]);
+    } else {
+      onSelectionChange(selectedIds.filter((id) => id !== orgId));
+    }
+  };
+
   return (
     <div className="w-full h-full bg-white rounded-3xl border border-zinc-200 overflow-hidden flex flex-col">
       <div className="flex-1 overflow-y-auto">
@@ -175,59 +232,42 @@ function MatchingTable({
 
           {/* Body */}
           <tbody className="text-sm font-medium text-gray-600">
-            <tr className="h-10 hover:bg-slate-100 transition-colors">
-              <td className="pl-5">
-                <Checkbox />
-              </td>
-              <td className="pl-5">20~30만 원</td>
-              <td className="pl-5">고려대학교 학생회</td>
-              <td className="pl-5">
-                <div
-                  onClick={() => onSelectEvent('고려대학교 문과 대학 축제')}
-                  className="line-clamp-1 cursor-pointer transition-colors hover:text-blue-600 hover:font-bold"
-                >
-                  고려대학교 문과 대학 축제
-                </div>
-              </td>
-              <td className="pl-5">
-                <div className="flex gap-1">
-                  <Tag label="남녀공학" />
-                  <Tag label="축제" />
-                  <Tag label="F&B" />
-                </div>
-              </td>
-              <td className="pl-5">15,000</td>
-            </tr>
-
-            <tr className="h-10 hover:bg-slate-100 transition-colors">
-              <td className="pl-5">
-                <Checkbox />
-              </td>
-              <td className="pl-5">20~30만 원</td>
-              <td className="pl-5">이화여대 중앙 실전 IT 창업 학회 UNIS</td>
-              <td className="pl-5">
-                <div
-                  onClick={() => onSelectEvent('창업 동아리 연합 해커톤')}
-                  className="
-                    line-clamp-1
-                    cursor-pointer
-                    transition-colors
-                    hover:text-blue-600
-                    hover:font-bold
-                  "
-                >
-                  창업 동아리 연합 해커톤
-                </div>
-              </td>
-              <td className="pl-5">
-                <div className="flex gap-1">
-                  <Tag label="이화여대" />
-                  <Tag label="IT" />
-                  <Tag label="창업" />
-                </div>
-              </td>
-              <td className="pl-5">2,000</td>
-            </tr>
+            {data.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-10 text-gray-400">
+                  매칭된 학생 단체가 없습니다.
+                </td>
+              </tr>
+            ) : (
+              data.map((org) => (
+                <tr key={org.studentOrgId} className="h-10 hover:bg-slate-100 transition-colors">
+                  <td className="pl-5">
+                    <Checkbox
+                      checked={selectedIds.includes(org.studentOrgId)}
+                      onChange={(checked) => handleCheckboxChange(org.studentOrgId, checked)}
+                    />
+                  </td>
+                  <td className="pl-5">{org.estimatedCostRange}</td>
+                  <td className="pl-5">{org.organizationName}</td>
+                  <td className="pl-5">
+                    <div
+                      onClick={() => onSelectEvent(org)}
+                      className="line-clamp-1 cursor-pointer transition-colors hover:text-blue-600 hover:font-bold"
+                    >
+                      {org.campaignName}
+                    </div>
+                  </td>
+                  <td className="pl-5">
+                    <div className="flex gap-1 flex-wrap">
+                      {org.matchedTags.map((tag, idx) => (
+                        <Tag key={idx} label={tag} />
+                      ))}
+                    </div>
+                  </td>
+                  <td className="pl-5">{org.expectedParticipants.toLocaleString()}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -236,18 +276,58 @@ function MatchingTable({
 }
 
 export default function Step3Matching() {
-  //네비게이션
   const navigate = useNavigate();
-  const handleNext = () => {
-    navigate('/corporatesamplingrequest/step4');
-  };
-  const handlePrev = () => {
-    navigate('/corporatesamplingrequest/step2');
-  };
+  const location = useLocation();
+  const samplingProposalId = (location.state as { samplingProposalId?: number })?.samplingProposalId;
+
+  const [matchedOrgs, setMatchedOrgs] = useState<MatchedStudentOrg[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 선택된 캠페인 ID 관리
+  const [selectedCampaignIds, setSelectedCampaignIds] = useState<number[]>([]);
 
   // 사이드바 토글 관련 상태
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [selectedOrg, setSelectedOrg] = useState<MatchedStudentOrg | null>(null);
+
+  useEffect(() => {
+    if (!samplingProposalId) {
+      setError('샘플링 요청 정보가 없습니다.');
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchMatchedOrgs = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getMatchedStudentOrgs(samplingProposalId);
+        setMatchedOrgs(data);
+      } catch (err: any) {
+        setError(err.message || '매칭 데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMatchedOrgs();
+  }, [samplingProposalId]);
+
+  const handleNext = () => {
+    if (selectedCampaignIds.length === 0) {
+      alert('최소 1개 이상의 학생 단체를 선택해주세요.');
+      return;
+    }
+    navigate('/corporatesamplingrequest/step4', {
+      state: { samplingProposalId, campaignIds: selectedCampaignIds }
+    });
+  };
+
+  const handlePrev = () => {
+    navigate('/corporatesamplingrequest/step2', {
+      state: { samplingProposalId }
+    });
+  };
 
   return (
     <>
@@ -255,30 +335,37 @@ export default function Step3Matching() {
         {/* 이 부분이 오른쪽 큰 흰 박스 안에 들어감 */}
         {/* 다음 버튼 하단 고정을 위해 최상위 div 높이 지정함 */}
         <div className="flex flex-col h-full">
-          <div className="flex justify-between w-full">
-            <div>
-              <h1 className="text-2xl font-bold mb-2">매칭 / 견적</h1>
-              <p className="text-sm text-gray-500 mb-6">
-                선택하신 키워드와 매칭되는 학생 단체입니다. <br />
-                샘플링 하길 원하는 행사를 선택해주세요.
-              </p>
-              <div className="flex flex-row gap-1 mb-2">
-                <img src="/inform.svg" alt="inform" />
-                <p className="text-gray-500 text-sm font-semibold">
-                  행사명을 클릭하면 상세 페이지로 이동합니다.
-                </p>
-              </div>
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-2">
+              <img src="/File_Blue.png" alt="" className="w-5 h-5" />
+              <h1 className="text-[20px] font-semibold text-[#2D3139]">
+                매칭 / 견적
+              </h1>
             </div>
             <RequestStatus activeStep={3} />
           </div>
+          <div className="border-t border-gray-200 mb-6" />
 
           <div className="flex-1 flex flex-col min-h-0 mb-2">
-            <MatchingTable
-              onSelectEvent={(eventName) => {
-                setSelectedEvent(eventName);
-                setIsPanelOpen(true);
-              }}
-            />
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-400">로딩 중...</p>
+              </div>
+            ) : error ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-red-500">{error}</p>
+              </div>
+            ) : (
+              <MatchingTable
+                data={matchedOrgs}
+                selectedIds={selectedCampaignIds}
+                onSelectionChange={setSelectedCampaignIds}
+                onSelectEvent={(org) => {
+                  setSelectedOrg(org);
+                  setIsPanelOpen(true);
+                }}
+              />
+            )}
           </div>
           {/*다음 버튼 하단 정렬 영역*/}
           <div className="mt-auto flex justify-end items-end gap-4">
@@ -306,7 +393,8 @@ export default function Step3Matching() {
           }`}
         >
           <SidePannal
-            eventName={selectedEvent}
+            org={selectedOrg}
+            samplingProposalId={samplingProposalId}
             isOpen={isPanelOpen}
             onClose={() => setIsPanelOpen(false)}
           />

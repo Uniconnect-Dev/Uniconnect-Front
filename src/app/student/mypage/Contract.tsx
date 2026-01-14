@@ -1,6 +1,7 @@
 import React from 'react';
 import StudentLayout from '../../../components/layout/StudentLayout';
-import { api } from '@/lib/api/client';
+import axios from 'axios';
+import { getAccessToken } from '@/lib/auth/token';
 
 import { useState, useEffect, useRef } from 'react';
 
@@ -29,39 +30,22 @@ interface ContractData {
   organizationName: string;
   collaborationType: string;
   status: ContractStatus;
+  pdfUrl?: string;
 }
 
-const contractData: ContractData[] = [
-  {
-    id: '01',
-    date: '2025.12.29',
-    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
-    status: 'send',
-  },
-  {
-    id: '02',
-    date: '2025.12.29',
-    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
-    status: 'before-sign',
-  },
-  {
-    id: '03',
-    date: '2025.12.29',
-    organizationName: '이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
-    status: 'complete',
-  },
-  {
-    id: '04',
-    date: '2025.12.29',
-    organizationName:
-      '이화여대 중앙 실전 IT 창업 학회 UNIS이화여대 중앙 실전 IT 창업 학회 UNIS',
-    collaborationType: '샘플링',
-    status: 'before-sign',
-  },
-];
+interface ContractAPIResponse {
+  contractId: number;
+  studentOrgName: string;
+  campaignName: string;
+  collaborationType: string;
+  status: string;
+  studentSigned: boolean;
+  companySigned: boolean;
+  studentSignedAt: string | null;
+  companySignedAt: string | null;
+  pdfUrl: string | null;
+  receiptPdfUrl: string | null;
+}
 
 function ContractTable({
   contracts,
@@ -698,29 +682,60 @@ export default function Contract() {
     search?: string
   ) => {
     setIsLoading(true);
+    const token = getAccessToken();
 
     try {
-      // POST를 GET으로 변경하고 쿼리 파라미터로 전송
-      const params = new URLSearchParams({
-        period: filters?.period || '3개월',
-        startDate: filters?.startDate || '2025-01-13',
-        endDate: filters?.endDate || '2025-01-13',
-        collaborationType: filters?.collaborationType || '샘플링',
-        contractStatus: filters?.contractStatus?.[0] || 'SEND',
-        searchTerm: search || '',
-      });
-
-      const response = await api.get(`/api/contracts?${params.toString()}`);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/api/contracts`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (response.data?.success && response.data?.data) {
         let formattedData = response.data.data.map(
-          (item: any, index: number) => ({
-            id: String(index + 1).padStart(2, '0'),
-            date: item.matchedAt,
-            organizationName: item.studentClub,
-            collaborationType: item.collaborationType,
-            status: mapContractStatus(item.contractStatus),
-          })
+          (item: ContractAPIResponse, index: number) => {
+            // 날짜 포맷팅 (studentSignedAt 또는 companySignedAt 사용)
+            let formattedDate = '-';
+            const dateSource = item.studentSignedAt || item.companySignedAt;
+            if (dateSource) {
+              try {
+                const date = new Date(dateSource);
+                if (!isNaN(date.getTime())) {
+                  formattedDate = date
+                    .toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                    })
+                    .replace(/\. /g, '.')
+                    .replace(/\.$/, '');
+                }
+              } catch (e) {
+                console.error('날짜 변환 에러:', e);
+              }
+            }
+
+            // 계약 상태 매핑
+            let status: ContractStatus = 'send';
+            if (item.studentSigned && item.companySigned) {
+              status = 'complete';
+            } else if (item.studentSigned || item.companySigned) {
+              status = 'before-sign';
+            }
+
+            return {
+              id: String(index + 1).padStart(2, '0'),
+              date: formattedDate,
+              organizationName: item.campaignName || '정보 없음',
+              collaborationType: item.collaborationType || '샘플링',
+              status,
+              pdfUrl: item.pdfUrl,
+            };
+          }
         );
 
         if (search) {

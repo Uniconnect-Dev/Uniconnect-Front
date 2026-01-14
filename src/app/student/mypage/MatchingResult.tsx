@@ -46,10 +46,12 @@ interface MatchingData {
 }
 
 interface MatchingAPIResponse {
-  matchingId: number;
-  studentClub: string;
-  collaborationType: string;
+  matchRequestId: number;
   matchedAt: string;
+  studentOrgName: string;
+  collaborationType: string;
+  contractStatus: string;
+  companyName: string;
 }
 
 function MatchingTable({
@@ -863,27 +865,45 @@ export default function MatchingResult() {
               }
             }
 
+            // contractStatus에 따른 매칭 상태 및 프로세스 매핑
+            let status: MatchingStatus = 'waiting';
+            let process: Process = 'contractConfirmed';
+
+            if (item.contractStatus === '계약 완료') {
+              status = 'successed';
+              process = 'payment';
+            } else if (item.contractStatus === '서명 전') {
+              status = 'successed';
+              process = 'contractWriting';
+            } else if (item.contractStatus === '매칭 실패') {
+              status = 'faild';
+            }
+
             return {
               id: String(index + 1).padStart(2, '0'),
               date: formattedDate,
-              organizationName: item.studentClub || '정보 없음',
+              organizationName: item.companyName || '정보 없음',
               collaborationType:
-                item.collaborationType === '샘플링'
+                item.collaborationType === 'Sampling' || item.collaborationType === '샘플링'
                   ? 'sampling'
                   : 'partnership',
-              status: 'waiting',
-              process: 'contractConfirmed',
+              status,
+              process,
             };
           }
         );
 
         setMatchings(formattedData);
 
+        const successCount = formattedData.filter(d => d.status === 'successed').length;
+        const waitingCount = formattedData.filter(d => d.status === 'waiting').length;
+        const failedCount = formattedData.filter(d => d.status === 'faild').length;
+
         setCounts({
           total: formattedData.length,
-          success: 0,
-          waiting: formattedData.length,
-          failed: 0,
+          success: successCount,
+          waiting: waitingCount,
+          failed: failedCount,
         });
       } else {
         console.warn('⚠️ success=false or data 없음', response.data);

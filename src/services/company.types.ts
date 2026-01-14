@@ -10,3 +10,13 @@ export interface CompanyListItem {
 }
 
 export type CompanyListResponse = CompanyListItem[];
+
+export interface CompanyDetailResponse {
+  companyId: number;
+  brandName: string;
+  logoUrl: string;
+  description: string;
+  website: string;
+  snsUrl: string;
+  industryName: string;
+}

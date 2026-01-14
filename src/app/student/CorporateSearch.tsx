@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import StudentLayout from '@/components/layout/StudentLayout';
 import { Search, RotateCcw, Calendar, ChevronDown } from 'lucide-react';
 import DateRangeInput from '@/components/common/input/DateRangeInput';
@@ -128,7 +129,7 @@ function Dropdown({
 /* =========================
    기업 카드 컴포넌트
 ========================= */
-function CompanyCard({ data }: { data: Company }) {
+function CompanyCard({ data, onClick }: { data: Company; onClick: () => void }) {
   const formatDate = () => {
     if (data.isAlways) {
       return '상시';
@@ -140,13 +141,16 @@ function CompanyCard({ data }: { data: Company }) {
   };
 
   return (
-    <div className="
-      h-[306px] rounded-2xl border border-[#E6E8EC] bg-white overflow-hidden
-      hover:shadow-md hover:border-[#007AFF]
-      transition-all cursor-pointer flex flex-col
-    ">
+    <div
+      className="
+        h-[306px] rounded-2xl border border-[#E6E8EC] bg-white overflow-hidden
+        hover:shadow-md hover:border-[#007AFF]
+        transition-all cursor-pointer flex flex-col
+      "
+      onClick={onClick}
+    >
       {/* 이미지 영역 */}
-      <div className="relative w-full flex-1 bg-[#2E7D5B] flex items-center justify-center">
+      <div className="relative w-full flex-1 bg-[#2E7D5B] flex items-center justify-center overflow-hidden">
         {data.imageUrl ? (
           <img
             src={data.imageUrl}
@@ -195,6 +199,8 @@ function CompanyCard({ data }: { data: Company }) {
    메인 컴포넌트
 ========================= */
 export default function CorporateSearch() {
+  const navigate = useNavigate();
+
   /* 기업 목록 상태 */
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -388,7 +394,11 @@ export default function CorporateSearch() {
           ) : (
             <div className="grid grid-cols-3 gap-5">
               {filteredCompanies.map((item) => (
-                <CompanyCard key={item.id} data={item} />
+                <CompanyCard
+                  key={item.id}
+                  data={item}
+                  onClick={() => navigate(`/CorporateSearch/${item.id}`)}
+                />
               ))}
             </div>
           )}

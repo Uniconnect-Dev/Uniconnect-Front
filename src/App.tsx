@@ -26,6 +26,7 @@ import StudentGroupDetail from './app/corporate/StudentGroupDetail';
 
 // 학생 단체 - 기업 서치
 import CorporateSearch from './app/student/CorporateSearch';
+import CorporateDetail from './app/student/CorporateDetail';
 
 // 학생 쇼핑몰
 import Studentshopping from './app/student/Studentshopping';
@@ -112,6 +113,7 @@ export default function App() {
 
       {/* 학생 단체 - 기업 서치 */}
       <Route path="/CorporateSearch" element={<CorporateSearch />} />
+      <Route path="/CorporateSearch/:companyId" element={<CorporateDetail />} />
 
       {/* 학생 쇼핑몰 */}
       <Route path="/studentshopping" element={<Studentshopping />} />

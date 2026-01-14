@@ -7,16 +7,19 @@ type InputProps = {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  isModified?: boolean;
 };
 
-function Textinput({ label, value, onChange }: InputProps) {
+function Textinput({ label, value, onChange, isModified = false }: InputProps) {
   return (
     <div className="flex flex-1 flex-col gap-2">
       <label className="text-gray-400 font-semibold">{label}</label>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full p-4 rounded-xl outline outline-1 outline-zinc-200"
+        className={`w-full p-4 rounded-xl outline outline-1 outline-zinc-200 ${
+          isModified ? 'text-black' : 'text-gray-400'
+        }`}
       />
     </div>
   );
@@ -27,29 +30,42 @@ interface CompanyProfile {
   brandName: string;
   logoUrl: string;
   mainContactId: number;
-  industryId: number;
+  industryType: string;
   industryName: string;
+  businessType: string;
+  businessTypeName: string;
   createdAt: string;
   updatedAt: string;
 }
 
+interface OriginalData {
+  brandName: string;
+  logoUrl: string;
+  industryName: string;
+}
+
 export default function EditInfo() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [logoUrl, setLogoUrl] = useState('https://placehold.co/96x96');
   const [brandName, setBrandName] = useState('');
-  const [email, setEmail] = useState('');
-  const [contactName, setContactName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [industryName, setIndustryName] = useState('');
+
+  // 원본 데이터 저장
+  const [originalData, setOriginalData] = useState<OriginalData>({
+    brandName: '',
+    logoUrl: '',
+    industryName: '',
+  });
 
   useEffect(() => {
-    loadProfile();
+    loadProfile(true);
   }, []);
 
-  const loadProfile = async () => {
-    setIsLoading(true);
+  const loadProfile = async (isInitial = false) => {
+    if (isInitial) setIsPageLoading(true);
     try {
       const token = getAccessToken();
-      console.log('Token:', token);
 
       const response = await axios.get<{
         success: boolean;
@@ -62,42 +78,58 @@ export default function EditInfo() {
         withCredentials: true,
       });
 
-      console.log('API Response:', response.data);
-
       if (response.data.success && response.data.data) {
         const data = response.data.data;
-        console.log('Profile Data:', data);
 
-        setBrandName(data.brandName || '');
+        const brand = data.brandName || '';
+        const industry = data.industryName || '';
+
+        setBrandName(brand);
+        setIndustryName(industry);
 
         // logoUrl을 전체 URL로 변환
-        const fullLogoUrl = data.logoUrl
-          ? `${import.meta.env.VITE_API_BASE_URL}/${data.logoUrl}`
-          : 'https://placehold.co/96x96';
-
+        let fullLogoUrl = 'https://placehold.co/96x96';
+        if (data.logoUrl) {
+          const s3BaseUrl = 'https://uniconnect-250909.s3.ap-northeast-2.amazonaws.com';
+          fullLogoUrl = data.logoUrl.startsWith('http')
+            ? data.logoUrl
+            : `${s3BaseUrl}/${data.logoUrl.replace(/^\//, '')}`;
+        }
         setLogoUrl(fullLogoUrl);
-        console.log('Full Logo URL:', fullLogoUrl); // URL 확인
+
+        // 원본 데이터 저장
+        setOriginalData({
+          brandName: brand,
+          logoUrl: fullLogoUrl,
+          industryName: industry,
+        });
       }
     } catch (err) {
       console.error('프로필 로드 실패:', err);
       alert('프로필 정보를 불러오는데 실패했습니다.');
     } finally {
-      setIsLoading(false);
+      setIsPageLoading(false);
     }
   };
 
   const handleSave = async () => {
-    setIsLoading(true);
+    setIsSaving(true);
     try {
       const token = getAccessToken();
+
+      // logoUrl에서 S3 base URL 제거하여 상대 경로로 변환
+      const s3BaseUrl = 'https://uniconnect-250909.s3.ap-northeast-2.amazonaws.com';
+      const relativeLogoUrl = logoUrl.startsWith(s3BaseUrl)
+        ? logoUrl.replace(`${s3BaseUrl}/`, '')
+        : logoUrl === 'https://placehold.co/96x96'
+        ? ''
+        : logoUrl;
 
       const response = await axios.put(
         `${import.meta.env.VITE_API_BASE_URL}/api/profile/company/me`,
         {
-          brandName: brandName,
-          logoUrl: logoUrl.replace(`${import.meta.env.VITE_API_BASE_URL}/`, ''), // 상대 경로로 변환
-          mainContactId: 0, // 실제 값이 필요하면 state로 관리
-          industryId: 0, // 실제 값이 필요하면 state로 관리
+          brandName,
+          logoUrl: relativeLogoUrl,
         },
         {
           headers: {
@@ -110,21 +142,21 @@ export default function EditInfo() {
 
       if (response.data.success) {
         alert('저장되었습니다.');
-        loadProfile(); // 저장 후 최신 정보 다시 불러오기
+        loadProfile();
       }
     } catch (err) {
       console.error('저장 실패:', err);
       alert('저장에 실패했습니다.');
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
   const handleCancel = () => {
-    loadProfile(); // 초기 데이터로 되돌리기
+    loadProfile();
   };
 
-  if (isLoading) {
+  if (isPageLoading) {
     return (
       <CorporateLayout>
         <div className="flex justify-center items-center h-full">
@@ -150,7 +182,7 @@ export default function EditInfo() {
             <div className="flex inline-flex justify-between items-start">
               <div className="inline-flex flex-col justify-start items-start gap-2">
                 <p className="self-stretch justify-start text-gray-400 font-semibold">
-                  단체 로고
+                  기업 로고
                 </p>
                 <img
                   className="w-24 h-24 rounded-lg border border-zinc-200"
@@ -173,19 +205,17 @@ export default function EditInfo() {
             </div>
             <div className="flex flex-row gap-12">
               <Textinput
-                label="단체명"
+                label="브랜드명"
                 value={brandName}
                 onChange={setBrandName}
+                isModified={brandName !== originalData.brandName}
               />
-              <Textinput label="이메일" value={email} onChange={setEmail} />
-            </div>
-            <div className="flex flex-row gap-12">
               <Textinput
-                label="담당자명"
-                value={contactName}
-                onChange={setContactName}
+                label="업종"
+                value={industryName}
+                onChange={setIndustryName}
+                isModified={industryName !== originalData.industryName}
               />
-              <Textinput label="연락처" value={phone} onChange={setPhone} />
             </div>
           </div>
         </div>
@@ -193,15 +223,19 @@ export default function EditInfo() {
         <div className="mt-auto flex justify-end items-end gap-4">
           <button
             onClick={handleCancel}
-            className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500 hover:bg-sky-50 transition"
+            disabled={isSaving}
+            className="h-14 w-[200px] rounded-xl outline outline-1 outline-offset-[-1px] outline-sky-500 hover:bg-sky-50 transition disabled:opacity-50"
           >
             <span className="text-sky-500 font-medium text-lg">취소하기</span>
           </button>
           <button
             onClick={handleSave}
-            className="h-14 w-[200px] bg-blue-600 rounded-xl hover:bg-blue-700 transition"
+            disabled={isSaving}
+            className="h-14 w-[200px] bg-blue-600 rounded-xl hover:bg-blue-700 transition disabled:opacity-50"
           >
-            <span className="text-white font-medium text-lg">저장하기</span>
+            <span className="text-white font-medium text-lg">
+              {isSaving ? '저장 중...' : '저장하기'}
+            </span>
           </button>
         </div>
       </div>

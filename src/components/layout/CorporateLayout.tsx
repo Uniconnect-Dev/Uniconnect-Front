@@ -90,11 +90,13 @@ export default function CorporateLayout({ children }: CorporateLayoutProps) {
             style={{ height: 'calc(64.5% - 12px)' }}
           >
             {/* 사용자 정보 */}
-            <div className="mb-6 pb-6 border-b border-gray-200">
-              <p className="text-base font-semibold text-gray-900 mb-1">
-                {profile?.brandName ?? '로딩 중...'}
+            <div className="mb-6 pb-6 border-b border-gray-200 min-h-[60px]">
+              <p className="text-base font-semibold text-gray-900 mb-1 h-6">
+                {profile?.brandName || '\u00A0'}
               </p>
-              <p className="text-sm text-gray-500">{profile?.industryName ?? ''}</p>
+              <p className="text-sm text-gray-500 h-5">
+                {profile?.industryName || '\u00A0'}
+              </p>
             </div>
 
             {/* 메뉴 */}

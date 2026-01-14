@@ -97,11 +97,13 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             style={{ height: 'calc(64.5% - 12px)' }}
           >
             {/* 사용자 정보 */}
-            <div className="mb-6 pb-6 border-b border-gray-200">
-              <p className="text-base font-semibold text-gray-900 mb-1">
-                {profile?.managerName ?? '로딩 중...'} 님
+            <div className="mb-6 pb-6 border-b border-gray-200 min-h-[60px]">
+              <p className="text-base font-semibold text-gray-900 mb-1 h-6">
+                {profile?.managerName ? `${profile.managerName} 님` : '\u00A0'}
               </p>
-              <p className="text-sm text-gray-500">{profile?.schoolName ?? ''}</p>
+              <p className="text-sm text-gray-500 h-5">
+                {profile ? `${profile.schoolName} ${profile.organizationName}` : '\u00A0'}
+              </p>
             </div>
 
             {/* 메뉴 */}

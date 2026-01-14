@@ -3,8 +3,32 @@ import CorporateLayout from '../../../components/layout/CorporateLayout';
 import RequestStatus from '@/components/common/RequestStatus';
 import { ChevronRight, Check } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getMatchedStudentOrgs, getStudentOrgDetail, getOrgEstimate } from '@/services/sampling/sampling.service';
-import type { MatchedStudentOrg, StudentOrgDetail, OrgEstimateResponse } from '@/services/sampling/sampling.type';
+import axios from 'axios';
+import { getAccessToken } from '@/lib/auth/token';
+
+// 새 API 응답 타입
+interface CampaignItem {
+  campaignId: number;
+  campaignName: string;
+  productQuantity: number;
+  startDate: string;
+  endDate: string;
+  schoolName: string;
+  organizationName: string;
+  logoUrl: string;
+}
+
+// 테이블에서 사용할 타입 (기존 MatchedStudentOrg와 호환)
+interface MatchedStudentOrg {
+  studentOrgId: number;
+  organizationName: string;
+  schoolName: string;
+  campaignName: string;
+  matchedTags: string[];
+  expectedParticipants: number;
+  estimatedCostRange: string;
+  logoUrl?: string;
+}
 
 function Checkbox({
   checked,
@@ -49,57 +73,13 @@ function Row({ label, value }: { label: string; value: string }) {
 
 function SidePannal({
   org,
-  samplingProposalId,
   isOpen,
   onClose,
 }: {
   org: MatchedStudentOrg | null;
-  samplingProposalId: number | undefined;
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const [detail, setDetail] = useState<StudentOrgDetail | null>(null);
-  const [estimate, setEstimate] = useState<OrgEstimateResponse | null>(null);
-  const [isDetailLoading, setIsDetailLoading] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen || !org || !samplingProposalId) {
-      setDetail(null);
-      setEstimate(null);
-      return;
-    }
-
-    const fetchData = async () => {
-      try {
-        setIsDetailLoading(true);
-        const [detailData, estimateData] = await Promise.all([
-          getStudentOrgDetail({
-            samplingProposalId,
-            orgId: org.studentOrgId,
-            baseUnitCost: 0,
-            reportOptionFee: 0,
-            operationFee: 0,
-          }),
-          getOrgEstimate({
-            samplingProposalId,
-            orgId: org.studentOrgId,
-            baseUnitCost: 0,
-            reportOptionFee: 0,
-            operationFee: 0,
-          }),
-        ]);
-        setDetail(detailData);
-        setEstimate(estimateData);
-      } catch (err) {
-        console.error('상세 조회 실패:', err);
-      } finally {
-        setIsDetailLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [isOpen, org, samplingProposalId]);
-
   if (!org) return null;
 
   return (
@@ -125,7 +105,7 @@ function SidePannal({
                   {org.campaignName}
                 </h1>
                 <p className="text-base font-semibold text-gray-500 leading-6">
-                  {detail?.organizationName || org.organizationName}
+                  {org.organizationName}
                 </p>
               </div>
 
@@ -139,56 +119,34 @@ function SidePannal({
           </div>
         </div>
 
-        {isDetailLoading ? (
-          <div className="flex items-center justify-center py-10">
-            <p className="text-gray-400">로딩 중...</p>
+        {/* 행사 정보 */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
+            <h2 className="text-lg font-semibold text-gray-600">행사 정보</h2>
           </div>
-        ) : (
-          <>
-            {/* 행사 정보 */}
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-                <h2 className="text-lg font-semibold text-gray-600">행사 정보</h2>
-              </div>
 
-              <div className="flex flex-col gap-2">
-                <Row label="학교" value={detail?.schoolName || org.schoolName} />
-                <Row label="예상 참여자" value={`${org.expectedParticipants.toLocaleString()}명`} />
-                <Row label="예상 비용" value={estimate?.estimatedCostRange || org.estimatedCostRange} />
-              </div>
+          <div className="flex flex-col gap-2">
+            <Row label="학교" value={org.schoolName || '-'} />
+            <Row label="수량" value={`${org.expectedParticipants.toLocaleString()}개`} />
+            <Row label="기간" value={org.estimatedCostRange} />
+          </div>
+        </div>
+
+        {/* 매칭 태그 */}
+        {org.matchedTags.length > 0 && (
+          <div className="flex flex-col gap-4 mb-[148px]">
+            <div className="flex items-center gap-2">
+              <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
+              <h2 className="text-lg font-semibold text-gray-600">매칭 태그</h2>
             </div>
 
-            {/* 담당자 정보 */}
-            {detail && (
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-                  <h2 className="text-lg font-semibold text-gray-600">담당자 정보</h2>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <Row label="담당자" value={detail.managerName || '-'} />
-                  <Row label="연락처" value={detail.phone || '-'} />
-                  <Row label="이메일" value={detail.email || '-'} />
-                </div>
-              </div>
-            )}
-
-            {/* 매칭 태그 */}
-            <div className="flex flex-col gap-4 mb-[148px]">
-              <div className="flex items-center gap-2">
-                <img src="/File_Blue.png" alt="icon" className="w-5 h-5" />
-                <h2 className="text-lg font-semibold text-gray-600">매칭 태그</h2>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {org.matchedTags.map((tag, idx) => (
-                  <Tag key={idx} label={tag} />
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-2">
+              {org.matchedTags.map((tag, idx) => (
+                <Tag key={idx} label={tag} />
+              ))}
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
@@ -222,11 +180,11 @@ function MatchingTable({
           <thead className="sticky top-0 bg-white z-10">
             <tr className="h-14 border-b border-zinc-200 text-gray-400 text-sm font-medium">
               <th className="w-12 pl-5 text-left"></th>
-              <th className="w-32 pl-5 text-left">예상 비용</th>
-              <th className="w-64 pl-5 text-left">단체명</th>
-              <th className="text-left pl-5">행사명</th>
-              <th className="w-48 pl-5 text-left">분류</th>
-              <th className="w-28 pl-5 text-left">노출 인원</th>
+              <th className="w-48 pl-5 text-left">기간</th>
+              <th className="w-48 pl-5 text-left">단체명</th>
+              <th className="text-left pl-5">캠페인명</th>
+              <th className="w-32 pl-5 text-left">학교</th>
+              <th className="w-24 pl-5 text-left">수량</th>
             </tr>
           </thead>
 
@@ -247,7 +205,7 @@ function MatchingTable({
                       onChange={(checked) => handleCheckboxChange(org.studentOrgId, checked)}
                     />
                   </td>
-                  <td className="pl-5">{org.estimatedCostRange}</td>
+                  <td className="pl-5 text-xs">{org.estimatedCostRange}</td>
                   <td className="pl-5">{org.organizationName}</td>
                   <td className="pl-5">
                     <div
@@ -257,13 +215,7 @@ function MatchingTable({
                       {org.campaignName}
                     </div>
                   </td>
-                  <td className="pl-5">
-                    <div className="flex gap-1 flex-wrap">
-                      {org.matchedTags.map((tag, idx) => (
-                        <Tag key={idx} label={tag} />
-                      ))}
-                    </div>
-                  </td>
+                  <td className="pl-5">{org.schoolName || '-'}</td>
                   <td className="pl-5">{org.expectedParticipants.toLocaleString()}</td>
                 </tr>
               ))
@@ -292,26 +244,50 @@ export default function Step3Matching() {
   const [selectedOrg, setSelectedOrg] = useState<MatchedStudentOrg | null>(null);
 
   useEffect(() => {
-    if (!samplingProposalId) {
-      setError('샘플링 요청 정보가 없습니다.');
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchMatchedOrgs = async () => {
+    const fetchCampaigns = async () => {
       try {
         setIsLoading(true);
-        const data = await getMatchedStudentOrgs(samplingProposalId);
-        setMatchedOrgs(data);
+        const token = getAccessToken();
+
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/company/campaigns`,
+          {
+            params: { page: 0, size: 100 },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (response.data?.content) {
+          // API 응답을 MatchedStudentOrg 형태로 변환
+          const mappedData: MatchedStudentOrg[] = response.data.content.map(
+            (item: CampaignItem) => ({
+              studentOrgId: item.campaignId,
+              organizationName: item.organizationName || '정보 없음',
+              schoolName: item.schoolName || '',
+              campaignName: item.campaignName || '캠페인명 없음',
+              matchedTags: [],
+              expectedParticipants: item.productQuantity || 0,
+              estimatedCostRange: `${item.startDate} ~ ${item.endDate}`,
+              logoUrl: item.logoUrl,
+            })
+          );
+          setMatchedOrgs(mappedData);
+        } else {
+          setMatchedOrgs([]);
+        }
       } catch (err: any) {
-        setError(err.message || '매칭 데이터를 불러오는데 실패했습니다.');
+        console.error('캠페인 데이터 로드 실패:', err);
+        setError(err.message || '캠페인 데이터를 불러오는데 실패했습니다.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMatchedOrgs();
-  }, [samplingProposalId]);
+    fetchCampaigns();
+  }, []);
 
   const handleNext = () => {
     if (selectedCampaignIds.length === 0) {
@@ -394,7 +370,6 @@ export default function Step3Matching() {
         >
           <SidePannal
             org={selectedOrg}
-            samplingProposalId={samplingProposalId}
             isOpen={isPanelOpen}
             onClose={() => setIsPanelOpen(false)}
           />

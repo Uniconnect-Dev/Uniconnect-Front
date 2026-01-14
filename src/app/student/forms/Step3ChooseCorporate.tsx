@@ -3,32 +3,51 @@ import { useNavigate } from 'react-router-dom';
 import StudentLayout from '../../../components/layout/StudentLayout';
 import RequestStatus from '@/components/common/RequestStatus';
 import { useCampaignForm } from '@/context/CampaignFormContext';
-import { getRecommendedCompanies } from '@/services/campaign.service';
-import type { RecommendedCompany } from '@/services/campaign.types';
+import axios from 'axios';
+import { getAccessToken } from '@/lib/auth/token';
+
+// /api/companies/list API 응답 타입
+interface CompanyItem {
+  companyId: number;
+  brandName: string;
+  logoUrl: string;
+  shortDescription: string;
+  industryName: string;
+  used: boolean;
+}
 
 export default function Step3ChooseCorporate() {
   const navigate = useNavigate();
   const { formData, updateFormData } = useCampaignForm();
   const MAX_SELECT = 5;
 
-  const [companies, setCompanies] = useState<RecommendedCompany[]>([]);
+  const [companies, setCompanies] = useState<CompanyItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 추천 기업 목록 조회
+  // 기업 목록 조회
   useEffect(() => {
-    const fetchRecommendedCompanies = async () => {
+    const fetchCompanies = async () => {
       setIsLoading(true);
       try {
-        const response = await getRecommendedCompanies();
-        setCompanies(response);
+        const token = getAccessToken();
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/companies/list`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        setCompanies(response.data || []);
       } catch (error) {
-        console.error('추천 기업 목록 조회 실패:', error);
+        console.error('기업 목록 조회 실패:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchRecommendedCompanies();
+    fetchCompanies();
   }, []);
 
   const toggleSelect = (id: number) => {
@@ -127,25 +146,22 @@ export default function Step3ChooseCorporate() {
                       </p>
 
                       <p className="text-[14px] text-[#6C727E] line-clamp-2 tracking-[-0.21px]">
-                        {company.description}
+                        {company.shortDescription || '설명이 없습니다.'}
                       </p>
 
-                      {/* 매칭 키워드 칩 */}
-                      {company.matchedKeywords && company.matchedKeywords.length > 0 && (
+                      {/* 업종 칩 */}
+                      {company.industryName && (
                         <div className="flex flex-wrap gap-2 mt-2">
-                          {company.matchedKeywords.slice(0, 3).map((keyword) => (
-                            <span
-                              key={keyword}
-                              className={`px-2 py-1 rounded-full text-[12px]
-                                ${
-                                  active
-                                    ? 'bg-[#BBE2FF] text-[#008FFF]'
-                                    : 'bg-[#EBEEF3] text-[#6C727E]'
-                                }`}
-                            >
-                              {keyword}
-                            </span>
-                          ))}
+                          <span
+                            className={`px-2 py-1 rounded-full text-[12px]
+                              ${
+                                active
+                                  ? 'bg-[#BBE2FF] text-[#008FFF]'
+                                  : 'bg-[#EBEEF3] text-[#6C727E]'
+                              }`}
+                          >
+                            {company.industryName}
+                          </span>
                         </div>
                       )}
                     </div>

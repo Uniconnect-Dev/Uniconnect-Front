@@ -687,42 +687,24 @@ export default function Contract() {
     loadContracts();
   }, []);
 
-  const loadContracts = async (
-    filters?: {
-      period?: string;
-      startDate?: string;
-      endDate?: string;
-      collaborationType?: string;
-      contractStatus?: string[];
-    },
-    search?: string
-  ) => {
+  const loadContracts = async (search?: string) => {
     setIsLoading(true);
 
     try {
-      // POST를 GET으로 변경하고 쿼리 파라미터로 전송
-      const params = new URLSearchParams({
-        period: filters?.period || '3개월',
-        startDate: filters?.startDate || '2025-01-13',
-        endDate: filters?.endDate || '2025-01-13',
-        collaborationType: filters?.collaborationType || '샘플링',
-        contractStatus: filters?.contractStatus?.[0] || 'SEND',
-        searchTerm: search || '',
-      });
-
-      const response = await api.get(`/api/contracts?${params.toString()}`);
+      const response = await api.get('/api/contracts/matchings/student-org');
 
       if (response.data?.success && response.data?.data) {
         let formattedData = response.data.data.map(
           (item: any, index: number) => ({
             id: String(index + 1).padStart(2, '0'),
             date: item.matchedAt,
-            organizationName: item.studentClub,
+            organizationName: item.studentOrgName || item.studentOrgName,
             collaborationType: item.collaborationType,
             status: mapContractStatus(item.contractStatus),
           })
         );
 
+        // 클라이언트 사이드 검색 (필요시)
         if (search) {
           formattedData = formattedData.filter((contract: ContractData) =>
             contract.organizationName
@@ -744,17 +726,11 @@ export default function Contract() {
   };
 
   const handleSearch = () => {
-    loadContracts(undefined, searchTerm);
+    loadContracts(searchTerm);
   };
 
-  const handleApplyFilter = (filters: {
-    period: string;
-    startDate: string;
-    endDate: string;
-    collaborationType: string;
-    contractStatus: string[];
-  }) => {
-    loadContracts(filters, searchTerm);
+  const handleApplyFilter = () => {
+    loadContracts(searchTerm);
   };
 
   const mapContractStatus = (status: string): ContractStatus => {
